@@ -1,0 +1,87 @@
+// Schema for Issue reports
+import mongoose from 'mongoose';
+
+const IssueSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'Please provide a title for the issue'],
+    trim: true,
+    maxlength: [100, 'Title cannot be more than 100 characters']
+  },
+  description: {
+    type: String,
+    required: [true, 'Please provide a description of the issue'],
+    trim: true,
+    maxlength: [1000, 'Description cannot be more than 1000 characters']
+  },
+  category: {
+    type: String,
+    required: [true, 'Please select a category'],
+    enum: ['pothole', 'streetlight', 'garbage', 'water', 'electricity', 'other']
+  },
+  location: {
+    address: {
+      type: String,
+      required: [true, 'Please provide the location address']
+    },
+    coordinates: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        required: true
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: true
+      }
+    }
+  },
+  images: [{
+    url: {
+      type: String
+    },
+    publicId: {
+      type: String
+    }
+  }],
+  status: {
+    type: String,
+    required: true,
+    enum: ['reported', 'under-review', 'in-progress', 'resolved', 'rejected'],
+    default: 'reported'
+  },
+  reporter: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  assignedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  statusHistory: [{
+    status: {
+      type: String,
+      required: true,
+      enum: ['reported', 'under-review', 'in-progress', 'resolved', 'rejected']
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now
+    },
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    notes: {
+      type: String
+    }
+  }]
+}, {
+  timestamps: true
+});
+
+// Create a geospatial index for location queries
+IssueSchema.index({ "location.coordinates": "2dsphere" });
+
+export default mongoose.models.Issue || mongoose.model('Issue', IssueSchema);
