@@ -6,11 +6,10 @@ import { sendIssueConfirmation } from '@/lib/email';
 import Issue from '@/models/Issue';
 import Notification from '@/models/Notification';
 import User from '@/models/User';
+import mongoose from 'mongoose';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 
-// In Next.js App Router, we don't need to export config for formData
-// The request.formData() method will parse the multipart/form-data automatically
 
 /**
  * Create a new issue report
@@ -113,6 +112,21 @@ export async function POST(request) {
       console.log(`Successfully uploaded ${images.length} out of ${imageFiles.length} images`);
     }
     
+    // Find the nearest ward to assign this issue
+    let assignedWard = null;
+    try {
+      // Get nearest active ward using the MongoDB geospatial query
+      const Ward = await import('@/models/Ward').then(module => module.default);
+      const nearestWards = await Ward.findNearest(location.coordinates.coordinates);
+      
+      if (nearestWards && nearestWards.length > 0) {
+        assignedWard = nearestWards[0]._id;
+      }
+    } catch (error) {
+      console.error('Error finding nearest ward:', error);
+      // Continue with issue creation even if ward assignment fails
+    }
+    
     // Create new issue with audit trail
     const newIssue = await createWithAudit({
       model: Issue,
@@ -124,6 +138,7 @@ export async function POST(request) {
         images,
         reporter: user._id,
         status: 'reported',
+        assignedWard, // Assign the nearest ward if found
         statusHistory: [
           {
             status: 'reported',
@@ -150,10 +165,26 @@ export async function POST(request) {
       department: category === 'other' ? 'general' : category
     }).select('_id');
     
-    // Create notifications for officials
-    if (officials.length > 0) {
+    // Get ward officer if a ward was assigned
+    let wardOfficerId = null;
+    if (newIssue.assignedWard) {
+      const Ward = await import('@/models/Ward').then(module => module.default);
+      const assignedWard = await Ward.findById(newIssue.assignedWard).populate('officerInCharge', '_id');
+      if (assignedWard && assignedWard.officerInCharge) {
+        wardOfficerId = assignedWard.officerInCharge._id;
+      }
+    }
+    
+    // Combine officials and ward officer IDs for notification (remove duplicates)
+    const notifyIds = [...new Set([
+      ...officials.map(official => official._id.toString()),
+      ...(wardOfficerId ? [wardOfficerId.toString()] : [])
+    ])].map(id => new mongoose.Types.ObjectId(id));
+    
+    // Create notifications for officials and ward officer
+    if (notifyIds.length > 0) {
       await Notification.createNotification({
-        recipient: officials.map(official => official._id),
+        recipient: notifyIds,
         title: `New Issue: ${title}`,
         message: `A new ${category} issue has been reported at ${location.address}.`,
         type: 'issue_update',
@@ -202,6 +233,7 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const status = searchParams.get('status');
     const category = searchParams.get('category');
+    const wardId = searchParams.get('ward');
     const near = searchParams.get('near'); // Format: "lat,lng,radius"
     
     // Calculate skip value for pagination
@@ -216,6 +248,10 @@ export async function GET(request) {
     
     if (category) {
       filter.category = category;
+    }
+    
+    if (wardId) {
+      filter.assignedWard = wardId;
     }
     
     // Handle geo-spatial query

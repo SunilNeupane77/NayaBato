@@ -1,10 +1,10 @@
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectDB from '@/lib/db/connect';
-import { sendIssueConfirmation, sendStatusUpdate } from '@/lib/email';
+import { sendIssueConfirmation } from '@/lib/email';
 import Issue from '@/models/Issue';
 import User from '@/models/User';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 /**
  * Send email notifications
@@ -77,8 +77,10 @@ export async function POST(request) {
         
         // Send confirmation email
         result = await sendIssueConfirmation({
-          issue,
-          user: issue.reporter
+          to: issue.reporter.email,
+          issueId: issue._id.toString(),
+          title: issue.title,
+          location: issue.location.address
         });
         break;
         
@@ -113,11 +115,12 @@ export async function POST(request) {
         const statusNote = data.note || '';
         
         // Send status update email
-        result = await sendStatusUpdate({
-          issue: updatedIssue,
-          user: updatedIssue.reporter,
+        result = await sendStatusUpdateEmail({
+          to: updatedIssue.reporter.email,
+          issueId: updatedIssue._id.toString(),
+          title: updatedIssue.title,
           status: data.status,
-          note: statusNote
+          notes: statusNote
         });
         break;
         

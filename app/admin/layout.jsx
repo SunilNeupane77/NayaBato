@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, BarChart, FileText, Users } from 'lucide-react';
+import { AlertTriangle, BarChart, FileText, MapPin, Users } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -100,6 +100,21 @@ export default function AdminLayout({ children }) {
                 <div className="flex items-center">
                   <FileText className="h-5 w-5 mr-3" />
                   <span>Audit Logs</span>
+                </div>
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/admin/wards"
+                className={`block px-4 py-2 ${
+                  isActive('/admin/wards')
+                    ? 'bg-blue-700 text-white'
+                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                }`}
+              >
+                <div className="flex items-center">
+                  <MapPin className="h-5 w-5 mr-3" />
+                  <span>Ward Management</span>
                 </div>
               </Link>
             </li>

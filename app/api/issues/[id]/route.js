@@ -28,6 +28,7 @@ export async function GET(_req, { params }) {
   const issue = await Issue.findById(id)
     .populate('reporter', 'name email')
     .populate('assignedTo', 'name email department')
+    .populate('assignedWard', 'name number location')
     .populate('statusHistory.updatedBy', 'name email role');
 
   if (!issue) return NextResponse.json({ success: false, message: 'Issue not found' }, { status: 404 });
@@ -56,7 +57,7 @@ export async function PUT(request, { params }) {
     ['title', 'description'].forEach(k => body[k] && (updates[k] = body[k]));
     if (body.status) return NextResponse.json({ success: false, message: 'Citizens cannot update status' }, { status: 403 });
   } else {
-    ['title', 'description', 'category', 'assignedTo'].forEach(k => body[k] && (updates[k] = body[k]));
+    ['title', 'description', 'category', 'assignedTo', 'assignedWard'].forEach(k => body[k] && (updates[k] = body[k]));
 
     if (body.status && body.status !== issue.status) {
       updates.status = body.status;

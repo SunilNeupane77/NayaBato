@@ -59,6 +59,10 @@ const IssueSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  assignedWard: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Ward'
+  },
   statusHistory: [{
     status: {
       type: String,
