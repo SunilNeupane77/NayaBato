@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="600" height="400" fill="#e9f5fa"/>
+  
+  <!-- Map Grid -->
+  <g stroke="#b4c6fc" stroke-width="1" fill="none">
+    <path d="M50,50 L550,50 L550,350 L50,350 Z" />
+    <path d="M150,50 L150,350" />
+    <path d="M250,50 L250,350" />
+    <path d="M350,50 L350,350" />
+    <path d="M450,50 L450,350" />
+    <path d="M50,150 L550,150" />
+    <path d="M50,250 L550,250" />
+  </g>
+  
+  <!-- Ward Areas -->
+  <g opacity="0.6">
+    <path d="M50,50 L150,50 L150,150 L50,150 Z" fill="#60a5fa" />
+    <path d="M150,50 L250,50 L250,150 L150,150 Z" fill="#34d399" />
+    <path d="M250,50 L350,50 L350,150 L250,150 Z" fill="#a78bfa" />
+    <path d="M350,50 L450,50 L450,150 L350,150 Z" fill="#fbbf24" />
+    <path d="M450,50 L550,50 L550,150 L450,150 Z" fill="#f87171" />
+    
+    <path d="M50,150 L150,150 L150,250 L50,250 Z" fill="#a78bfa" />
+    <path d="M150,150 L250,150 L250,250 L150,250 Z" fill="#fbbf24" />
+    <path d="M250,150 L350,150 L350,250 L250,250 Z" fill="#f87171" />
+    <path d="M350,150 L450,150 L450,250 L350,250 Z" fill="#60a5fa" />
+    <path d="M450,150 L550,150 L550,250 L450,250 Z" fill="#34d399" />
+    
+    <path d="M50,250 L150,250 L150,350 L50,350 Z" fill="#fbbf24" />
+    <path d="M150,250 L250,250 L250,350 L150,350 Z" fill="#f87171" />
+    <path d="M250,250 L350,250 L350,350 L250,350 Z" fill="#60a5fa" />
+    <path d="M350,250 L450,250 L450,350 L350,350 Z" fill="#34d399" />
+    <path d="M450,250 L550,250 L550,350 L450,350 Z" fill="#a78bfa" />
+  </g>
+  
+  <!-- Ward Labels -->
+  <g font-family="Arial" font-size="12" fill="#1e293b" text-anchor="middle">
+    <text x="100" y="100">Ward 1</text>
+    <text x="200" y="100">Ward 2</text>
+    <text x="300" y="100">Ward 3</text>
+    <text x="400" y="100">Ward 4</text>
+    <text x="500" y="100">Ward 5</text>
+    
+    <text x="100" y="200">Ward 6</text>
+    <text x="200" y="200">Ward 7</text>
+    <text x="300" y="200">Ward 8</text>
+    <text x="400" y="200">Ward 9</text>
+    <text x="500" y="200">Ward 10</text>
+    
+    <text x="100" y="300">Ward 11</text>
+    <text x="200" y="300">Ward 12</text>
+    <text x="300" y="300">Ward 13</text>
+    <text x="400" y="300">Ward 14</text>
+    <text x="500" y="300">Ward 15</text>
+  </g>
+  
+  <!-- Issue Markers -->
+  <circle cx="120" cy="80" r="8" fill="#ef4444" stroke="white" stroke-width="2" />
+  <circle cx="320" cy="220" r="8" fill="#f59e0b" stroke="white" stroke-width="2" />
+  <circle cx="460" cy="120" r="8" fill="#f59e0b" stroke="white" stroke-width="2" />
+  <circle cx="220" cy="310" r="8" fill="#10b981" stroke="white" stroke-width="2" />
+  <circle cx="380" cy="290" r="8" fill="#ef4444" stroke="white" stroke-width="2" />
+  
+  <!-- Legend -->
+  <rect x="50" y="360" width="120" height="30" rx="4" fill="white" stroke="#e5e7eb" stroke-width="1"/>
+  <circle cx="70" cy="375" r="6" fill="#ef4444" />
+  <circle cx="100" cy="375" r="6" fill="#f59e0b" />
+  <circle cx="130" cy="375" r="6" fill="#10b981" />
+  <text x="70" y="390" font-family="Arial" font-size="8" text-anchor="middle">Critical</text>
+  <text x="100" y="390" font-family="Arial" font-size="8" text-anchor="middle">In Progress</text>
+  <text x="130" y="390" font-family="Arial" font-size="8" text-anchor="middle">Resolved</text>
+</svg>

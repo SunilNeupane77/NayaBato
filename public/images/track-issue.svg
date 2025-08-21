@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="200" fill="#f9fafb"/>
+  
+  <!-- Timeline Track -->
+  <line x1="50" y1="100" x2="350" y2="100" stroke="#e5e7eb" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Timeline Points -->
+  <circle cx="80" cy="100" r="10" fill="#10b981" stroke="#fff" stroke-width="2"/>
+  <circle cx="170" cy="100" r="10" fill="#10b981" stroke="#fff" stroke-width="2"/>
+  <circle cx="260" cy="100" r="14" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+  <circle cx="350" cy="100" r="10" fill="#e5e7eb" stroke="#fff" stroke-width="2"/>
+  
+  <!-- Current Stage Highlight -->
+  <circle cx="260" cy="100" r="20" fill="none" stroke="#f59e0b" stroke-width="2" opacity="0.5"/>
+  
+  <!-- Stage Labels -->
+  <text x="80" y="130" font-family="Arial" font-size="10" text-anchor="middle" fill="#4b5563">Submitted</text>
+  <text x="170" y="130" font-family="Arial" font-size="10" text-anchor="middle" fill="#4b5563">Reviewed</text>
+  <text x="260" y="130" font-family="Arial" font-size="10" text-anchor="middle" fill="#4b5563">In Progress</text>
+  <text x="350" y="130" font-family="Arial" font-size="10" text-anchor="middle" fill="#4b5563">Resolved</text>
+  
+  <!-- Notification Box -->
+  <rect x="130" y="20" width="240" height="60" rx="8" fill="white" stroke="#e5e7eb" stroke-width="1"/>
+  <rect x="140" y="30" width="40" height="40" rx="4" fill="#bfdbfe"/>
+  <circle cx="160" cy="50" r="10" fill="#3b82f6"/>
+  <text x="200" y="45" font-family="Arial" font-size="10" fill="#4b5563">Status Update</text>
+  <text x="200" y="60" font-family="Arial" font-size="9" fill="#9ca3af">Your issue is being worked on by Ward 5 officer</text>
+  
+  <!-- Time Indicator -->
+  <rect x="130" y="160" width="140" height="30" rx="6" fill="white" stroke="#e5e7eb" stroke-width="1"/>
+  <circle cx="145" cy="175" r="6" fill="#10b981"/>
+  <text x="200" y="178" font-family="Arial" font-size="10" fill="#4b5563">Estimated completion: 2 days</text>
+</svg>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="360" xmlns="http://www.w3.org/2000/svg">
+  <!-- Mobile Phone Frame -->
+  <rect x="5" y="5" width="170" height="350" rx="20" fill="#334155" stroke="#1e293b" stroke-width="2"/>
+  <rect x="10" y="10" width="160" height="340" rx="16" fill="#1e293b"/>
+  
+  <!-- Screen Content -->
+  <rect x="15" y="15" width="150" height="330" rx="12" fill="#f8fafc"/>
+  
+  <!-- App Header -->
+  <rect x="15" y="15" width="150" height="40" rx="8" fill="#0ea5e9"/>
+  <text x="90" y="40" font-family="Arial" font-size="14" fill="white" text-anchor="middle">Nayabato</text>
+  
+  <!-- Content -->
+  <rect x="25" y="65" width="130" height="60" rx="4" fill="#e2e8f0"/>
+  
+  <!-- Map Area -->
+  <rect x="25" y="135" width="130" height="90" rx="4" fill="#d1fae5"/>
+  <circle cx="70" cy="180" r="8" fill="#10b981" stroke="#064e3b" stroke-width="2"/>
+  <path d="M70,180 l15,15 l-15,-5 l-15,5 z" fill="#059669"/>
+  
+  <!-- List Items -->
+  <rect x="25" y="235" width="130" height="30" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="25" y="275" width="130" height="30" rx="4" fill="white" stroke="#e2e8f0" stroke-width="1"/>
+  <rect x="25" y="315" width="130" height="20" rx="4" fill="#0ea5e9"/>
+  <text x="90" y="330" font-family="Arial" font-size="10" fill="white" text-anchor="middle">Report Issue</text>
+</svg>
