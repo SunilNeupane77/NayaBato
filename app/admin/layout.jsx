@@ -14,14 +14,14 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
   const { toast } = useToast();
   
-  // Check admin authorization
+  // Check authorization for admin and official roles
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/auth/signin?callbackUrl=/admin/dashboard');
-    } else if (status === 'authenticated' && session?.user?.role !== 'admin') {
+    } else if (status === 'authenticated' && !['admin', 'official'].includes(session?.user?.role)) {
       toast({
         title: "Access Denied",
-        description: "Only administrators can access this area.",
+        description: "Only administrators and officials can access this area.",
         variant: "destructive"
       });
       router.push('/');
@@ -29,7 +29,7 @@ export default function AdminLayout({ children }) {
   }, [status, session, router, toast]);
   
   // Don't render anything if not authorized
-  if (status !== 'authenticated' || session?.user?.role !== 'admin') {
+  if (status !== 'authenticated' || !['admin', 'official'].includes(session?.user?.role)) {
     return null;
   }
   
@@ -41,7 +41,7 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <div className="w-64 bg-gray-900 text-white">
         <div className="p-4">
-          <h1 className="text-xl font-bold">Admin Panel</h1>
+          <h1 className="text-xl font-bold">{session?.user?.role === 'admin' ? 'Admin Panel' : 'Management Panel'}</h1>
           <p className="text-gray-400 text-sm">Manage the platform</p>
         </div>
         
@@ -62,21 +62,59 @@ export default function AdminLayout({ children }) {
                 </div>
               </Link>
             </li>
-            <li>
-              <Link
-                href="/admin/users"
-                className={`block px-4 py-2 ${
-                  isActive('/admin/users')
-                    ? 'bg-blue-700 text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center">
-                  <Users className="h-5 w-5 mr-3" />
-                  <span>User Management</span>
-                </div>
-              </Link>
-            </li>
+            
+            {/* Admin-only menu items */}
+            {session?.user?.role === 'admin' && (
+              <>
+                <li>
+                  <Link
+                    href="/admin/users"
+                    className={`block px-4 py-2 ${
+                      isActive('/admin/users')
+                        ? 'bg-blue-700 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <Users className="h-5 w-5 mr-3" />
+                      <span>User Management</span>
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/admin/audit"
+                    className={`block px-4 py-2 ${
+                      isActive('/admin/audit')
+                        ? 'bg-blue-700 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <FileText className="h-5 w-5 mr-3" />
+                      <span>Audit Logs</span>
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/admin/wards"
+                    className={`block px-4 py-2 ${
+                      isActive('/admin/wards')
+                        ? 'bg-blue-700 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <MapPin className="h-5 w-5 mr-3" />
+                      <span>Ward Management</span>
+                    </div>
+                  </Link>
+                </li>
+              </>
+            )}
+            
+            {/* Common menu items for all roles */}
             <li>
               <Link
                 href="/issues"
@@ -85,36 +123,6 @@ export default function AdminLayout({ children }) {
                 <div className="flex items-center">
                   <AlertTriangle className="h-5 w-5 mr-3" />
                   <span>Issues</span>
-                </div>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/admin/audit"
-                className={`block px-4 py-2 ${
-                  isActive('/admin/audit')
-                    ? 'bg-blue-700 text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center">
-                  <FileText className="h-5 w-5 mr-3" />
-                  <span>Audit Logs</span>
-                </div>
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/admin/wards"
-                className={`block px-4 py-2 ${
-                  isActive('/admin/wards')
-                    ? 'bg-blue-700 text-white'
-                    : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                }`}
-              >
-                <div className="flex items-center">
-                  <MapPin className="h-5 w-5 mr-3" />
-                  <span>Ward Management</span>
                 </div>
               </Link>
             </li>

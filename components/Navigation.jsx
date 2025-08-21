@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, LogOut, Menu, Settings, User, X, Bell } from 'lucide-react';
+import { AlertTriangle, Bell, LogOut, Menu, Settings, User, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,12 +10,12 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 export default function Navigation() {
@@ -116,6 +116,16 @@ export default function Navigation() {
                 </Link>
               </>
             )}
+            {session?.user?.role === 'official' && (
+              <Link
+                href="/admin/dashboard"
+                className={`text-sm ${
+                  isActive('/admin/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
+                }`}
+              >
+                Dashboard
+              </Link>
+            )}
             
             {/* Citizen-specific links */}
             {session?.user?.role === 'citizen' && (
@@ -205,12 +215,20 @@ export default function Navigation() {
                   
                   {/* Official-specific links */}
                   {session?.user?.role === 'official' && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/issues" className="cursor-pointer flex w-full">
-                        <AlertTriangle className="mr-2 h-4 w-4" />
-                        <span>Review Issues</span>
-                      </Link>
-                    </DropdownMenuItem>
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link href="/admin/dashboard" className="cursor-pointer flex w-full">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/issues" className="cursor-pointer flex w-full">
+                          <AlertTriangle className="mr-2 h-4 w-4" />
+                          <span>Review Issues</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   {status === 'authenticated' && (
                     <DropdownMenuItem asChild>
@@ -286,17 +304,20 @@ export default function Navigation() {
               About
             </Link>
             {/* Role-specific mobile navigation */}
+            {(session?.user?.role === 'admin' || session?.user?.role === 'official') && (
+              <Link
+                href="/admin/dashboard"
+                className={`px-3 py-2 rounded-md ${
+                  isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {session?.user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
+              </Link>
+            )}
+            
             {session?.user?.role === 'admin' && (
               <>
-                <Link
-                  href="/admin/dashboard"
-                  className={`px-3 py-2 rounded-md ${
-                    isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  Admin Dashboard
-                </Link>
                 <Link
                   href="/admin/users"
                   className={`px-3 py-2 rounded-md ${
@@ -322,15 +343,26 @@ export default function Navigation() {
             )}
             
             {session?.user?.role === 'official' && (
-              <Link
-                href="/issues"
-                className={`px-3 py-2 rounded-md ${
-                  isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Review Issues
-              </Link>
+              <>
+                <Link
+                  href="/admin/dashboard"
+                  className={`px-3 py-2 rounded-md ${
+                    isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/issues"
+                  className={`px-3 py-2 rounded-md ${
+                    isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Review Issues
+                </Link>
+              </>
             )}
             
             {status !== 'authenticated' && (
