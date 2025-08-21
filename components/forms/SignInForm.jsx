@@ -87,7 +87,7 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
                 router.push('/admin/dashboard');
                 break;
               case 'official':
-                router.push('/issues'); // Officials see issues they need to handle
+                router.push('/admin/dashboard'); // Officials now have access to dashboard
                 break;
               default:
                 router.push(callbackUrl || '/');
