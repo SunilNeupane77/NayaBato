@@ -2,9 +2,15 @@
 
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+// Dynamic import for the official issue manager component
+const OfficialIssueManager = dynamic(() => import('@/components/dashboard/OfficialIssueManager'), {
+  loading: () => <div className="w-full h-64 animate-pulse bg-slate-100 rounded-md" />,
+});
 
 // UI Components
 import { Badge } from '@/components/ui/badge';
@@ -52,6 +58,7 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showOfficialView, setShowOfficialView] = useState(false);
 
   useEffect(() => {
     // Check authentication and authorization
@@ -60,9 +67,14 @@ export default function AdminDashboard() {
       return;
     }
 
-    if (status === 'authenticated' && session?.user?.role !== 'admin') {
+    if (status === 'authenticated' && !['admin', 'official'].includes(session?.user?.role)) {
       router.push('/');
       return;
+    }
+    
+    // Set view mode based on role
+    if (status === 'authenticated') {
+      setShowOfficialView(session?.user?.role === 'official');
     }
 
     // Fetch dashboard stats
@@ -85,7 +97,7 @@ export default function AdminDashboard() {
       }
     };
 
-    if (status === 'authenticated' && session?.user?.role === 'admin') {
+    if (status === 'authenticated' && ['admin', 'official'].includes(session?.user?.role)) {
       fetchStats();
     }
   }, [status, session, router]);
@@ -109,6 +121,15 @@ export default function AdminDashboard() {
         <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
           Try Again
         </Button>
+      </div>
+    );
+  }
+
+  // Only show dashboard charts and summary for admin, not for official
+  if (showOfficialView) {
+    return (
+      <div className="container mx-auto py-8 px-4">
+        <OfficialIssueManager />
       </div>
     );
   }
