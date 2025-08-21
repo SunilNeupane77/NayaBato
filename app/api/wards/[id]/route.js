@@ -12,9 +12,7 @@ import { NextResponse } from 'next/server';
  */
 export async function GET(request, { params }) {
   try {
-    // Await params before destructuring
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
+    const { id } = params;
     
     // Connect to database
     await connectDB();
@@ -36,7 +34,7 @@ export async function GET(request, { params }) {
     });
     
   } catch (error) {
-    console.error(`Error fetching ward ${params?.id}:`, error);
+    console.error(`Error fetching ward ${params.id}:`, error);
     
     return NextResponse.json(
       { success: false, message: error.message || 'Error fetching ward' },
@@ -47,9 +45,7 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
-    // Await params before destructuring
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
+    const { id } = params;
     const body = await request.json();
     
     // Get session and verify permission
@@ -104,9 +100,7 @@ export async function PUT(request, { params }) {
 
 export async function DELETE(request, { params }) {
   try {
-    // Await params before destructuring
-    const resolvedParams = await params;
-    const { id } = resolvedParams;
+    const { id } = params;
     
     // Get session and verify permission
     const session = await getServerSession(authOptions);

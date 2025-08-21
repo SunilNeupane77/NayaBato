@@ -25,7 +25,7 @@ const AuditSchema = new mongoose.Schema({
   resourceType: {
     type: String,
     required: true,
-    enum: ['Issue', 'User', 'Comment', 'Department', 'System']
+    enum: ['Issue', 'User', 'Comment', 'Department', 'System', 'Ward'] // Added 'Ward' to enum
   },
   resourceId: {
     type: mongoose.Schema.Types.ObjectId,

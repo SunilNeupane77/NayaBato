@@ -1,8 +1,8 @@
 
-import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/use-toast';
+import { useState } from 'react';
 
 export const IssueActions = ({ issue, onStatusChange }) => {
   const [loading, setLoading] = useState(false);

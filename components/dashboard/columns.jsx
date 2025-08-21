@@ -1,6 +1,6 @@
 
-import { StatusBadge } from './StatusBadge';
 import { IssueActions } from './IssueActions';
+import { StatusBadge } from './StatusBadge';
 
 export const columns = (onStatusChange) => [
   {

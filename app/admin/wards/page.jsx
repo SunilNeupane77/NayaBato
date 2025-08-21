@@ -29,10 +29,11 @@ const wardSchema = z.object({
 export default function WardsPage() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [selectedWard, setSelectedWard] = useState(null);
 
   // Fetch wards data
-  const { data: wards, isLoading, error, refetch: mutate } = useFetchData('wards', '/api/wards');
+  const { data: wardsData, isLoading, error, refetch: mutate } = useFetchData('wards', '/api/wards');
+  // Ensure wards is always an array
+  const wards = Array.isArray(wardsData?.wards) ? wardsData?.wards : (Array.isArray(wardsData) ? wardsData : []);
 
   // Fetch users for officer selection
   const { data: usersRaw } = useFetchData('/api/users?role=official');
@@ -83,6 +84,16 @@ export default function WardsPage() {
         setIsDialogOpen(false);
         form.reset();
         mutate(); // Refresh the wards list
+        // Redirect to the new ward details page if ward._id exists
+        if (result.ward && result.ward._id) {
+          window.location.href = `/admin/wards/${result.ward._id}`;
+        }
+      } else if (result.message && result.message.includes('already exists')) {
+        toast({
+          variant: 'destructive',
+          title: 'Duplicate Ward Number',
+          description: 'A ward with this number already exists. Please choose a different number.',
+        });
       } else {
         throw new Error(result.message || 'Failed to create ward');
       }
@@ -124,10 +135,7 @@ export default function WardsPage() {
     }
   };
 
-  // Handle view ward details
-  const handleViewWard = (ward) => {
-    setSelectedWard(ward);
-  };
+  // No longer needed as we navigate to a dedicated page
 
   return (
     <div className="container py-8">
@@ -286,7 +294,7 @@ export default function WardsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {wards && wards.length > 0 ? (
+          {wards.length > 0 ? (
             wards.map((ward) => (
               <Card key={ward._id} className="overflow-hidden">
                 <CardHeader>
@@ -305,7 +313,10 @@ export default function WardsPage() {
                   )}
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button variant="outline" onClick={() => handleViewWard(ward)}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => window.location.href = `/admin/wards/${ward._id}`}
+                  >
                     View Details
                   </Button>
                   <Button variant="destructive" onClick={() => handleDeleteWard(ward._id)}>
@@ -322,44 +333,7 @@ export default function WardsPage() {
         </div>
       )}
 
-      {selectedWard && (
-        <Dialog open={Boolean(selectedWard)} onOpenChange={() => setSelectedWard(null)}>
-          <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-              <DialogTitle>{selectedWard.name} (Ward #{selectedWard.number})</DialogTitle>
-              <DialogDescription>
-                Ward details and information
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium mb-1">Address</h4>
-                <p>{selectedWard.location.address}</p>
-              </div>
-              <div>
-                <h4 className="font-medium mb-1">Coordinates</h4>
-                <p>Latitude: {selectedWard.location.coordinates.coordinates[1]}</p>
-                <p>Longitude: {selectedWard.location.coordinates.coordinates[0]}</p>
-              </div>
-              {selectedWard.officerInCharge && (
-                <div>
-                  <h4 className="font-medium mb-1">Officer in Charge</h4>
-                  <p>{selectedWard.officerInCharge.name} ({selectedWard.officerInCharge.email})</p>
-                </div>
-              )}
-              {selectedWard.description && (
-                <div>
-                  <h4 className="font-medium mb-1">Description</h4>
-                  <p>{selectedWard.description}</p>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setSelectedWard(null)}>Close</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
+      {/* We've removed the modal dialog in favor of a dedicated ward details page */}
     </div>
   );
 }

@@ -157,8 +157,11 @@ export default function IssuesPage() {
               : 'All Issues'}
           </h1>
           <p className="text-gray-500 mt-1">
-            {Array.isArray(issues) ? issues.length : 0} {Array.isArray(issues) && issues.length === 1 ? 'issue' : 'issues'} found
+            {pagination?.total
+              ? `${pagination.total} ${pagination.total === 1 ? 'issue' : 'issues'} found`
+              : `${Array.isArray(issues) ? issues.length : 0} ${Array.isArray(issues) && issues.length === 1 ? 'issue' : 'issues'} found`}
             {hasActiveFilters && ' with current filters'}
+            {pagination?.total > 0 && ` • Page ${page} of ${pagination.pages || 1}`}
           </p>
         </div>
         
@@ -344,24 +347,77 @@ export default function IssuesPage() {
           </div>
         )}
         
-        {/* Load more button */}
-        {issues.length > 0 && hasMore && (
-          <div className="mt-6 text-center">
-            <Button
-              variant="outline"
-              onClick={handleLoadMore}
-              disabled={isLoading}
-              className="w-full md:w-auto"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                'Load More'
-              )}
-            </Button>
+        {/* Pagination */}
+        {issues.length > 0 && (
+          <div className="mt-8 flex justify-center">
+            <div className="flex items-center justify-between space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                disabled={page === 1 || isLoading}
+                className="px-3"
+              >
+                Previous
+              </Button>
+              
+              <div className="flex items-center space-x-2">
+                {pagination && pagination.pages ? (
+                  [...Array(Math.min(5, pagination.pages))].map((_, idx) => {
+                    // Show 2 pages before and 2 pages after current page
+                    const pageToShow = page <= 3
+                      ? idx + 1
+                      : page >= pagination.pages - 2
+                        ? pagination.pages - 4 + idx
+                        : page - 2 + idx;
+                    
+                    if (pageToShow > 0 && pageToShow <= pagination.pages) {
+                      return (
+                        <Button
+                          key={pageToShow}
+                          variant={pageToShow === page ? "default" : "outline"}
+                          className={`w-9 h-9 p-0 ${pageToShow === page ? 'pointer-events-none' : ''}`}
+                          onClick={() => setPage(pageToShow)}
+                          disabled={isLoading}
+                        >
+                          {pageToShow}
+                        </Button>
+                      );
+                    }
+                    return null;
+                  })
+                ) : (
+                  <Button
+                    variant="default"
+                    className="w-9 h-9 p-0 pointer-events-none"
+                  >
+                    {page}
+                  </Button>
+                )}
+                
+                {pagination && pagination.pages > 5 && page < pagination.pages - 2 && (
+                  <>
+                    <span className="text-gray-500">...</span>
+                    <Button
+                      variant="outline"
+                      className="w-9 h-9 p-0"
+                      onClick={() => setPage(pagination.pages)}
+                      disabled={isLoading}
+                    >
+                      {pagination.pages}
+                    </Button>
+                  </>
+                )}
+              </div>
+              
+              <Button
+                variant="outline"
+                onClick={() => setPage(prev => prev + 1)}
+                disabled={!hasMore || isLoading}
+                className="px-3"
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 
 function Skeleton({
   className,
@@ -31,4 +31,28 @@ function IssueDetailSkeleton() {
   );
 }
 
-export { Skeleton, IssueCardSkeleton, IssueDetailSkeleton }
+function IssueCardSkeleton() {
+  return (
+    <div className="p-6">
+      <div className="flex items-center mb-2">
+        <Skeleton className="h-5 w-20 mr-2" />
+        <Skeleton className="h-4 w-24" />
+      </div>
+      <Skeleton className="h-6 w-3/4 mb-2" />
+      <Skeleton className="h-4 w-full mb-2" />
+      <Skeleton className="h-4 w-5/6 mb-4" />
+      <div className="flex justify-between items-center">
+        <div className="flex items-center">
+          <Skeleton className="h-4 w-4 mr-1" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+        <div className="flex items-center">
+          <Skeleton className="h-4 w-4 mr-1" />
+          <Skeleton className="h-4 w-24" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export { IssueCardSkeleton, IssueDetailSkeleton, Skeleton };
