@@ -91,23 +91,36 @@ export async function PUT(request, { params }) {
   await updatedIssue.populate('reporter', 'name email');
 
   if (pushHistory) {
-    await sendStatusUpdateEmail({
-      to: updatedIssue.reporter.email,
-      issueId: updatedIssue._id.toString(),
-      title: updatedIssue.title,
-      status: updatedIssue.status,
-      notes: pushHistory.notes,
-    });
+    try {
+      // Send email notification to reporter
+      await sendStatusUpdateEmail({
+        to: updatedIssue.reporter.email,
+        issueId: updatedIssue._id.toString(),
+        title: updatedIssue.title,
+        status: updatedIssue.status,
+        notes: pushHistory.notes,
+      });
+      console.log(`Status update email sent to ${updatedIssue.reporter.email}`);
+    } catch (emailError) {
+      // Log the error but don't fail the request
+      console.error('Error sending status update email:', emailError);
+      // Continue processing - don't throw the error
+    }
 
     if (updatedIssue.assignedTo) {
-      await Notification.createNotification({
-        recipient: updatedIssue.assignedTo,
-        title: `Issue Status Changed: ${updatedIssue.title}`,
-        message: `Issue #${updatedIssue._id} is now ${updatedIssue.status}`,
-        type: 'issue_update',
-        referenceId: updatedIssue._id,
-        referenceModel: 'Issue',
-      });
+      try {
+        await Notification.createNotification({
+          recipient: updatedIssue.assignedTo,
+          title: `Issue Status Changed: ${updatedIssue.title}`,
+          message: `Issue #${updatedIssue._id} is now ${updatedIssue.status}`,
+          type: 'issue_update',
+          referenceId: updatedIssue._id,
+          referenceModel: 'Issue',
+        });
+      } catch (notifError) {
+        console.error('Error creating notification:', notifError);
+        // Continue processing - don't throw the error
+      }
     }
   }
 

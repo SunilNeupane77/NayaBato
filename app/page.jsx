@@ -36,57 +36,56 @@ const FeatureCard = ({ icon, title, children }) => (
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      {/* Hero */}
-      <motion.section
-        className="bg-gradient-to-br from-teal-600 via-cyan-600 to-indigo-600 text-white py-28"
-        initial="hidden"
-        animate="visible"
-        variants={staggerContainer}
-      >
-        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
-          <motion.div
-            variants={fadeIn}
-            className="md:w-1/2 text-center md:text-left"
-          >
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
-              Empower Communities. <br /> Drive Change.
-            </h1>
-            <p className="text-lg md:text-xl mb-10 text-teal-100/90 max-w-xl mx-auto md:mx-0">
-              Nayabato connects citizens with local officials. Report civic
-              issues, track progress, and create lasting impact.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-              <Button
-                asChild
-                size="lg"
-                className="bg-gradient-to-r from-white to-white/90 text-teal-600 font-semibold hover:scale-105 transition-transform shadow-lg"
-              >
-                <Link href="/issues/report">Report an Issue</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-white/80 text-white hover:bg-white hover:text-teal-600 font-semibold transition-colors"
-              >
-                <Link href="/issues">View Active Issues</Link>
-              </Button>
-            </div>
-          </motion.div>
+        <motion.section
+          className="bg-gradient-to-br from-teal-600 via-cyan-600 to-indigo-600 text-white py-28"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
+          <div className="container mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+            <motion.div
+          variants={fadeIn}
+          className="md:w-1/2 text-center md:text-left"
+            >
+          <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
+            Empower Communities. <br /> Drive Change.
+          </h1>
+          <p className="text-lg md:text-xl mb-10 text-teal-100/90 max-w-xl mx-auto md:mx-0">
+            Nayabato connects citizens with local officials. Report civic
+            issues, track progress, and create lasting impact.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+            <Button
+              asChild
+              size="lg"
+              className="bg-black text-red-600 font-semibold hover:scale-105 transition-transform shadow-lg"
+            >
+              <Link href="/issues/report">Report an Issue</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="border-white/80 text-red-700 hover:bg-white hover:text-teal-600 font-semibold transition-colors"
+            >
+              <Link href="/issues">View Active Issues</Link>
+            </Button>
+          </div>
+            </motion.div>
 
-          <motion.div variants={fadeIn} className="md:w-1/2 flex justify-center">
-            <Image
-              src="/globe.svg"
-              alt="Civic Engagement Platform"
-              width={500}
-              height={500}
-              className="drop-shadow-2xl animate-float"
-            />
-          </motion.div>
-        </div>
-      </motion.section>
+            <motion.div variants={fadeIn} className="md:w-1/2 flex justify-center">
+          <Image
+            src="/globe.svg"
+            alt="Civic Engagement Platform"
+            width={500}
+            height={500}
+            className="drop-shadow-2xl animate-float"
+          />
+            </motion.div>
+          </div>
+        </motion.section>
 
-      {/* How It Works */}
+        {/* How It Works */}
       <motion.section
         className="py-24 bg-white"
         initial="hidden"
@@ -236,7 +235,7 @@ export default function HomePage() {
               asChild
               variant="outline"
               size="lg"
-              className="border-gray-600 text-gray-200 hover:bg-white hover:text-gray-900 transition-colors"
+              className="border-gray-600 text-red-700 hover:bg-white hover:text-gray-900 transition-colors"
             >
               <Link href="/issues">Explore Issues</Link>
             </Button>

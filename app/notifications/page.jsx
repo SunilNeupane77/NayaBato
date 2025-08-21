@@ -54,11 +54,11 @@ export default function NotificationsPage() {
   const markAsRead = async (id) => {
     try {
       const response = await fetch(`/api/notifications/${id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ read: true }),
+        body: JSON.stringify({ isRead: true }),
       });
 
       if (!response.ok) {

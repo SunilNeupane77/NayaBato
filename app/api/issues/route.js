@@ -194,12 +194,18 @@ export async function POST(request) {
     }
     
     // Send confirmation email to user
-    await sendIssueConfirmation({
-      to: user.email,
-      issueId: newIssue._id.toString(),
-      title: newIssue.title,
-      location: newIssue.location.address
-    });
+    try {
+      await sendIssueConfirmation({
+        to: user.email,
+        issueId: newIssue._id.toString(),
+        title: newIssue.title,
+        location: newIssue.location.address
+      });
+      console.log(`Issue confirmation email sent to ${user.email}`);
+    } catch (emailError) {
+      // Log error but don't fail the request
+      console.error('Error sending issue confirmation email:', emailError);
+    }
     
     return NextResponse.json(
       { 

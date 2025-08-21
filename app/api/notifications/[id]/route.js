@@ -1,8 +1,8 @@
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectDB from '@/lib/db/connect';
 import Notification from '@/models/Notification';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 /**
  * Get a single notification by ID
@@ -121,6 +121,14 @@ export async function PATCH(request, { params }) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Mark a notification as read (PUT handler)
+ * @route PUT /api/notifications/:id
+ */
+export async function PUT(request, { params }) {
+  return PATCH(request, { params });
 }
 
 /**

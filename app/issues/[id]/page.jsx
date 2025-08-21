@@ -36,6 +36,10 @@ export default function IssueDetailPage() {
   const [notes, setNotes] = useState('');
   const [loadingUpdate, setLoadingUpdate] = useState(false);
 
+  // Image gallery modal state
+  const [showImageModal, setShowImageModal] = useState(false);
+  const [modalImageUrl, setModalImageUrl] = useState(null);
+
   if (isLoading) return <IssueDetailSkeleton />;
   if (isError || !issue) return (
     <div className="flex h-[60vh] flex-col items-center justify-center">
@@ -218,6 +222,53 @@ export default function IssueDetailPage() {
             </Card>
           )}
         </aside>
+      </div>
+
+      <div className="my-8">
+        <h3 className="text-lg font-semibold mb-2">Images</h3>
+        {issue.images && issue.images.length > 0 ? (
+          <div className="flex flex-wrap gap-4">
+            {issue.images.map((img, idx) => (
+              <div key={img.publicId || idx} className="relative group">
+                <Image
+                  src={img.url}
+                  alt={`Issue image ${idx + 1}`}
+                  width={160}
+                  height={120}
+                  className="rounded-lg shadow cursor-pointer object-cover w-40 h-28"
+                  onClick={() => {
+                    setModalImageUrl(img.url);
+                    setShowImageModal(true);
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-gray-400 italic">No images provided for this issue.</div>
+        )}
+        {/* Modal for full image view */}
+        {showImageModal && (
+          <Dialog open={showImageModal} onOpenChange={setShowImageModal}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>Image Preview</DialogTitle>
+              </DialogHeader>
+              <div className="flex justify-center items-center">
+                <Image
+                  src={modalImageUrl}
+                  alt="Full Issue Image"
+                  width={600}
+                  height={400}
+                  className="rounded-lg shadow object-contain max-h-[70vh]"
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowImageModal(false)}>Close</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
   );
