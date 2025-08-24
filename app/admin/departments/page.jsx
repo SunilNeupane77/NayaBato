@@ -1,41 +1,35 @@
 'use client';
 
-import { AlertCircle, Edit, Loader2, PlusCircle, Trash2 } from 'lucide-react';
+import { AlertCircle, Edit, Eye, FolderIcon, LayoutGrid, List, MoreVertical, Trash } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
+
+import { useLanguage } from '@/lib/i18n/language-context';
 
 const departmentCategories = [
   'pothole',
@@ -50,6 +44,7 @@ export default function DepartmentsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [departments, setDepartments] = useState([]);
   const [users, setUsers] = useState([]);
@@ -68,6 +63,11 @@ export default function DepartmentsPage() {
   });
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [departmentToDelete, setDepartmentToDelete] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'inactive'
+  const [departmentStats, setDepartmentStats] = useState({});
+  const [statsLoading, setStatsLoading] = useState(false);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -95,33 +95,155 @@ export default function DepartmentsPage() {
       }
       const data = await response.json();
       setDepartments(data.departments);
+      
+      // Fetch stats for each department
+      await fetchDepartmentStats(data.departments);
     } catch (err) {
       console.error('Error fetching departments:', err);
       setError(err.message || 'Failed to load departments');
       toast({
-        title: 'Error',
-        description: err.message || 'Failed to load departments.',
         variant: 'destructive',
+        title: t('common.error'),
+        description: t('departments.fetchError') || 'Failed to load departments',
       });
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchDepartmentStats = async (departmentsList) => {
+    try {
+      setStatsLoading(true);
+      const stats = {};
+      
+      for (const dept of departmentsList) {
+        try {
+          const response = await fetch(`/api/departments/${dept._id}/stats`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success) {
+              stats[dept._id] = data.stats;
+            }
+          }
+        } catch (err) {
+          console.error(`Error fetching stats for ${dept.name}:`, err);
+        }
+      }
+      
+      setDepartmentStats(stats);
+    } catch (err) {
+      console.error('Error fetching department stats:', err);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch('/api/users?role=official');
       if (!response.ok) {
         throw new Error('Failed to fetch users');
       }
       const data = await response.json();
-      setUsers(data.users);
+      setUsers(data.users || []);
     } catch (err) {
       console.error('Error fetching users:', err);
       toast({
-        title: 'Error',
-        description: 'Failed to load users for head officer selection.',
         variant: 'destructive',
+        title: t('common.error'),
+        description: t('users.fetchError') || 'Failed to load users',
+      });
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: checked
+    }));
+  };
+
+  const handleCategoryToggle = (category) => {
+    setFormData(prev => {
+      const categories = [...prev.categories];
+      const index = categories.indexOf(category);
+      
+      if (index > -1) {
+        categories.splice(index, 1);
+      } else {
+        categories.push(category);
+      }
+      
+      return {
+        ...prev,
+        categories
+      };
+    });
+  };
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (formData.categories.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: t('common.error'),
+        description: t('departments.selectAtLeastOneCategory'),
+      });
+      return;
+    }
+    
+    try {
+      const url = currentDepartment 
+        ? `/api/departments/${currentDepartment._id}` 
+        : '/api/departments';
+      
+      const method = currentDepartment ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: t('common.success'),
+          description: currentDepartment 
+            ? t('departments.updateSuccess')
+            : t('departments.creationSuccess'),
+        });
+        
+        setIsDialogOpen(false);
+        fetchDepartments();
+      } else {
+        toast({
+          variant: 'destructive',
+          title: t('common.error'),
+          description: data.message || (currentDepartment 
+            ? t('departments.updateFailed')
+            : t('departments.creationError')),
+        });
+      }
+    } catch (err) {
+      console.error('Error saving department:', err);
+      toast({
+        variant: 'destructive',
+        title: t('common.error'),
+        description: err.message || t('common.errorOccurred'),
       });
     }
   };
@@ -143,339 +265,421 @@ export default function DepartmentsPage() {
   const handleEditDepartment = (department) => {
     setCurrentDepartment(department);
     setFormData({
-      name: department.name,
+      name: department.name || '',
       description: department.description || '',
       headOfficer: department.headOfficer?._id || '',
       contactEmail: department.contactEmail || '',
       contactPhone: department.contactPhone || '',
       categories: department.categories || [],
-      isActive: department.isActive,
+      isActive: department.isActive !== undefined ? department.isActive : true,
     });
     setIsDialogOpen(true);
   };
 
-  const handleDeleteDepartment = (department) => {
+  const handleDeleteConfirm = (department) => {
     setDepartmentToDelete(department);
     setIsConfirmDialogOpen(true);
   };
 
-  const confirmDeleteDepartment = async () => {
+  const handleDeleteDepartment = async () => {
     if (!departmentToDelete) return;
-
+    
     try {
       const response = await fetch(`/api/departments/${departmentToDelete._id}`, {
         method: 'DELETE',
       });
-
-      if (!response.ok) {
-        throw new Error('Failed to deactivate department');
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: t('common.success'),
+          description: t('departments.deleteSuccess') || 'Department deactivated successfully',
+        });
+        
+        setIsConfirmDialogOpen(false);
+        fetchDepartments();
+      } else {
+        toast({
+          variant: 'destructive',
+          title: t('common.error'),
+          description: data.message || t('departments.deleteFailed'),
+        });
       }
-
-      toast({
-        title: 'Success',
-        description: 'Department deactivated successfully.',
-      });
-      fetchDepartments();
     } catch (err) {
-      console.error('Error deactivating department:', err);
+      console.error('Error deleting department:', err);
       toast({
-        title: 'Error',
-        description: err.message || 'Failed to deactivate department.',
         variant: 'destructive',
-      });
-    } finally {
-      setIsConfirmDialogOpen(false);
-      setDepartmentToDelete(null);
-    }
-  };
-
-  const handleFormChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCategoryChange = (category) => {
-    setFormData((prev) => {
-      const newCategories = prev.categories.includes(category)
-        ? prev.categories.filter((c) => c !== category)
-        : [...prev.categories, category];
-      return { ...prev, categories: newCategories };
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name.trim()) {
-      toast({
-        title: 'Validation Error',
-        description: 'Department name cannot be empty.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      const method = currentDepartment ? 'PUT' : 'POST';
-      const url = currentDepartment
-        ? `/api/departments/${currentDepartment._id}`
-        : '/api/departments';
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${currentDepartment ? 'update' : 'create'} department`);
-      }
-
-      toast({
-        title: 'Success',
-        description: `Department ${currentDepartment ? 'updated' : 'created'} successfully.`,
-      });
-      setIsDialogOpen(false);
-      fetchDepartments();
-    } catch (err) {
-      console.error(`Error ${currentDepartment ? 'updating' : 'creating'} department:`, err);
-      toast({
-        title: 'Error',
-        description: err.message || `Failed to ${currentDepartment ? 'update' : 'create'} department.`,
-        variant: 'destructive',
+        title: t('common.error'),
+        description: err.message || t('common.errorOccurred'),
       });
     }
   };
-
-  if (status === 'loading' || loading) {
-    return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex h-[60vh] flex-col items-center justify-center">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Error</h2>
-        <p className="text-gray-600">{error}</p>
-        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-          Try Again
-        </Button>
-      </div>
-    );
-  }
+  
+  // Filter departments based on search and status
+  const filteredDepartments = departments.filter(department => {
+    // Filter by search query
+    const matchesSearch = searchQuery === '' || 
+      department.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (department.description && department.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    // Filter by status
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'active' && department.isActive) || 
+      (statusFilter === 'inactive' && !department.isActive);
+    
+    return matchesSearch && matchesStatus;
+  });
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Departments</h1>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {t('departments.departmentsList')}
+          </h1>
+          <p className="text-muted-foreground">
+            {t('admin.departmentManagement')}
+          </p>
+        </div>
         <Button onClick={handleAddDepartment}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add Department
+          {t('departments.createDepartment')}
         </Button>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Manage Departments</CardTitle>
-          <CardDescription>View, add, edit, and deactivate departments.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {departments.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No departments found. Click "Add Department" to create one.
+      
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row gap-4 md:items-center">
+        <div className="flex-1">
+          <Input
+            placeholder={t('common.search')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-sm"
+          />
+        </div>
+        
+        <div className="flex flex-wrap gap-2">
+          <Select 
+            value={statusFilter}
+            onValueChange={setStatusFilter}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('common.all')}</SelectItem>
+              <SelectItem value="active">{t('common.active')}</SelectItem>
+              <SelectItem value="inactive">{t('common.inactive')}</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant={viewMode === 'grid' ? 'default' : 'outline'} 
+              size="icon"
+              onClick={() => setViewMode('grid')}
+            >
+              <LayoutGrid className="h-5 w-5" />
+            </Button>
+            <Button 
+              variant={viewMode === 'table' ? 'default' : 'outline'} 
+              size="icon"
+              onClick={() => setViewMode('table')}
+            >
+              <List className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {/* Loading State */}
+      {loading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <Card key={i} className="overflow-hidden">
+              <CardHeader className="animate-pulse bg-gray-100 h-12" />
+              <CardContent className="mt-4">
+                <div className="animate-pulse bg-gray-100 h-4 mb-2" />
+                <div className="animate-pulse bg-gray-100 h-4 w-2/3" />
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="animate-pulse bg-gray-100 h-8 w-20 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+      
+      {/* Error State */}
+      {error && !loading && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>{t('common.error')}</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+      
+      {/* Empty State */}
+      {!loading && !error && filteredDepartments.length === 0 && (
+        <Card className="bg-gray-50 border-dashed">
+          <CardContent className="pt-6 text-center">
+            <FolderIcon className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">
+              {t('departments.noDepartmentsFound')}
+            </h3>
+            <p className="mt-1 text-sm text-gray-500">
+              {searchQuery || statusFilter !== 'all' 
+                ? t('common.tryAdjustingFilters')
+                : t('departments.createDepartmentPrompt')}
+            </p>
+            <div className="mt-6">
+              <Button onClick={handleAddDepartment}>
+                {t('departments.createDepartment')}
+              </Button>
             </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Head Officer</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {departments.map((department) => (
-                  <TableRow key={department._id}>
-                    <TableCell className="font-medium">{department.name}</TableCell>
-                    <TableCell>{department.headOfficer?.name || 'N/A'}</TableCell>
-                    <TableCell>
-                      <Badge variant={department.isActive ? 'default' : 'destructive'}>
-                        {department.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditDepartment(department)}
-                        className="mr-2"
-                      >
-                        <Edit className="h-4 w-4" />
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Content - Grid View */}
+      {!loading && !error && viewMode === 'grid' && filteredDepartments.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredDepartments.map((department) => (
+            <Card key={department._id} className={`overflow-hidden ${!department.isActive && 'bg-gray-50 opacity-80'}`}>
+              <CardHeader>
+                <CardTitle className="flex justify-between items-center">
+                  <span className="truncate">{department.name}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteDepartment(department)}
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => router.push(`/admin/departments/${department._id}`)}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        {t('common.view')}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditDepartment(department)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        {t('common.edit')}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => handleDeleteConfirm(department)}
+                        className="text-red-600 focus:text-red-600"
                       >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Add/Edit Department Dialog */}
+                        <Trash className="mr-2 h-4 w-4" />
+                        {t('common.delete')}
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </CardTitle>
+                {department.description && (
+                  <CardDescription className="truncate">
+                    {department.description}
+                  </CardDescription>
+                )}
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-1 mb-4">
+                  {department.categories.map(category => (
+                    <Badge key={category} variant="secondary">
+                      {t(`issues.categories.${category}`) || category}
+                    </Badge>
+                  ))}
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <Badge variant={department.isActive ? "default" : "outline"}>
+                    {department.isActive ? t('common.active') : t('common.inactive')}
+                  </Badge>
+                  
+                  {departmentStats[department._id] && (
+                    <div className="text-sm">
+                      <span className="font-medium">{departmentStats[department._id].total || 0}</span> 
+                      <span className="text-gray-500"> {t('issues.issuesFound')}</span>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter className="border-t flex justify-between">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => router.push(`/admin/departments/${department._id}`)}
+                >
+                  {t('departments.details')}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
+      
+      {/* Create/Edit Department Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{currentDepartment ? 'Edit Department' : 'Add Department'}</DialogTitle>
+            <DialogTitle>
+              {currentDepartment 
+                ? t('departments.updateDepartment')
+                : t('departments.createDepartment')}
+            </DialogTitle>
             <DialogDescription>
-              {currentDepartment
-                ? 'Make changes to the department here.'
-                : 'Add a new department to the system.'}
+              {t('departments.editDescription')}
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleSubmit}>
+          
+          <form onSubmit={handleFormSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="name" className="text-right">
-                  Name
+                  {t('departments.name')}
                 </Label>
                 <Input
                   id="name"
                   name="name"
                   value={formData.name}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange}
                   className="col-span-3"
                   required
                 />
               </div>
+              
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="description" className="text-right">
-                  Description
+                  {t('departments.description')}
                 </Label>
                 <Textarea
                   id="description"
                   name="description"
                   value={formData.description}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange}
                   className="col-span-3"
+                  rows={3}
                 />
               </div>
+              
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="headOfficer" className="text-right">
-                  Head Officer
+                  {t('departments.headOfficer')}
                 </Label>
                 <Select
                   name="headOfficer"
                   value={formData.headOfficer}
-                  onValueChange={(value) => setFormData((prev) => ({ ...prev, headOfficer: value }))}
+                  onValueChange={(value) => setFormData({...formData, headOfficer: value})}
                 >
-                  <SelectTrigger className="col-span-3">
-                    <SelectValue placeholder="Select a user" />
+                  <SelectTrigger id="headOfficer" className="col-span-3">
+                    <SelectValue placeholder={t('departments.selectAnOfficer')} />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="">{t('departments.selectAnOfficer')}</SelectItem>
                     {users.map((user) => (
                       <SelectItem key={user._id} value={user._id}>
-                        {user.name} ({user.email})
+                        {user.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+              
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="contactEmail" className="text-right">
-                  Contact Email
+                  {t('departments.contactEmail')}
                 </Label>
                 <Input
                   id="contactEmail"
                   name="contactEmail"
                   type="email"
                   value={formData.contactEmail}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange}
                   className="col-span-3"
                 />
               </div>
+              
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="contactPhone" className="text-right">
-                  Contact Phone
+                  {t('departments.contactPhone')}
                 </Label>
                 <Input
                   id="contactPhone"
                   name="contactPhone"
                   value={formData.contactPhone}
-                  onChange={handleFormChange}
+                  onChange={handleInputChange}
                   className="col-span-3"
                 />
               </div>
-              <div className="grid grid-cols-4 items-start gap-4">
-                <Label className="text-right pt-2">Categories</Label>
+              
+              <div className="grid grid-cols-4 gap-4">
+                <Label className="text-right pt-0">
+                  {t('departments.categories')}
+                </Label>
                 <div className="col-span-3 grid grid-cols-2 gap-2">
                   {departmentCategories.map((category) => (
                     <div key={category} className="flex items-center space-x-2">
-                      <Checkbox
+                      <Checkbox 
                         id={`category-${category}`}
                         checked={formData.categories.includes(category)}
-                        onCheckedChange={() => handleCategoryChange(category)}
+                        onCheckedChange={() => handleCategoryToggle(category)}
                       />
                       <label
                         htmlFor={`category-${category}`}
                         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                       >
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                        {t(`issues.categories.${category}`) || category}
                       </label>
                     </div>
                   ))}
                 </div>
               </div>
+              
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="isActive" className="text-right">
-                  Active
+                <Label className="text-right">
+                  {t('common.status')}
                 </Label>
-                <Checkbox
-                  id="isActive"
-                  checked={formData.isActive}
-                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, isActive: checked }))}
-                />
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="isActive"
+                    name="isActive"
+                    checked={formData.isActive}
+                    onCheckedChange={(checked) => setFormData({...formData, isActive: checked})}
+                  />
+                  <Label htmlFor="isActive">
+                    {formData.isActive ? t('common.active') : t('common.inactive')}
+                  </Label>
+                </div>
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit">{currentDepartment ? 'Save changes' : 'Create Department'}</Button>
+              <Button type="submit">
+                {currentDepartment ? t('common.save') : t('departments.createDepartment')}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
-
-      {/* Confirmation Dialog for Deactivate */}
-      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
-            <DialogDescription>
-              This action will deactivate the department{' '}
-              <span className="font-semibold">{departmentToDelete?.name}</span>. It can be reactivated later.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsConfirmDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDeleteDepartment}>
-              Deactivate
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('departments.deleteDepartment')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('departments.deleteConfirm')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={handleDeleteDepartment}
+            >
+              {t('common.delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

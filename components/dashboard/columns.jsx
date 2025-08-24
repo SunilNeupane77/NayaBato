@@ -1,8 +1,7 @@
-
 import { IssueActions } from './IssueActions';
-import { StatusBadge } from './StatusBadge';
+import StatusBadge from './StatusBadge';
 
-export const columns = (onStatusChange) => [
+export const columns = (onStatusChange, onDelete) => [
   {
     accessorKey: 'title',
     header: 'Title',
@@ -23,6 +22,12 @@ export const columns = (onStatusChange) => [
   },
   {
     id: 'actions',
-    cell: ({ row }) => <IssueActions issue={row.original} onStatusChange={onStatusChange} />,
+    cell: ({ row }) => (
+      <IssueActions 
+        issue={row.original} 
+        onStatusChange={onStatusChange} 
+        onDelete={onDelete}
+      />
+    ),
   },
 ];

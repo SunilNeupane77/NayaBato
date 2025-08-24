@@ -22,16 +22,20 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-// Define validation schema with Zod
-const signInSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(1, { message: "Password is required" })
-});
+// Import language context
+import { useLanguage } from '@/lib/i18n/language-context';
 
 export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useLanguage();
+
+  // Define validation schema with Zod
+  const signInSchema = z.object({
+    email: z.string().email({ message: t('auth.validation.emailInvalid') || "Please enter a valid email address" }),
+    password: z.string().min(1, { message: t('auth.validation.passwordRequired') || "Password is required" })
+  });
 
   // Initialize react-hook-form with zod validation
   const form = useForm({
@@ -60,7 +64,7 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
         // Check if the error is about pending approval
         const errorMessage = result.error.includes('pending approval') 
           ? result.error 
-          : 'Invalid email or password';
+          : t('auth.invalidCredentials');
         
         setError(errorMessage);
         if (onError) onError(errorMessage);
@@ -87,7 +91,7 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
                 router.push('/admin/dashboard');
                 break;
               case 'official':
-                router.push('/admin/dashboard'); // Officials now have access to dashboard
+                router.push('/issues'); // Officials see issues they need to handle
                 break;
               default:
                 router.push(callbackUrl || '/');
@@ -104,7 +108,7 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
       
     } catch (error) {
       console.error('Sign in error:', error);
-      const errorMessage = 'An unexpected error occurred. Please try again.';
+      const errorMessage = t('auth.unexpectedError');
       setError(errorMessage);
       if (onError) onError(errorMessage);
     } finally {
@@ -114,7 +118,7 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
 
   return (
     <div className="w-full max-w-md p-8 bg-white dark:bg-slate-800 rounded-lg shadow-md">
-      <h1 className="text-2xl font-bold text-center mb-6">Sign In</h1>
+      <h1 className="text-2xl font-bold text-center mb-6">{t('auth.signInTitle')}</h1>
       
       {error && (
         <Alert variant="destructive" className="mb-4">
@@ -129,7 +133,7 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('auth.email')}</FormLabel>
                 <FormControl>
                   <Input placeholder="your@email.com" type="email" {...field} disabled={isLoading} />
                 </FormControl>
@@ -144,12 +148,12 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
             render={({ field }) => (
               <FormItem>
                 <div className="flex items-center justify-between">
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>{t('auth.password')}</FormLabel>
                   <Link 
                     href="/auth/forgot-password" 
                     className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400"
                   >
-                    Forgot password?
+                    {t('auth.forgotPassword')}
                   </Link>
                 </div>
                 <FormControl>
@@ -168,16 +172,14 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
             {isLoading ? (
               <div className="flex items-center justify-center">
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
+                {t('auth.signingIn')}
               </div>
             ) : (
-              "Sign In"
+              t('auth.signIn')
             )}
           </Button>
         </form>
       </Form>
-      
-      
     </div>
   );
 }

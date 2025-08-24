@@ -1,5 +1,7 @@
 'use client';
 
+import LanguageSwitcher from '@/components/ui/language-switcher';
+import { useLanguage } from '@/lib/i18n/language-context';
 import { AlertTriangle, Bell, LogOut, Menu, Settings, User, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -22,6 +24,7 @@ export default function Navigation() {
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { t } = useLanguage();
   
   const isActive = (path) => {
     if (path === '/') {
@@ -56,7 +59,7 @@ export default function Navigation() {
                 alt="Nayabato Logo"
                 className="h-8 w-8 mr-2"
               />
-              <span className="font-bold text-xl">Nayabato</span>
+              <span className="font-bold text-xl">{t('common.appName')}</span>
             </Link>
           </div>
 
@@ -68,7 +71,7 @@ export default function Navigation() {
                 isActive('/') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
               }`}
             >
-              Home
+              {t('navigation.home')}
             </Link>
             <Link
               href="/issues"
@@ -76,7 +79,7 @@ export default function Navigation() {
                 isActive('/issues') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
               }`}
             >
-              Issues
+              {t('navigation.issues')}
             </Link>
             <Link
               href="/about"
@@ -84,7 +87,7 @@ export default function Navigation() {
                 isActive('/about') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
               }`}
             >
-              About
+              {t('navigation.about')}
             </Link>
             
             {/* Role-specific navigation links */}
@@ -96,7 +99,7 @@ export default function Navigation() {
                     isActive('/admin/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
                   }`}
                 >
-                  Dashboard
+                  {t('admin.dashboard')}
                 </Link>
                 <Link
                   href="/admin/users"
@@ -104,7 +107,7 @@ export default function Navigation() {
                     isActive('/admin/users') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
                   }`}
                 >
-                  Users
+                  {t('admin.users')}
                 </Link>
                 <Link
                   href="/admin/departments"
@@ -112,7 +115,7 @@ export default function Navigation() {
                     isActive('/admin/departments') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
                   }`}
                 >
-                  Departments
+                  {t('admin.departments')}
                 </Link>
               </>
             )}
@@ -145,13 +148,16 @@ export default function Navigation() {
                   isActive('/notifications') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
-                Notifications
+                {t('navigation.notifications')}
               </Link>
             )}
           </nav>
 
           {/* User menu or sign in button */}
           <div className="flex items-center ml-auto">
+            <div className="mr-4">
+              <LanguageSwitcher />
+            </div>
             {status === 'authenticated' ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -177,14 +183,14 @@ export default function Navigation() {
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="cursor-pointer flex w-full">
                       <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
+                      <span>{t('navigation.profile')}</span>
                     </Link>
                   </DropdownMenuItem>
                   {session?.user?.role === 'citizen' && (
                     <DropdownMenuItem asChild>
                       <Link href="/issues/report" className="cursor-pointer flex w-full">
                         <AlertTriangle className="mr-2 h-4 w-4" />
-                        <span>Report Issue</span>
+                        <span>{t('navigation.reportIssue')}</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
@@ -195,19 +201,19 @@ export default function Navigation() {
                       <DropdownMenuItem asChild>
                         <Link href="/admin/dashboard" className="cursor-pointer flex w-full">
                           <Settings className="mr-2 h-4 w-4" />
-                          <span>Admin Dashboard</span>
+                          <span>{t('admin.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/admin/users" className="cursor-pointer flex w-full">
                           <User className="mr-2 h-4 w-4" />
-                          <span>Manage Users</span>
+                          <span>{t('admin.userManagement')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/admin/departments" className="cursor-pointer flex w-full">
                           <Settings className="mr-2 h-4 w-4" />
-                          <span>Manage Departments</span>
+                          <span>{t('admin.departmentManagement')}</span>
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -219,13 +225,13 @@ export default function Navigation() {
                       <DropdownMenuItem asChild>
                         <Link href="/admin/dashboard" className="cursor-pointer flex w-full">
                           <Settings className="mr-2 h-4 w-4" />
-                          <span>Dashboard</span>
+                          <span>{t('navigation.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/issues" className="cursor-pointer flex w-full">
                           <AlertTriangle className="mr-2 h-4 w-4" />
-                          <span>Review Issues</span>
+                          <span>{t('navigation.reviewIssues')}</span>
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -234,24 +240,24 @@ export default function Navigation() {
                     <DropdownMenuItem asChild>
                       <Link href="/notifications" className="cursor-pointer flex w-full">
                         <Bell className="mr-2 h-4 w-4" />
-                        <span>Notifications</span>
+                        <span>{t('navigation.notifications')}</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className="cursor-pointer">
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Sign out</span>
+                    <span>{t('navigation.signOut')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <div className="flex space-x-3">
                 <Button asChild variant="ghost" size="sm">
-                  <Link href="/auth/signin">Sign In</Link>
+                  <Link href="/auth/signin">{t('navigation.signIn')}</Link>
                 </Button>
                 <Button asChild size="sm">
-                  <Link href="/auth/register">Register</Link>
+                  <Link href="/auth/register">{t('navigation.register')}</Link>
                 </Button>
               </div>
             )}
@@ -283,7 +289,7 @@ export default function Navigation() {
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
-              Home
+              {t('navigation.home')}
             </Link>
             <Link
               href="/issues"
@@ -292,7 +298,7 @@ export default function Navigation() {
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
-              Issues
+              {t('navigation.issues')}
             </Link>
             <Link
               href="/about"
@@ -301,7 +307,7 @@ export default function Navigation() {
               }`}
               onClick={() => setIsMenuOpen(false)}
             >
-              About
+              {t('navigation.about')}
             </Link>
             {/* Role-specific mobile navigation */}
             {(session?.user?.role === 'admin' || session?.user?.role === 'official') && (
@@ -312,7 +318,7 @@ export default function Navigation() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                {session?.user?.role === 'admin' ? 'Admin Dashboard' : 'Dashboard'}
+                {session?.user?.role === 'admin' ? t('admin.dashboard') : t('navigation.dashboard')}
               </Link>
             )}
             
@@ -325,7 +331,7 @@ export default function Navigation() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Manage Users
+                  {t('admin.userManagement')}
                 </Link>
               </>
             )}
@@ -338,7 +344,7 @@ export default function Navigation() {
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                Report Issue
+                {t('navigation.reportIssue')}
               </Link>
             )}
             
@@ -351,7 +357,7 @@ export default function Navigation() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Dashboard
+                  {t('navigation.dashboard')}
                 </Link>
                 <Link
                   href="/issues"
@@ -360,7 +366,7 @@ export default function Navigation() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Review Issues
+                  {t('navigation.reviewIssues')}
                 </Link>
               </>
             )}
@@ -373,14 +379,14 @@ export default function Navigation() {
                     className="px-3 py-2 text-center rounded-md border border-gray-300 text-gray-700"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Sign In
+                    {t('navigation.signIn')}
                   </Link>
                   <Link
                     href="/auth/register"
                     className="px-3 py-2 text-center rounded-md bg-blue-600 text-white"
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    Register
+                    {t('navigation.register')}
                   </Link>
                 </div>
               </div>

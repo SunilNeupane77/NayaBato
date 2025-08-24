@@ -11,11 +11,15 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 // Form component
 import SignInForm from '@/components/forms/SignInForm';
 
+// Language
+import { useLanguage } from '@/lib/i18n/language-context';
+
 export default function SignInPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
   const [error, setError] = useState(searchParams.get('error') || '');
+  const { t } = useLanguage();
   
   const handleSignInSuccess = () => {
     router.push(callbackUrl);
@@ -37,9 +41,9 @@ export default function SignInPage() {
         
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Sign in</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t('auth.signInTitle')}</CardTitle>
             <CardDescription>
-              Enter your email and password to access your account
+              {t('auth.signInDescription')}
             </CardDescription>
           </CardHeader>
           
@@ -53,12 +57,12 @@ export default function SignInPage() {
           
           <CardFooter>
             <div className="text-sm text-center w-full">
-              Don't have an account?{' '}
+              {t('auth.dontHaveAccount')}{' '}
               <Link 
                 href="/auth/register" 
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
-                Register
+                {t('navigation.register')}
               </Link>
             </div>
           </CardFooter>

@@ -10,9 +10,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 // Form component
 import RegisterForm from '@/components/forms/RegisterForm';
 
+// Language
+import { useLanguage } from '@/lib/i18n/language-context';
+
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState('');
+  const { t } = useLanguage();
   
   const handleRegistrationSuccess = () => {
     // Redirect to sign in page after successful registration
@@ -34,9 +38,9 @@ export default function RegisterPage() {
         
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t('auth.createAccountTitle')}</CardTitle>
             <CardDescription>
-              Enter your information to create an account
+              {t('auth.createAccountDescription')}
             </CardDescription>
           </CardHeader>
           

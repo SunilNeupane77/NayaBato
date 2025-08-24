@@ -3,6 +3,7 @@ import { deleteImage } from '@/lib/cloudinary';
 import { deleteWithAudit, updateWithAudit } from '@/lib/db/audit-utils';
 import connectDB from '@/lib/db/connect';
 import { sendStatusUpdateEmail } from '@/lib/email';
+// Import models - order matters for schema registration
 import Issue from '@/models/Issue';
 import Notification from '@/models/Notification';
 import User from '@/models/User';
@@ -131,13 +132,23 @@ export async function DELETE(request, { params }) {
   const { id } = params;
   const { session, user } = await getSessionUser();
 
-  if (session.user.role !== 'admin') {
-    return NextResponse.json({ success: false, message: 'Not authorized' }, { status: 403 });
-  }
-
   await ensureDB();
   const issue = await Issue.findById(id);
   if (!issue) return NextResponse.json({ success: false, message: 'Issue not found' }, { status: 404 });
+  
+  const isAdmin = session.user.role === 'admin';
+  const isOfficial = session.user.role === 'official';
+  const isResolved = issue.status === 'resolved';
+  
+  // Only admins can delete any issue
+  // Officials can only delete resolved issues
+  if (!isAdmin && !isOfficial) {
+    return NextResponse.json({ success: false, message: 'Not authorized to delete issues' }, { status: 403 });
+  }
+  
+  if (!isAdmin && !isResolved) {
+    return NextResponse.json({ success: false, message: 'Only resolved issues can be deleted' }, { status: 403 });
+  }
 
   await Promise.all(
     (issue.images || [])
