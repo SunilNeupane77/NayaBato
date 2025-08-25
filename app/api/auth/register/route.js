@@ -1,4 +1,5 @@
 import connectDB from '@/lib/db/connect';
+import { sendWelcomeEmail } from '@/lib/email';
 import User from '@/models/User';
 import { NextResponse } from 'next/server';
 
@@ -46,6 +47,20 @@ export async function POST(request) {
       verified: userRole === 'citizen'
     });
     
+    // Send welcome email to the newly registered user
+    try {
+      await sendWelcomeEmail({
+        to: user.email,
+        name: user.name,
+        role: user.role
+      });
+      // Log successful email send
+      console.log(`Welcome email sent to ${user.email}`);
+    } catch (emailError) {
+      // Log email error but continue with registration success
+      console.error('Failed to send welcome email:', emailError);
+    }
+
     // Return user without password
     return NextResponse.json(
       {
