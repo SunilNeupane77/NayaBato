@@ -4,6 +4,7 @@ import Department from '@/models/Department';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { handleApiError, forbidden, notFound } from '@/lib/error-handler';
 
 /**
  * Get, update or delete a specific department by ID
@@ -23,10 +24,7 @@ export async function GET(request, { params }) {
       .populate('headOfficer', 'name email');
     
     if (!department) {
-      return NextResponse.json(
-        { success: false, message: 'Department not found' },
-        { status: 404 }
-      );
+      throw notFound('Department not found');
     }
     
     return NextResponse.json({
@@ -35,12 +33,7 @@ export async function GET(request, { params }) {
     });
     
   } catch (error) {
-    console.error(`Error fetching department ${params.id}:`, error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error fetching department' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -55,10 +48,7 @@ export async function PUT(request, { params }) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Not authorized to update departments' },
-        { status: 403 }
-      );
+      throw forbidden('Not authorized to update departments');
     }
     
     // Connect to database
@@ -72,10 +62,7 @@ export async function PUT(request, { params }) {
     ).populate('headOfficer', 'name email');
     
     if (!department) {
-      return NextResponse.json(
-        { success: false, message: 'Department not found' },
-        { status: 404 }
-      );
+      throw notFound('Department not found');
     }
     
     // Log this action
@@ -93,12 +80,7 @@ export async function PUT(request, { params }) {
     });
     
   } catch (error) {
-    console.error(`Error updating department ${params.id}:`, error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error updating department' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -112,10 +94,7 @@ export async function DELETE(request, { params }) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Not authorized to delete departments' },
-        { status: 403 }
-      );
+      throw forbidden('Not authorized to delete departments');
     }
     
     // Connect to database
@@ -125,10 +104,7 @@ export async function DELETE(request, { params }) {
     const department = await Department.findById(id);
     
     if (!department) {
-      return NextResponse.json(
-        { success: false, message: 'Department not found' },
-        { status: 404 }
-      );
+      throw notFound('Department not found');
     }
     
     // Instead of hard delete, set isActive to false
@@ -150,11 +126,6 @@ export async function DELETE(request, { params }) {
     });
     
   } catch (error) {
-    console.error(`Error deleting department ${params.id}:`, error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error deleting department' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

@@ -21,6 +21,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
 
 // Import language context
 import { useLanguage } from '@/lib/i18n/language-context';
@@ -29,6 +30,7 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const { toast } = useToast();
   const { t } = useLanguage();
 
   // Define validation schema with Zod
@@ -66,6 +68,13 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
           ? result.error 
           : t('auth.invalidCredentials');
         
+        // Show toast error
+        toast({
+          variant: 'destructive',
+          title: t('auth.signInFailed'),
+          description: errorMessage
+        });
+        
         setError(errorMessage);
         if (onError) onError(errorMessage);
         setIsLoading(false);
@@ -73,6 +82,10 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
       }
 
       // Successful login
+      toast({
+        title: t('auth.signInSuccess'),
+        description: t('auth.welcomeBack')
+      });
       if (onSuccess) {
         onSuccess();
       } else {
@@ -101,6 +114,12 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
           }
         } catch (error) {
           // If fetching user data fails, use default redirect
+          console.error('Error fetching user data:', error);
+          toast({
+            variant: 'destructive',
+            title: t('common.error'),
+            description: t('auth.userDataFetchError') || 'Failed to fetch user data'
+          });
           router.push(callbackUrl || '/');
         }
         router.refresh();
@@ -108,6 +127,11 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
       
     } catch (error) {
       console.error('Sign in error:', error);
+      toast({
+        variant: 'destructive',
+        title: t('common.error'),
+        description: error.message || t('auth.unexpectedError')
+      });
       const errorMessage = t('auth.unexpectedError');
       setError(errorMessage);
       if (onError) onError(errorMessage);

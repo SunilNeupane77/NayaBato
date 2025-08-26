@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { useFetchData } from '@/lib/hooks/useQuery';
+import { useApiWithToast } from '@/lib/hooks/useApiWithToast';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 import {
@@ -48,6 +49,7 @@ const createWardSchema = (t) => z.object({
 export default function WardsPage() {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const api = useApiWithToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [wardToDelete, setWardToDelete] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -82,54 +84,41 @@ export default function WardsPage() {
   // Handle form submission
   const onSubmit = async (data) => {
     setIsSubmitting(true);
+    
+    const wardData = {
+      name: data.name,
+      number: parseInt(data.number),
+      location: {
+        address: data.address,
+        coordinates: {
+          type: 'Point',
+          coordinates: [parseFloat(data.longitude), parseFloat(data.latitude)],
+        },
+      },
+      officerInCharge: data.officerInCharge || undefined,
+      description: data.description || undefined,
+    };
+    
     try {
-      const response = await fetch('/api/wards', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name,
-          number: parseInt(data.number),
-          location: {
-            address: data.address,
-            coordinates: {
-              type: 'Point',
-              coordinates: [parseFloat(data.longitude), parseFloat(data.latitude)],
-            },
-          },
-          officerInCharge: data.officerInCharge || undefined,
-          description: data.description || undefined,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast({
-          title: t('common.success'),
-          description: t('wards.wardCreatedSuccess'),
-        });
-        setIsDialogOpen(false);
-        form.reset();
-        mutate(); // Refresh the wards list
-        // Redirect to the new ward details page if ward._id exists
-        if (result.ward && result.ward._id) {
-          window.location.href = `/admin/wards/${result.ward._id}`;
+      const result = await api.post('/api/wards', wardData, {
+        successTitle: t('common.success'),
+        successMessage: t('wards.wardCreatedSuccess'),
+        errorTitle: t('common.error'),
+        errorMessage: t('wards.wardCreationError'),
+        onSuccess: (data) => {
+          setIsDialogOpen(false);
+          form.reset();
+          mutate(); // Refresh the wards list
+          
+          // Redirect to the new ward details page if ward._id exists
+          if (data.ward && data.ward._id) {
+            window.location.href = `/admin/wards/${data.ward._id}`;
+          }
         }
-      } else if (result.message && result.message.includes('already exists')) {
-        toast({
-          variant: 'destructive',
-          title: t('wards.duplicateWardNumber'),
-          description: t('wards.duplicateWardNumber'),
-        });
-      } else {
-        throw new Error(result.message || 'Failed to create ward');
-      }
-    } catch (error) {        
-      toast({
-        variant: 'destructive',
-        title: t('common.error'),
-        description: error.message || t('wards.wardCreationError'),
       });
+    } catch (error) {
+      // Error already handled by useApiWithToast
+      console.error('Error creating ward:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -146,27 +135,18 @@ export default function WardsPage() {
     if (!wardToDelete) return;
     
     try {
-      const response = await fetch(`/api/wards/${wardToDelete._id}`, {
-        method: 'DELETE',
+      await api.del(`/api/wards/${wardToDelete._id}`, {
+        successTitle: t('common.success'),
+        successMessage: t('wards.wardDeletedSuccess'),
+        errorTitle: t('common.error'),
+        errorMessage: t('wards.deleteFailed'),
+        onSuccess: () => {
+          mutate(); // Refresh the wards list
+        }
       });
-
-      const result = await response.json();
-
-      if (result.success) {
-        toast({
-          title: t('common.success'),
-          description: t('wards.wardDeletedSuccess'),
-        });
-        mutate(); // Refresh the wards list
-      } else {
-        throw new Error(result.message || t('wards.deleteFailed'));
-      }
     } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: t('common.error'),
-        description: error.message || t('wards.deleteFailed'),
-      });
+      // Error already handled by useApiWithToast
+      console.error('Error deleting ward:', error);
     } finally {
       setIsDeleteDialogOpen(false);
       setWardToDelete(null);

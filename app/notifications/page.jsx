@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/components/ui/use-toast';
+import { handleApiResponseWithToast, showErrorToast, showSuccessToast } from '@/lib/toast-utils';
 
 export default function NotificationsPage() {
   const { data: session, status } = useSession();
@@ -33,19 +34,23 @@ export default function NotificationsPage() {
     try {
       setLoading(true);
       const response = await fetch('/api/notifications');
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to fetch notifications');
       }
+      
       const data = await response.json();
       setNotifications(data.notifications);
     } catch (err) {
       console.error('Error fetching notifications:', err);
       setError(err.message || 'Failed to load notifications');
-      toast({
-        title: 'Error',
-        description: err.message || 'Failed to load notifications.',
-        variant: 'destructive',
-      });
+      
+      showErrorToast(
+        toast,
+        'Failed to Load Notifications',
+        err.message || 'Could not retrieve your notifications. Please try again later.'
+      );
     } finally {
       setLoading(false);
     }
@@ -61,22 +66,15 @@ export default function NotificationsPage() {
         body: JSON.stringify({ isRead: true }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to mark notification as read');
-      }
-
-      toast({
-        title: 'Success',
-        description: 'Notification marked as read.',
+      await handleApiResponseWithToast(toast, response, {
+        success: 'Notification marked as read.',
+        error: 'Failed to mark notification as read.'
       });
+      
       fetchNotifications(); // Refresh notifications
     } catch (err) {
       console.error('Error marking notification as read:', err);
-      toast({
-        title: 'Error',
-        description: err.message || 'Failed to mark notification as read.',
-        variant: 'destructive',
-      });
+      // Error already handled by handleApiResponseWithToast
     }
   };
 
@@ -86,22 +84,15 @@ export default function NotificationsPage() {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to delete all notifications');
-      }
-
-      toast({
-        title: 'Success',
-        description: 'All notifications deleted.',
+      await handleApiResponseWithToast(toast, response, {
+        success: 'All notifications deleted.',
+        error: 'Failed to delete all notifications.'
       });
+      
       setNotifications([]); // Clear notifications from state
     } catch (err) {
       console.error('Error deleting all notifications:', err);
-      toast({
-        title: 'Error',
-        description: err.message || 'Failed to delete all notifications.',
-        variant: 'destructive',
-      });
+      // Error already handled by handleApiResponseWithToast
     }
   };
 

@@ -3,6 +3,7 @@ import { uploadImage } from '@/lib/cloudinary';
 import { createWithAudit } from '@/lib/db/audit-utils';
 import connectDB from '@/lib/db/connect';
 import { sendIssueConfirmation } from '@/lib/email';
+import { badRequest, handleApiError, unauthorized } from '@/lib/error-handler';
 import Issue from '@/models/Issue';
 import Notification from '@/models/Notification';
 import User from '@/models/User';
@@ -21,10 +22,7 @@ export async function POST(request) {
     const session = await getServerSession(authOptions);
     
     if (!session) {
-      return NextResponse.json(
-        { success: false, message: 'Unauthorized' },
-        { status: 401 }
-      );
+      throw unauthorized('Authentication required to report issues');
     }
     
     // Parse form data (including files)
@@ -36,10 +34,7 @@ export async function POST(request) {
     
     // Validate required fields
     if (!title || !description || !category || !locationJson) {
-      return NextResponse.json(
-        { success: false, message: 'Missing required fields' },
-        { status: 400 }
-      );
+      throw badRequest('Missing required fields for issue creation');
     }
     
     // Parse location data
@@ -47,10 +42,7 @@ export async function POST(request) {
     try {
       location = JSON.parse(locationJson);
     } catch (error) {
-      return NextResponse.json(
-        { success: false, message: 'Invalid location data' },
-        { status: 400 }
-      );
+      throw badRequest('Invalid location data format');
     }
     
     // Connect to database
@@ -217,12 +209,7 @@ export async function POST(request) {
     );
     
   } catch (error) {
-    console.error('Error creating issue:', error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error creating issue' },
-      { status: 500 }
-    );
+    return handleApiError(error, error.statusCode || 500);
   }
 }
 
@@ -241,6 +228,19 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const wardId = searchParams.get('ward');
     const near = searchParams.get('near'); // Format: "lat,lng,radius"
+    const isOfficial = searchParams.get('official') === 'true';
+    
+    // Get session if we need to check for official role
+    let session = null;
+    if (isOfficial) {
+      session = await getServerSession(authOptions);
+      if (!session || session.user.role !== 'official') {
+        return NextResponse.json(
+          { success: false, message: 'Not authorized' },
+          { status: 403 }
+        );
+      }
+    }
     
     // Calculate skip value for pagination
     const skip = (page - 1) * limit;
@@ -258,6 +258,23 @@ export async function GET(request) {
     
     if (wardId) {
       filter.assignedWard = wardId;
+    }
+    
+    // For officials without department, show all issues that need attention
+    if (isOfficial) {
+      // Officials see all issues or can be assigned specific issues
+      if (session.user.department) {
+        // If they have a department, filter by department categories
+        await connectDB();
+        const Department = await import('@/models/Department').then(module => module.default);
+        const department = await Department.findOne({ name: session.user.department });
+        if (department && department.categories && department.categories.length > 0) {
+          filter.category = { $in: department.categories };
+        }
+      } else {
+        // If they don't have a department, show issues that need attention
+        filter.status = { $in: ['reported', 'under-review'] };
+      }
     }
     
     // Handle geo-spatial query

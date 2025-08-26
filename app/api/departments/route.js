@@ -1,8 +1,9 @@
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectDB from '@/lib/db/connect';
+import { badRequest, forbidden, handleApiError } from '@/lib/error-handler';
 import Department from '@/models/Department';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 /**
  * Get all departments or create a new one
@@ -35,12 +36,7 @@ export async function GET(request) {
     });
     
   } catch (error) {
-    console.error('Error fetching departments:', error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error fetching departments' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -50,10 +46,7 @@ export async function POST(request) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Not authorized to create departments' },
-        { status: 403 }
-      );
+      throw forbidden('Not authorized to create departments');
     }
     
     // Connect to database
@@ -63,10 +56,7 @@ export async function POST(request) {
     
     // Validate required fields
     if (!body.name) {
-      return NextResponse.json(
-        { success: false, message: 'Department name is required' },
-        { status: 400 }
-      );
+      throw badRequest('Department name is required');
     }
     
     // Create department
@@ -78,19 +68,11 @@ export async function POST(request) {
     }, { status: 201 });
     
   } catch (error) {
-    console.error('Error creating department:', error);
-    
     // Handle duplicate key error
     if (error.code === 11000) {
-      return NextResponse.json(
-        { success: false, message: 'A department with this name already exists' },
-        { status: 400 }
-      );
+      return handleApiError(badRequest('A department with this name already exists'));
     }
     
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error creating department' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

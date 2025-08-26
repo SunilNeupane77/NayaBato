@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { showErrorToast, showSuccessToast } from '@/lib/toast-utils';
 import { Calendar, MapPin, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -82,20 +83,21 @@ export default function IssueCard({ issue, onDelete }) {
         throw new Error(errorData.message || 'Failed to delete issue');
       }
       
-      toast({ 
-        title: t('common.success'), 
-        description: t('issues.deleteSuccess') || 'Issue deleted successfully' 
-      });
+      showSuccessToast(
+        toast, 
+        t('common.success'), 
+        t('issues.deleteSuccess') || 'Issue deleted successfully'
+      );
       
       if (onDelete) {
         onDelete(issue._id);
       }
     } catch (error) {
-      toast({ 
-        title: t('common.error'), 
-        description: error.message, 
-        variant: 'destructive' 
-      });
+      showErrorToast(
+        toast, 
+        t('common.error') || 'Error', 
+        error.message || 'Failed to delete issue'
+      );
     } finally {
       setIsDeleting(false);
       setIsDeleteDialogOpen(false);

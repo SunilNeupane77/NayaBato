@@ -29,6 +29,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 
+import { useApiWithToast } from '@/lib/hooks/useApiWithToast';
 import { useLanguage } from '@/lib/i18n/language-context';
 
 const departmentCategories = [
@@ -45,6 +46,7 @@ export default function DepartmentsPage() {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useLanguage();
+  const api = useApiWithToast();
 
   const [departments, setDepartments] = useState([]);
   const [users, setUsers] = useState([]);
@@ -87,25 +89,22 @@ export default function DepartmentsPage() {
   }, [status, session, router]);
 
   const fetchDepartments = async () => {
+    setLoading(true);
+    setError(null);
+    
     try {
-      setLoading(true);
-      const response = await fetch('/api/departments');
-      if (!response.ok) {
-        throw new Error('Failed to fetch departments');
-      }
-      const data = await response.json();
-      setDepartments(data.departments);
-      
-      // Fetch stats for each department
-      await fetchDepartmentStats(data.departments);
-    } catch (err) {
-      console.error('Error fetching departments:', err);
-      setError(err.message || 'Failed to load departments');
-      toast({
-        variant: 'destructive',
-        title: t('common.error'),
-        description: t('departments.fetchError') || 'Failed to load departments',
+      const data = await api.get('/api/departments', {
+        errorTitle: t('common.error'),
+        errorMessage: t('departments.fetchError') || 'Failed to load departments',
+        onError: (err) => setError(err.message || 'Failed to load departments')
       });
+      
+      if (data.departments) {
+        setDepartments(data.departments);
+        
+        // Fetch stats for each department
+        await fetchDepartmentStats(data.departments);
+      }
     } finally {
       setLoading(false);
     }
@@ -118,21 +117,21 @@ export default function DepartmentsPage() {
       
       for (const dept of departmentsList) {
         try {
-          const response = await fetch(`/api/departments/${dept._id}/stats`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.success) {
-              stats[dept._id] = data.stats;
-            }
+          const data = await api.get(`/api/departments/${dept._id}/stats`, {
+            // Silent error - we don't want to show toast for each department stats error
+            onError: () => {} // Suppress toast notifications
+          });
+          
+          if (data && data.success) {
+            stats[dept._id] = data.stats;
           }
         } catch (err) {
+          // Just log the error, no need to display it to the user
           console.error(`Error fetching stats for ${dept.name}:`, err);
         }
       }
       
       setDepartmentStats(stats);
-    } catch (err) {
-      console.error('Error fetching department stats:', err);
     } finally {
       setStatsLoading(false);
     }
@@ -140,19 +139,15 @@ export default function DepartmentsPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users?role=official');
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
-      }
-      const data = await response.json();
+      const data = await api.get('/api/users?role=official', {
+        errorTitle: t('common.error'),
+        errorMessage: t('users.fetchError') || 'Failed to load users'
+      });
+      
       setUsers(data.users || []);
     } catch (err) {
+      // Error is already handled by the useApiWithToast hook
       console.error('Error fetching users:', err);
-      toast({
-        variant: 'destructive',
-        title: t('common.error'),
-        description: t('users.fetchError') || 'Failed to load users',
-      });
     }
   };
 
@@ -207,44 +202,33 @@ export default function DepartmentsPage() {
         ? `/api/departments/${currentDepartment._id}` 
         : '/api/departments';
       
-      const method = currentDepartment ? 'PUT' : 'POST';
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        toast({
-          title: t('common.success'),
-          description: currentDepartment 
-            ? t('departments.updateSuccess')
-            : t('departments.creationSuccess'),
+      // Use our API hook for consistent error handling
+      if (currentDepartment) {
+        await api.put(url, formData, {
+          successTitle: t('common.success'),
+          successMessage: t('departments.updateSuccess'),
+          errorTitle: t('common.error'),
+          errorMessage: t('departments.updateFailed'),
+          onSuccess: () => {
+            setIsDialogOpen(false);
+            fetchDepartments();
+          }
         });
-        
-        setIsDialogOpen(false);
-        fetchDepartments();
       } else {
-        toast({
-          variant: 'destructive',
-          title: t('common.error'),
-          description: data.message || (currentDepartment 
-            ? t('departments.updateFailed')
-            : t('departments.creationError')),
+        await api.post(url, formData, {
+          successTitle: t('common.success'),
+          successMessage: t('departments.creationSuccess'),
+          errorTitle: t('common.error'),
+          errorMessage: t('departments.creationError'),
+          onSuccess: () => {
+            setIsDialogOpen(false);
+            fetchDepartments();
+          }
         });
       }
     } catch (err) {
+      // Error is already handled by useApiWithToast
       console.error('Error saving department:', err);
-      toast({
-        variant: 'destructive',
-        title: t('common.error'),
-        description: err.message || t('common.errorOccurred'),
-      });
     }
   };
 
@@ -285,34 +269,19 @@ export default function DepartmentsPage() {
     if (!departmentToDelete) return;
     
     try {
-      const response = await fetch(`/api/departments/${departmentToDelete._id}`, {
-        method: 'DELETE',
+      await api.del(`/api/departments/${departmentToDelete._id}`, {
+        successTitle: t('common.success'),
+        successMessage: t('departments.deleteSuccess') || 'Department deactivated successfully',
+        errorTitle: t('common.error'),
+        errorMessage: t('departments.deleteFailed'),
+        onSuccess: () => {
+          setIsConfirmDialogOpen(false);
+          fetchDepartments();
+        }
       });
-      
-      const data = await response.json();
-      
-      if (data.success) {
-        toast({
-          title: t('common.success'),
-          description: t('departments.deleteSuccess') || 'Department deactivated successfully',
-        });
-        
-        setIsConfirmDialogOpen(false);
-        fetchDepartments();
-      } else {
-        toast({
-          variant: 'destructive',
-          title: t('common.error'),
-          description: data.message || t('departments.deleteFailed'),
-        });
-      }
     } catch (err) {
+      // Error is already handled by useApiWithToast
       console.error('Error deleting department:', err);
-      toast({
-        variant: 'destructive',
-        title: t('common.error'),
-        description: err.message || t('common.errorOccurred'),
-      });
     }
   };
   

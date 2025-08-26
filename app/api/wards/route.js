@@ -4,6 +4,7 @@ import Audit from '@/models/Audit';
 import Ward from '@/models/Ward';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
+import { handleApiError, forbidden, badRequest } from '@/lib/error-handler';
 
 /**
  * Get all wards or create a new one
@@ -62,12 +63,7 @@ export async function GET(request) {
     });
     
   } catch (error) {
-    console.error('Error fetching wards:', error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error fetching wards' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -77,10 +73,7 @@ export async function POST(request) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Not authorized to create wards' },
-        { status: 403 }
-      );
+      throw forbidden('Not authorized to create wards');
     }
     
     // Connect to database
@@ -90,10 +83,7 @@ export async function POST(request) {
     
     // Validate required fields
     if (!body.name || !body.number || !body.location) {
-      return NextResponse.json(
-        { success: false, message: 'Ward name, number, and location are required' },
-        { status: 400 }
-      );
+      throw badRequest('Ward name, number, and location are required');
     }
     
     // Create ward
@@ -114,19 +104,11 @@ export async function POST(request) {
     }, { status: 201 });
     
   } catch (error) {
-    console.error('Error creating ward:', error);
-    
     // Handle duplicate key error
     if (error.code === 11000) {
-      return NextResponse.json(
-        { success: false, message: 'A ward with this number already exists' },
-        { status: 400 }
-      );
+      return handleApiError(badRequest('A ward with this number already exists'));
     }
     
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error creating ward' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

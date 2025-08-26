@@ -12,15 +12,16 @@ import { z } from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 
 // Import language context
 import { useLanguage } from '@/lib/i18n/language-context';
@@ -28,8 +29,9 @@ import { useLanguage } from '@/lib/i18n/language-context';
 export default function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const { toast } = useToast();
   const { t } = useLanguage();
   
   // Define validation schema with Zod
@@ -58,8 +60,6 @@ export default function RegisterForm() {
 
   const onSubmit = async (values) => {
     setIsLoading(true);
-    setError('');
-    setSuccess('');
 
     try {
       const response = await fetch('/api/auth/register', {
@@ -79,8 +79,11 @@ export default function RegisterForm() {
         throw new Error(data.message || t('auth.registrationFailed'));
       }
 
-      // Success
-      setSuccess(t('auth.registrationRedirect'));
+      // Success toast
+      toast({
+        title: t('common.success'),
+        description: t('auth.registrationSuccess'),
+      });
       
       // Redirect to login after a brief delay
       setTimeout(() => {
@@ -89,7 +92,13 @@ export default function RegisterForm() {
       
     } catch (error) {
       console.error('Registration error:', error);
-      setError(error.message || t('auth.unexpectedError'));
+      
+      // Error toast
+      toast({
+        variant: 'destructive',
+        title: t('common.error'),
+        description: error.message || t('auth.unexpectedError')
+      });
     } finally {
       setIsLoading(false);
     }

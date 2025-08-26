@@ -1,23 +1,24 @@
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/components/ui/use-toast';
 import { useLanguage } from '@/lib/i18n/language-context';
+import { showErrorToast, showSuccessToast } from "@/lib/toast-utils";
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
@@ -41,14 +42,25 @@ export const IssueActions = ({ issue, onStatusChange, onDelete }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
-      if (!response.ok) throw new Error('Failed to update status');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update status');
+      }
+      
       onStatusChange(issue._id, status);
-      toast({ 
-        title: t('common.success') || 'Success', 
-        description: t('issues.statusUpdated', { status }) || `Status updated to ${status}` 
-      });
+      
+      showSuccessToast(
+        toast, 
+        t('common.success') || 'Success', 
+        t('issues.statusUpdated', { status }) || `Status updated to ${status}`
+      );
     } catch (error) {
-      toast({ title: t('common.error'), description: error.message, variant: 'destructive' });
+      showErrorToast(
+        toast, 
+        t('common.error') || 'Error', 
+        error.message || 'Failed to update issue status'
+      );
     } finally {
       setLoading(false);
     }

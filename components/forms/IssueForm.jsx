@@ -13,23 +13,24 @@ import LocationPicker from '../maps/LocationPicker';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
 
 // Import React Query hook
 import { useCreateIssue } from '@/lib/hooks/api';
@@ -54,6 +55,12 @@ export default function IssueForm({ onSuccess, onError }) {
   // Use the createIssue mutation from React Query
   const createIssueMutation = useCreateIssue({
     onSuccess: (data) => {
+      // Show success toast
+      toast({
+        title: 'Issue Reported',
+        description: 'Your issue has been successfully reported.'
+      });
+      
       // Success! Call the success callback if provided, otherwise redirect
       if (onSuccess) {
         onSuccess(data.issue._id);
@@ -64,6 +71,15 @@ export default function IssueForm({ onSuccess, onError }) {
     onError: (error) => {
       console.error('Error submitting issue:', error);
       const errorMessage = error.message || 'Failed to submit issue. Please try again.';
+      
+      // Show error toast
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: errorMessage
+      });
+      
+      // Keep local error state for form display
       setSubmitError(errorMessage);
 
       // Call the error callback if provided
@@ -83,12 +99,18 @@ export default function IssueForm({ onSuccess, onError }) {
     },
   });
 
+  const { toast } = useToast();
+  
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const remainingSlots = 3 - images.length;
 
     if (files.length > remainingSlots) {
-      alert(`You can only upload up to 3 images. You can add ${remainingSlots} more.`);
+      toast({
+        variant: 'destructive',
+        title: 'Image limit exceeded',
+        description: `You can only upload up to 3 images. You can add ${remainingSlots} more.`
+      });
       e.target.value = ''; // Clear the file input
       return;
     }
@@ -98,7 +120,11 @@ export default function IssueForm({ onSuccess, onError }) {
 
     for (const file of files) {
       if (file.size > MAX_FILE_SIZE) {
-        alert(`File "${file.name}" exceeds the 5MB size limit.`);
+        toast({
+          variant: 'destructive',
+          title: 'File size exceeded',
+          description: `File "${file.name}" exceeds the 5MB size limit.`
+        });
         continue; // Skip this file
       }
       validFiles.push(file);
@@ -131,6 +157,11 @@ export default function IssueForm({ onSuccess, onError }) {
     // Validate location
     if (!location) {
       setLocationError("Please select a location on the map");
+      toast({
+        variant: 'destructive',
+        title: 'Missing location',
+        description: 'Please select a location on the map'
+      });
       return;
     }
 

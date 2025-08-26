@@ -126,7 +126,7 @@ export default function Navigation() {
                   isActive('/admin/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
-                Dashboard
+                {t('navigation.dashboard')}
               </Link>
             )}
             
@@ -138,7 +138,7 @@ export default function Navigation() {
                   isActive('/issues/report') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
                 }`}
               >
-                Report Issue
+                {t('navigation.reportIssue')}
               </Link>
             )}
             {status === 'authenticated' && (

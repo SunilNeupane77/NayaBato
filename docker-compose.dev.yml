@@ -1,0 +1,20 @@
+# Development overrides for Nayabato
+services:
+  nayabato-app:
+    build:
+      target: deps
+    command: npm run dev
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+      - "9229:9229" # Node.js debugging port
+
+  # Enable mongo-express for development
+  mongo-express:
+    profiles: []

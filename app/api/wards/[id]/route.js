@@ -5,6 +5,7 @@ import Audit from '@/models/Audit';
 import Ward from '@/models/Ward';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
+import { handleApiError, notFound, forbidden } from '@/lib/error-handler';
 
 /**
  * Get, update or delete a specific ward by ID
@@ -22,10 +23,7 @@ export async function GET(request, { params }) {
       .populate('officerInCharge', 'name email');
     
     if (!ward) {
-      return NextResponse.json(
-        { success: false, message: 'Ward not found' },
-        { status: 404 }
-      );
+      throw notFound('Ward not found');
     }
     
     return NextResponse.json({
@@ -34,12 +32,7 @@ export async function GET(request, { params }) {
     });
     
   } catch (error) {
-    console.error(`Error fetching ward ${params.id}:`, error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error fetching ward' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -52,10 +45,7 @@ export async function PUT(request, { params }) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Not authorized to update wards' },
-        { status: 403 }
-      );
+      throw forbidden('Not authorized to update wards');
     }
     
     // Connect to database
@@ -77,10 +67,7 @@ export async function PUT(request, { params }) {
     });
     
     if (!ward) {
-      return NextResponse.json(
-        { success: false, message: 'Ward not found' },
-        { status: 404 }
-      );
+      throw notFound('Ward not found');
     }
     
     return NextResponse.json({
@@ -89,12 +76,7 @@ export async function PUT(request, { params }) {
     });
     
   } catch (error) {
-    console.error('Error updating ward:', error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error updating ward' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }
 
@@ -106,10 +88,7 @@ export async function DELETE(request, { params }) {
     const session = await getServerSession(authOptions);
     
     if (!session || session.user.role !== 'admin') {
-      return NextResponse.json(
-        { success: false, message: 'Not authorized to delete wards' },
-        { status: 403 }
-      );
+      throw forbidden('Not authorized to delete wards');
     }
     
     // Connect to database
@@ -119,10 +98,7 @@ export async function DELETE(request, { params }) {
     const ward = await Ward.findById(id);
     
     if (!ward) {
-      return NextResponse.json(
-        { success: false, message: 'Ward not found' },
-        { status: 404 }
-      );
+      throw notFound('Ward not found');
     }
     
     // Instead of hard delete, set isActive to false
@@ -144,11 +120,6 @@ export async function DELETE(request, { params }) {
     });
     
   } catch (error) {
-    console.error('Error deactivating ward:', error);
-    
-    return NextResponse.json(
-      { success: false, message: error.message || 'Error deactivating ward' },
-      { status: 500 }
-    );
+    return handleApiError(error);
   }
 }

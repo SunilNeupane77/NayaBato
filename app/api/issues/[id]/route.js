@@ -22,8 +22,9 @@ const getSessionUser = async () => {
   return { session, user };
 };
 
-export async function GET(_req, { params }) {
-  const { id } = params;
+export async function GET(_req, context) {
+  const { params } = context;
+  const id = params.id;
   await ensureDB();
 
   const issue = await Issue.findById(id)
@@ -37,8 +38,9 @@ export async function GET(_req, { params }) {
   return NextResponse.json({ success: true, issue });
 }
 
-export async function PUT(request, { params }) {
-  const { id } = params;
+export async function PUT(request, context) {
+  const { params } = context;
+  const id = params.id;
   const body = await request.json();
   const { session, user } = await getSessionUser();
   const isAdmin = ['admin', 'official'].includes(session.user.role);
@@ -128,8 +130,9 @@ export async function PUT(request, { params }) {
   return NextResponse.json({ success: true, issue: updatedIssue });
 }
 
-export async function DELETE(request, { params }) {
-  const { id } = params;
+export async function DELETE(request, context) {
+  const { params } = context;
+  const id = params.id;
   const { session, user } = await getSessionUser();
 
   await ensureDB();

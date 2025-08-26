@@ -1,40 +1,35 @@
 import { NextResponse } from 'next/server';
+import { connectDB } from '@/lib/db/connection';
 
 /**
- * Health check endpoint for Docker and monitoring services
- * Returns basic application status and version information
- * @route GET /api/health
+ * Health check endpoint for monitoring application status
+ * Verifies database connectivity and application health
  */
 export async function GET() {
   try {
-    // Basic connectivity check for MongoDB
-    let dbStatus = 'unknown';
-    try {
-      // Simple check without actually connecting (to avoid overhead)
-      dbStatus = process.env.MONGODB_URI ? 'configured' : 'not_configured';
-    } catch (error) {
-      dbStatus = 'error';
-    }
+    // Check database connection
+    await connectDB();
     
-    // Return health status with basic system information
-    return NextResponse.json({
+    const healthStatus = {
       status: 'healthy',
       timestamp: new Date().toISOString(),
-      version: process.env.npm_package_version || 'unknown',
+      uptime: process.uptime(),
       environment: process.env.NODE_ENV,
-      database: {
-        status: dbStatus
-      }
-    });
+      version: process.env.npm_package_version || '1.0.0',
+      database: 'connected'
+    };
+
+    return NextResponse.json(healthStatus, { status: 200 });
   } catch (error) {
     console.error('Health check failed:', error);
-    return NextResponse.json(
-      {
-        status: 'unhealthy',
-        error: error.message || 'Unknown error during health check',
-        timestamp: new Date().toISOString()
-      },
-      { status: 500 }
-    );
+    
+    const errorStatus = {
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      database: 'disconnected'
+    };
+
+    return NextResponse.json(errorStatus, { status: 503 });
   }
 }
