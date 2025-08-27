@@ -4,7 +4,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Section,
@@ -53,11 +52,11 @@ const infoBoxStyles = {
 
 const statusBoxStyles = (status) => {
   const colorMap = {
-    'Reported': '#f97316',
-    'Under Review': '#3b82f6',
-    'In Progress': '#eab308',
-    'Resolved': '#22c55e',
-    'Not Actionable': '#ef4444',
+    'reported': '#f97316',
+    'under-review': '#3b82f6',
+    'in-progress': '#eab308',
+    'resolved': '#22c55e',
+    'rejected': '#ef4444',
   };
   
   return {
@@ -114,18 +113,13 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
       <Body style={baseStyles}>
         <Container style={containerStyles}>
           <Section style={headerStyles}>
-            <Img
-              src={`${process.env.NEXT_PUBLIC_APP_URL}/logo.png`}
-              width="120"
-              height="40"
-              alt="Nayabato Logo"
-            />
             <Heading style={titleStyles}>Your Issue Has Been Updated</Heading>
           </Section>
 
           <Section>
             <Text style={bodyStyles}>
-              We're writing to inform you that your reported issue has been updated in our system.
+              We're writing to inform you that the status of an issue you're involved with has been updated in our system.
+              The issue has been marked as <strong>{status}</strong>.
             </Text>
           </Section>
 
@@ -149,7 +143,7 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
               </div>
             )}
           </Section>
-
+          
           <Section style={buttonContainerStyles}>
             <Link href={issueUrl} style={buttonStyles}>
               View Issue Details

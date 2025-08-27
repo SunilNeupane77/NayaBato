@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useIssue, useUpdateIssue } from '@/lib/hooks/api';
+import { useLanguage } from '@/lib/i18n/language-context';
 import { AlertCircle, Calendar, Loader2, MapPin, User } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
@@ -22,8 +23,22 @@ const IssueLocationMap = dynamic(() => import('@/components/maps/IssueLocationMa
 
 const STATUS_COLORS = { reported: 'bg-orange-500', 'under-review': 'bg-blue-500', 'in-progress': 'bg-yellow-500', resolved: 'bg-green-500', rejected: 'bg-red-500' };
 
-const formatDate = (date ) => new Date(date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
-const formatStatus = (s) => ({ reported: 'Reported', 'under-review': 'Under Review', 'in-progress': 'In Progress', resolved: 'Resolved', rejected: 'Not Actionable' }[s] ?? s);
+const formatDate = (date, locale ) => new Date(date).toLocaleString(locale === 'ne' ? 'ne-NP' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' });
+
+// Use translation function for status and category
+const formatStatus = (status, t) => {
+  if (typeof t === 'function') {
+    return t(`issues.statuses.${status}`) || status;
+  }
+  return status;
+};
+
+const formatCategory = (category, t) => {
+  if (typeof t === 'function') {
+    return t(`issues.categories.${category}`) || category;
+  }
+  return category;
+};
 
 export default function IssueDetailPage() {
   const params = useParams();
@@ -32,6 +47,7 @@ export default function IssueDetailPage() {
   const { issue, isLoading, isError, error, refetch } = useIssue(params.id);
   const updateIssue = useUpdateIssue();
   const { toast } = useToast();
+  const { t, locale } = useLanguage();
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [newStatus, setNewStatus] = useState('');
@@ -73,8 +89,8 @@ export default function IssueDetailPage() {
       await updateIssue.mutateAsync({ id: issue._id, data: { status: newStatus, notes } });
       
       toast({
-        title: 'Status Updated',
-        description: `Issue status changed to ${formatStatus(newStatus)}`
+        title: t('common.success'),
+        description: t('issues.statusUpdated', { status: formatStatus(newStatus, t) })
       });
       
       setNewStatus('');

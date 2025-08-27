@@ -1,5 +1,6 @@
 "use client";
 
+import { useLanguage } from '@/lib/i18n/language-context';
 import { motion } from "framer-motion";
 import { AlertTriangle, ArrowRight, BadgeCheck, BarChart3, Camera, CheckCircle, Clock, Edit, Mail, Map, MapPin, Share2, Shield, Users, Zap } from "lucide-react";
 import Image from "next/image";
@@ -80,6 +81,8 @@ const PartnerLogo = ({ src, alt, width = 120, height = 40 }) => (
 );
 
 export default function HomePage() {
+  const { t } = useLanguage();
+  
   return (
     <div className="flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Hero Section with Abstract Shapes */}
@@ -111,14 +114,13 @@ export default function HomePage() {
           >
             <div className="inline-flex items-center px-4 py-2 bg-white/10 rounded-full backdrop-blur-sm mb-6">
               <span className="animate-pulse w-2 h-2 bg-teal-400 rounded-full mr-2"></span>
-              <span className="text-sm font-medium text-white/90">New: Ward Assignment System</span>
+              <span className="text-sm font-medium text-white/90">{t('home.hero.announcement')}</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
-              Empower Communities. <br /> Drive Change.
+              {t('home.hero.heading')}
             </h1>
             <p className="text-lg md:text-xl mb-10 text-teal-100/90 max-w-xl mx-auto md:mx-0">
-              Nayabato connects citizens with local officials. Report civic
-              issues, track progress, and create lasting impact.
+              {t('home.hero.description')}
             </p>
             <div className="flex flex-wrap gap-4 justify-center md:justify-start mb-8">
               <Button
@@ -126,7 +128,7 @@ export default function HomePage() {
                 size="lg"
                 className="bg-white text-indigo-700 hover:bg-teal-50 font-semibold hover:scale-105 transition-transform shadow-lg"
               >
-                <Link href="/issues/report">Report an Issue</Link>
+                <Link href="/issues/report">{t('home.hero.reportButton')}</Link>
               </Button>
               <Button
                 asChild
@@ -134,7 +136,7 @@ export default function HomePage() {
                 size="lg"
                 className="border-white/80 bg-orange-600 text-black hover:bg-white/20 font-semibold transition-colors"
               >
-                <Link href="/issues">View Active Issues</Link>
+                <Link href="/issues">{t('home.hero.viewButton')}</Link>
               </Button>
             </div>
           </motion.div>
@@ -156,11 +158,11 @@ export default function HomePage() {
                     <div className="w-2 h-2 rounded-full bg-yellow-400"></div>
                     <div className="w-2 h-2 rounded-full bg-green-400"></div>
                   </div>
-                  <div className="mx-auto text-xs text-gray-500 font-medium">Nayabato Dashboard</div>
+                  <div className="mx-auto text-xs text-gray-500 font-medium">{t('common.appName')} {t('navigation.dashboard')}</div>
                 </div>
                 <Image
                   src="/images/dashboard-preview.svg"
-                  alt="Nayabato Dashboard Preview"
+                  alt={t('home.hero.dashboardPreview')}
                   width={500}
                   height={300}
                   className="w-full"
@@ -175,9 +177,9 @@ export default function HomePage() {
               >
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs font-medium text-gray-600">Issue Resolved</span>
+                  <span className="text-xs font-medium text-gray-600">{t('home.hero.issueResolved')}</span>
                 </div>
-                <div className="text-xs text-gray-500">Water pipe fixed at Central Ward</div>
+                <div className="text-xs text-gray-500">{t('home.hero.waterPipeFixed')}</div>
               </motion.div>
               
               {/* Floating chart/stats element */}
@@ -187,7 +189,7 @@ export default function HomePage() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   <BarChart3 className="w-3 h-3 text-teal-500" />
-                  <span className="text-xs font-semibold text-gray-700">Resolution Rate</span>
+                  <span className="text-xs font-semibold text-gray-700">{t('home.hero.resolutionRate')}</span>
                 </div>
                 <div className="flex gap-1 items-end mt-1">
                   <div className="w-3 h-8 bg-teal-200 rounded-sm"></div>
@@ -196,7 +198,7 @@ export default function HomePage() {
                   <div className="w-3 h-7 bg-teal-500 rounded-sm"></div>
                   <div className="w-3 h-10 bg-teal-600 rounded-sm"></div>
                 </div>
-                <div className="text-xs mt-1 text-right text-gray-500">This week</div>
+                <div className="text-xs mt-1 text-right text-gray-500">{t('home.hero.thisWeek')}</div>
               </motion.div>
               
             </div>
@@ -216,36 +218,35 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <div className="inline-flex items-center bg-teal-50 text-teal-700 rounded-full px-4 py-1.5 mb-4 font-medium text-sm">
               <Zap size={16} className="mr-2" />
-              Simple Process
+              {t('home.process.sectionHeading')}
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              A Simple Path to Resolution
+              {t('home.process.sectionTitle')}
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Submit issues, track progress, and witness transparent resolutions
-              in just a few steps.
+              {t('home.process.sectionDescription')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto">
             {[
               {
-                title: "1. Submit Your Report",
-                desc: "Easily file reports with photos and exact map locations.",
+                title: t('home.process.step1Title'),
+                desc: t('home.process.step1Desc'),
                 icon: <AlertTriangle className="h-7 w-7 text-white" />,
                 color: "from-teal-400 to-teal-600",
                 image: "/images/report-issue.svg"
               },
               {
-                title: "2. Track in Real-Time",
-                desc: "Get live updates and notifications from officials.",
+                title: t('home.process.step2Title'),
+                desc: t('home.process.step2Desc'),
                 icon: <Clock className="h-7 w-7 text-white" />,
                 color: "from-amber-400 to-amber-600",
                 image: "/images/track-issue.svg"
               },
               {
-                title: "3. See the Resolution",
-                desc: "Stay informed as local authorities take visible action.",
+                title: t('home.process.step3Title'),
+                desc: t('home.process.step3Desc'),
                 icon: <BarChart3 className="h-7 w-7 text-white" />,
                 color: "from-cyan-400 to-cyan-600",
                 image: "/images/resolved-issue.svg"
@@ -288,11 +289,11 @@ export default function HomePage() {
               <div className="absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-teal-400 via-cyan-500 to-indigo-500 transform -translate-y-1/2"></div>
               <div className="flex justify-between relative w-full max-w-4xl">
                 {[
-                  { label: "Submit", icon: <Edit size={24} className="text-teal-600" /> },
-                  { label: "Review", icon: <Shield size={24} className="text-cyan-600" /> },
-                  { label: "Assign", icon: <Users size={24} className="text-blue-600" /> },
-                  { label: "Resolve", icon: <CheckCircle size={24} className="text-indigo-600" /> },
-                  { label: "Verify", icon: <BadgeCheck size={24} className="text-purple-600" /> }
+                  { label: t('home.process.flowLabels.submit'), icon: <Edit size={24} className="text-teal-600" /> },
+                  { label: t('home.process.flowLabels.review'), icon: <Shield size={24} className="text-cyan-600" /> },
+                  { label: t('home.process.flowLabels.assign'), icon: <Users size={24} className="text-blue-600" /> },
+                  { label: t('home.process.flowLabels.resolve'), icon: <CheckCircle size={24} className="text-indigo-600" /> },
+                  { label: t('home.process.flowLabels.verify'), icon: <BadgeCheck size={24} className="text-purple-600" /> }
                 ].map((step, i) => (
                   <motion.div 
                     key={i}
@@ -332,53 +333,52 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <div className="inline-flex items-center bg-indigo-50 text-indigo-700 rounded-full px-4 py-1.5 mb-4 font-medium text-sm">
               <Zap size={16} className="mr-2" />
-              Packed with Features
+              {t('home.features.sectionHeading')}
             </div>
             <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Platform Highlights
+              {t('home.features.sectionTitle')}
             </h2>
             <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-              Everything you need for effective civic engagement, built into one
-              platform.
+              {t('home.features.sectionDescription')}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<MapPin className="h-8 w-8 text-white" />}
-              title="Geo-Location Tagging"
+              title={t('home.features.geoLocation')}
             >
-              Pinpoint issues directly on the map for precision.
+              {t('home.features.geoLocationDesc')}
             </FeatureCard>
             <FeatureCard
               icon={<Camera className="h-8 w-8 text-white" />}
-              title="Photo & Video Uploads"
+              title={t('home.features.mediaUpload')}
             >
-              Add media evidence for faster resolution.
+              {t('home.features.mediaUploadDesc')}
             </FeatureCard>
             <FeatureCard
               icon={<BarChart3 className="h-8 w-8 text-white" />}
-              title="Official's Dashboard"
+              title={t('home.features.dashboard')}
             >
-              A centralized hub for managing reported issues.
+              {t('home.features.dashboardDesc')}
             </FeatureCard>
             <FeatureCard
               icon={<Mail className="h-8 w-8 text-white" />}
-              title="Automated Notifications"
+              title={t('home.features.notifications')}
             >
-              Stay updated with instant alerts and emails.
+              {t('home.features.notificationsDesc')}
             </FeatureCard>
             <FeatureCard
               icon={<Users className="h-8 w-8 text-white" />}
-              title="Role-Based Access"
+              title={t('home.features.roleAccess')}
             >
-              Secure access tailored for citizens, officials, and admins.
+              {t('home.features.roleAccessDesc')}
             </FeatureCard>
             <FeatureCard
               icon={<Share2 className="h-8 w-8 text-white" />}
-              title="Public Updates"
+              title={t('home.features.updates')}
             >
-              Officials share progress and transparency with the community.
+              {t('home.features.updatesDesc')}
             </FeatureCard>
           </div>
           
@@ -391,20 +391,18 @@ export default function HomePage() {
               <div className="p-10 flex flex-col justify-center">
                 <div className="inline-flex items-center bg-indigo-100 text-indigo-700 rounded-full px-4 py-1.5 mb-4 font-medium text-sm">
                   <Map size={16} className="mr-2" />
-                  Featured Highlight
+                  {t('home.features.highlight')}
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                  Ward Assignment System
+                  {t('home.features.wardSystem')}
                 </h3>
                 <p className="text-gray-600 mb-8">
-                  Our new ward assignment system automatically routes issues to the correct local officials, 
-                  ensuring faster response times and accountability. Issues are tracked from submission to resolution 
-                  with complete transparency.
+                  {t('home.features.wardSystemDesc')}
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <div className="px-3 py-1 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm">Automated Routing</div>
-                  <div className="px-3 py-1 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm">Smart Assignment</div>
-                  <div className="px-3 py-1 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm">Progress Tracking</div>
+                  <div className="px-3 py-1 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm">{t('home.features.tags.automatedRouting')}</div>
+                  <div className="px-3 py-1 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm">{t('home.features.tags.smartAssignment')}</div>
+                  <div className="px-3 py-1 bg-white rounded-full text-xs font-medium text-gray-700 shadow-sm">{t('home.features.tags.progressTracking')}</div>
                 </div>
               </div>
               <div className="relative md:h-auto">
@@ -417,22 +415,22 @@ export default function HomePage() {
                           <MapPin size={24} />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-gray-900">Water Leakage</h4>
-                          <p className="text-sm text-gray-500">Assigned to: Ward 12 Officer</p>
+                          <h4 className="font-semibold text-gray-900">{t('home.features.issueDetails.waterLeakage')}</h4>
+                          <p className="text-sm text-gray-500">{t('home.features.issueDetails.assignedTo')}</p>
                         </div>
                       </div>
                       <div className="space-y-2">
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Reported:</span>
-                          <span className="text-gray-900">Today, 09:45 AM</span>
+                          <span className="text-gray-600">{t('home.features.issueDetails.reported')}</span>
+                          <span className="text-gray-900">{t('home.features.issueDetails.reportedTime')}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Status:</span>
-                          <span className="text-amber-600 font-medium">In Progress</span>
+                          <span className="text-gray-600">{t('home.features.issueDetails.status')}</span>
+                          <span className="text-amber-600 font-medium">{t('home.features.issueDetails.statusInProgress')}</span>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-gray-600">Location:</span>
-                          <span className="text-gray-900">Chandol, Ward 12</span>
+                          <span className="text-gray-600">{t('home.features.issueDetails.location')}</span>
+                          <span className="text-gray-900">{t('home.features.issueDetails.locationDetails')}</span>
                         </div>
                       </div>
                     </div>
@@ -468,11 +466,10 @@ export default function HomePage() {
             <div className="grid md:grid-cols-5 gap-12 items-center">
               <div className="md:col-span-3 text-center md:text-left">
                 <h2 className="text-4xl md:text-5xl font-bold mb-6">
-                  Ready to Make a Difference?
+                  {t('home.cta.title')}
                 </h2>
                 <p className="text-lg md:text-xl mb-10 text-gray-300 max-w-xl mx-auto md:mx-0">
-                  Join Nayabato today and be part of a community that takes action.
-                  Your voice matters in shaping the future of your neighborhood.
+                  {t('home.cta.description')}
                 </p>
                 <div className="flex flex-wrap justify-center md:justify-start gap-4">
                   <Button
@@ -481,7 +478,7 @@ export default function HomePage() {
                     className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-semibold shadow-lg hover:scale-105 transition-transform group"
                   >
                     <Link href="/auth/register" className="flex items-center gap-2">
-                      Sign Up Now
+                      {t('home.cta.signUpButton')}
                       <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
@@ -491,7 +488,7 @@ export default function HomePage() {
                     size="lg"
                     className="border-gray-600 bg-orange-700 text-black hover:bg-white/10 transition-colors"
                   >
-                    <Link href="/issues">Explore Issues</Link>
+                    <Link href="/issues">{t('home.cta.exploreButton')}</Link>
                   </Button>
                 </div>
               </div>
@@ -505,7 +502,7 @@ export default function HomePage() {
                     <div className="bg-black rounded-2xl overflow-hidden border-4 border-gray-800">
                       <div className="relative bg-gray-900 px-4 py-2 flex justify-center">
                         <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-20 h-6 bg-black rounded-b-xl"></div>
-                        <span className="text-gray-400 text-xs">Nayabato Platform</span>
+                        <span className="text-gray-400 text-xs">{t('home.cta.platformLabel')}</span>
                       </div>
                       <div className="py-4 px-3 space-y-4">
                         {/* Dummy content */}

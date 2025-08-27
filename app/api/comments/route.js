@@ -1,7 +1,9 @@
 import connectDB from '@/lib/db/connect';
+import { sendCommentNotificationEmail } from '@/lib/email';
 import Comment from '@/models/Comment';
 import Issue from '@/models/Issue';
 import Notification from '@/models/Notification';
+import User from '@/models/User';
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
@@ -83,8 +85,11 @@ export async function POST(request) {
       );
     }
     
-    // Check if the issue exists
-    const issue = await Issue.findById(body.issue).populate('reporter', 'email _id');
+    // Check if the issue exists and get full details
+    const issue = await Issue.findById(body.issue)
+      .populate('reporter', 'name email notifications')
+      .populate('assignedTo', 'name email notifications');
+      
     if (!issue) {
       return NextResponse.json(
         { success: false, message: 'Issue not found' },
@@ -100,6 +105,9 @@ export async function POST(request) {
       );
     }
     
+    // Get the comment author details
+    const commentAuthor = await User.findById(session.user.id).select('name email');
+    
     // Create comment
     const comment = await Comment.create({
       ...body,
@@ -109,21 +117,83 @@ export async function POST(request) {
     // Populate author details for response
     await comment.populate('author', 'name email role');
     
-    // Create notification for issue reporter (if not the comment author)
-    if (issue.reporter._id.toString() !== session.user.id && !body.isInternal) {
-      await Notification.createNotification({
-        recipient: issue.reporter._id,
-        title: 'New comment on your issue',
-        message: `There's a new comment on your issue: ${issue.title}`,
-        type: 'comment',
-        referenceId: comment._id,
-        referenceModel: 'Comment'
-      });
+    // Collect users to notify (avoid duplicates and don't notify the comment author)
+    const usersToNotify = new Set();
+    
+    // Add issue reporter if they're not the comment author and it's not an internal comment
+    if (issue.reporter && 
+        issue.reporter._id.toString() !== session.user.id && 
+        !body.isInternal &&
+        issue.reporter.notifications?.email) {
+      usersToNotify.add(JSON.stringify({
+        id: issue.reporter._id,
+        name: issue.reporter.name,
+        email: issue.reporter.email,
+        role: 'reporter'
+      }));
+    }
+    
+    // Add assigned official if they're not the comment author and it's not an internal comment
+    if (issue.assignedTo && 
+        issue.assignedTo._id.toString() !== session.user.id && 
+        !body.isInternal &&
+        issue.assignedTo.notifications?.email) {
+      usersToNotify.add(JSON.stringify({
+        id: issue.assignedTo._id,
+        name: issue.assignedTo.name,
+        email: issue.assignedTo.email,
+        role: 'assigned'
+      }));
+    }
+    
+    // Send notifications and emails
+    const notificationPromises = [];
+    const emailPromises = [];
+    
+    for (const userStr of usersToNotify) {
+      const user = JSON.parse(userStr);
+      
+      // Create in-app notification
+      notificationPromises.push(
+        Notification.createNotification({
+          recipient: user.id,
+          title: 'New comment on issue',
+          message: `${commentAuthor.name} commented on: ${issue.title}`,
+          type: 'comment',
+          referenceId: comment._id,
+          referenceModel: 'Comment'
+        })
+      );
+      
+      // Send email notification
+      emailPromises.push(
+        sendCommentNotificationEmail({
+          to: user.email,
+          recipientName: user.name,
+          commenterName: commentAuthor.name,
+          issueTitle: issue.title,
+          issueId: issue._id.toString(),
+          comment: body.content
+        }).catch(emailError => {
+          console.error(`Failed to send comment notification email to ${user.email}:`, emailError);
+          // Don't fail the request if email fails
+        })
+      );
+    }
+    
+    // Execute all notifications and emails in parallel
+    try {
+      await Promise.all([...notificationPromises, ...emailPromises]);
+      console.log(`Sent ${usersToNotify.size} comment notifications for issue ${issue._id}`);
+    } catch (notificationError) {
+      console.error('Error sending comment notifications:', notificationError);
+      // Don't fail the request if notifications fail
     }
     
     return NextResponse.json({
       success: true,
-      comment
+      comment,
+      notificationsSent: usersToNotify.size
     }, { status: 201 });
     
   } catch (error) {

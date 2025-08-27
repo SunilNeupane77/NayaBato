@@ -40,12 +40,18 @@ const formatDate = (dateString, locale) => {
 
 // Format status for display
 const formatStatus = (status, t) => {
-  return t(`issues.statuses.${status}`) || status;
+  if (typeof t === 'function') {
+    return t(`issues.statuses.${status}`) || status;
+  }
+  return status;
 };
 
 // Format category for display
 const formatCategory = (category, t) => {
-  return t(`issues.categories.${category}`) || category;
+  if (typeof t === 'function') {
+    return t(`issues.categories.${category}`) || category;
+  }
+  return category;
 };
 
 // Status colors for badges
@@ -63,6 +69,7 @@ export default function IssueCard({ issue, onDelete }) {
   const { toast } = useToast();
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const isAdmin = session?.user?.role === 'admin';
   const isOfficial = session?.user?.role === 'official';
@@ -105,16 +112,20 @@ export default function IssueCard({ issue, onDelete }) {
   };
 
   return (
-    <Card className="transition-shadow hover:shadow-md">
+    <Card 
+      className={`transition-all duration-300 border border-gray-200 dark:border-gray-700 ${isHovered ? 'shadow-lg transform -translate-y-1' : 'hover:shadow-md'}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center">
-                <Badge className={`${STATUS_COLORS[issue.status]} text-white mr-2`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <Badge className={`${STATUS_COLORS[issue.status]} text-white px-3 py-1`}>
                   {formatStatus(issue.status, t)}
                 </Badge>
-                <span className="text-sm text-gray-500">
+                <span className="text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 px-3 py-1 rounded-full">
                   {formatCategory(issue.category, t)}
                 </span>
               </div>
@@ -167,11 +178,18 @@ export default function IssueCard({ issue, onDelete }) {
           )}
         </div>
         
-        {/* View issue button for mobile */}
-        <div className="mt-4 md:hidden">
-          <Link href={`/issues/${issue._id}`} passHref>
-            <Button variant="outline" className="w-full">{t('common.view')}</Button>
-          </Link>
+        {/* View issue buttons - visible on all screen sizes */}
+        <div className="mt-4 flex justify-between items-center">
+          <div className="text-sm text-gray-600 truncate max-w-[150px]">
+            {issue.description ? issue.description.substring(0, 60) + (issue.description.length > 60 ? '...' : '') : ''}
+          </div>
+          <div className="flex">
+            <Link href={`/issues/${issue._id}`} passHref>
+              <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-teal-50">
+                {t('common.viewDetails')}
+              </Button>
+            </Link>
+          </div>
         </div>
       </CardContent>
 

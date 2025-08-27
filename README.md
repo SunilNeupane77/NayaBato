@@ -32,7 +32,17 @@ Nayabato addresses these issues by:
     *   User management (view, edit, delete).
     *   Department management.
     *   Audit logs for tracking system activities.
-*   **Email Notifications:** Automated emails for issue confirmation and status updates.
+*   **Comprehensive Email System:** 
+    *   Automated emails for issue confirmation and status updates.
+    *   Password reset functionality with secure email delivery.
+    *   Comment notifications to keep users engaged.
+    *   Assignment notifications for officials when issues are assigned.
+    *   Weekly digest emails summarizing platform activity.
+    *   Welcome emails for new user onboarding.
+*   **Enhanced Toast Notifications:** 
+    *   Real-time visual feedback with multiple variants (success, error, warning, info).
+    *   Smooth animations including bounce-in effects and progress bars.
+    *   Improved positioning and visibility for better user experience.
 *   **Responsive Design:** Optimized for various devices (desktop, tablet, mobile).
 *   **Legal Pages:** Dedicated Privacy Policy and Terms of Service pages.
 
@@ -173,6 +183,16 @@ yarn dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+
+## Documentation
+
+For detailed information about recent updates and configuration:
+
+*   **[Recent Updates & Enhancements](RECENT_UPDATES.md)** - Comprehensive overview of latest features and improvements
+*   **[Email Configuration Guide](EMAIL_CONFIG.md)** - Step-by-step Gmail setup for Nodemailer
+*   **[Migration Summary](NODEMAILER_MIGRATION_COMPLETE.md)** - Details about the Resend to Nodemailer migration
+*   **[Docker Setup](DOCKER.md)** - Container deployment instructions
+*   **[Docker Summary](DOCKER_SUMMARY.md)** - Docker configuration overview
 
 ## Contributing
 

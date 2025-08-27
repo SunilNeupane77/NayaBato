@@ -4,10 +4,12 @@ import { createWithAudit } from '@/lib/db/audit-utils';
 import connectDB from '@/lib/db/connect';
 import { sendIssueConfirmation } from '@/lib/email';
 import { badRequest, handleApiError, unauthorized } from '@/lib/error-handler';
+import mongoose from 'mongoose';
+// Import models in dependency order
 import Issue from '@/models/Issue';
 import Notification from '@/models/Notification';
-import User from '@/models/User';
-import mongoose from 'mongoose';
+import User from '@/models/User'; // User is referenced by Ward
+import Ward from '@/models/Ward'; // Ward is referenced by Issue
 import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 
@@ -41,8 +43,23 @@ export async function POST(request) {
     let location;
     try {
       location = JSON.parse(locationJson);
+      
+      // Validate that location has the required structure
+      if (!location.coordinates || 
+          !location.coordinates.type || 
+          !location.coordinates.coordinates || 
+          !Array.isArray(location.coordinates.coordinates) || 
+          location.coordinates.coordinates.length !== 2) {
+        throw new Error('Location data is missing required fields');
+      }
+      
+      // Validate that coordinates are numbers
+      if (typeof location.coordinates.coordinates[0] !== 'number' || 
+          typeof location.coordinates.coordinates[1] !== 'number') {
+        throw new Error('Location coordinates must be numbers');
+      }
     } catch (error) {
-      throw badRequest('Invalid location data format');
+      throw badRequest(`Invalid location data format: ${error.message}`);
     }
     
     // Connect to database
@@ -107,12 +124,16 @@ export async function POST(request) {
     // Find the nearest ward to assign this issue
     let assignedWard = null;
     try {
-      // Get nearest active ward using the MongoDB geospatial query
-      const Ward = await import('@/models/Ward').then(module => module.default);
-      const nearestWards = await Ward.findNearest(location.coordinates.coordinates);
-      
-      if (nearestWards && nearestWards.length > 0) {
-        assignedWard = nearestWards[0]._id;
+      // Make sure the location has the correct structure before querying
+      if (location && location.coordinates && location.coordinates.coordinates) {
+        // Get nearest active ward using the MongoDB geospatial query
+        const nearestWards = await Ward.findNearest(location.coordinates.coordinates);
+        
+        if (nearestWards && nearestWards.length > 0) {
+          assignedWard = nearestWards[0]._id;
+        }
+      } else {
+        console.log('Missing proper coordinates structure in location data:', location);
       }
     } catch (error) {
       console.error('Error finding nearest ward:', error);
@@ -160,7 +181,7 @@ export async function POST(request) {
     // Get ward officer if a ward was assigned
     let wardOfficerId = null;
     if (newIssue.assignedWard) {
-      const Ward = await import('@/models/Ward').then(module => module.default);
+      // Use the already imported Ward model instead of dynamic import
       const assignedWard = await Ward.findById(newIssue.assignedWard).populate('officerInCharge', '_id');
       if (assignedWard && assignedWard.officerInCharge) {
         wardOfficerId = assignedWard.officerInCharge._id;
@@ -187,16 +208,21 @@ export async function POST(request) {
     
     // Send confirmation email to user
     try {
-      await sendIssueConfirmation({
+      const emailResult = await sendIssueConfirmation({
         to: user.email,
         issueId: newIssue._id.toString(),
         title: newIssue.title,
         location: newIssue.location.address
       });
-      console.log(`Issue confirmation email sent to ${user.email}`);
+      
+      if (emailResult.success) {
+        console.log(`Issue confirmation email sent to ${user.email} (Email ID: ${emailResult.data?.id || 'unknown'})`);
+      } else {
+        console.error('Error sending issue confirmation email:', emailResult.error);
+      }
     } catch (emailError) {
       // Log error but don't fail the request
-      console.error('Error sending issue confirmation email:', emailError);
+      console.error('Exception sending issue confirmation email:', emailError);
     }
     
     return NextResponse.json(

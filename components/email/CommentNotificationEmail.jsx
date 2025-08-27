@@ -33,18 +33,14 @@ const titleStyles = {
   margin: '12px 0',
 };
 
-const subtitleStyles = {
-  fontSize: '18px',
-  fontWeight: 'normal',
-  margin: '12px 0',
-};
-
 const bodyStyles = {
   lineHeight: 1.6,
 };
 
-const infoBoxStyles = {
-  background: '#f4f4f7',
+const commentBoxStyles = {
+  background: '#f8fafc',
+  border: '1px solid #e2e8f0',
+  borderLeft: '4px solid #3b82f6',
   borderRadius: '4px',
   padding: '20px',
   marginBottom: '20px',
@@ -56,7 +52,7 @@ const buttonContainerStyles = {
 };
 
 const buttonStyles = {
-  backgroundColor: '#2563eb',
+  backgroundColor: '#3b82f6',
   borderRadius: '4px',
   color: '#fff',
   display: 'inline-block',
@@ -75,59 +71,74 @@ const footerStyles = {
   textAlign: 'center',
 };
 
-const WelcomeEmail = ({ name, dashboardUrl, role }) => {
+const CommentNotificationEmail = ({ 
+  recipientName, 
+  commenterName, 
+  issueTitle, 
+  issueId, 
+  comment, 
+  issueUrl 
+}) => {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Nayabato - Your Civic Issue Reporting Platform</Preview>
+      <Preview>New comment on your issue: {issueTitle}</Preview>
       <Body style={baseStyles}>
         <Container style={containerStyles}>
           <Section style={headerStyles}>
-            <Heading style={titleStyles}>Welcome to Nayabato!</Heading>
+            <Heading style={titleStyles}>New Comment on Your Issue</Heading>
           </Section>
           
           <Section style={bodyStyles}>
-            <Text>Hello {name},</Text>
+            <Text>Hello {recipientName},</Text>
             
             <Text>
-              Thank you for joining Nayabato, your platform for civic engagement and community issue reporting.
-              We're excited to have you on board as a {role === 'official' ? 'government official' : 'citizen'}.
+              <strong>{commenterName}</strong> has added a new comment to your issue:
             </Text>
             
-            <Section style={infoBoxStyles}>
-              <Text style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>
-                With Nayabato, you can:
+            <Text style={{ fontWeight: 'bold', fontSize: '18px', color: '#1f2937' }}>
+              "{issueTitle}"
+            </Text>
+            
+            <Section style={commentBoxStyles}>
+              <Text style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#3b82f6' }}>
+                💬 New Comment:
               </Text>
-              <Text style={{ margin: '5px 0' }}>
-                • Report civic issues in your community
+              <Text style={{ 
+                margin: '0',
+                fontStyle: 'italic',
+                backgroundColor: '#ffffff',
+                padding: '15px',
+                borderRadius: '4px',
+                border: '1px solid #e2e8f0'
+              }}>
+                "{comment}"
               </Text>
-              <Text style={{ margin: '5px 0' }}>
-                • Track the status of reported issues
-              </Text>
-              <Text style={{ margin: '5px 0' }}>
-                • Engage with local officials and other citizens
-              </Text>
-              <Text style={{ margin: '5px 0' }}>
-                • Contribute to making your community better
+              <Text style={{ 
+                margin: '10px 0 0 0', 
+                fontSize: '14px', 
+                color: '#6b7280' 
+              }}>
+                — {commenterName}
               </Text>
             </Section>
             
             <Text>
-              Your account has been successfully created, and you can now log in to start using the platform.
+              You can view the full conversation and respond by clicking the button below:
             </Text>
             
             <Section style={buttonContainerStyles}>
-              <Link href={dashboardUrl} style={buttonStyles}>
-                Go to Dashboard
+              <Link href={issueUrl} style={buttonStyles}>
+                View Issue & Reply
               </Link>
             </Section>
             
-            <Text>
-              If you have any questions or need assistance, please don't hesitate to contact our support team at support@nayabato.org.
+            <Text style={{ fontSize: '14px', color: '#6b7280' }}>
+              Issue ID: {issueId}
             </Text>
             
             <Text>
-              Thank you for joining our community!
+              Stay engaged with your community and help resolve local issues together!
             </Text>
             
             <Text>
@@ -141,7 +152,8 @@ const WelcomeEmail = ({ name, dashboardUrl, role }) => {
               © {new Date().getFullYear()} Nayabato. All rights reserved.
             </Text>
             <Text>
-              If you did not create this account, please contact us immediately.
+              You received this email because you reported this issue. 
+              You can manage your notification preferences in your account settings.
             </Text>
           </Section>
         </Container>
@@ -150,4 +162,4 @@ const WelcomeEmail = ({ name, dashboardUrl, role }) => {
   );
 };
 
-export default WelcomeEmail;
+export default CommentNotificationEmail;

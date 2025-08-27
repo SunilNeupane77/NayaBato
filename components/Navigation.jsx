@@ -207,13 +207,13 @@ export default function Navigation() {
                       <DropdownMenuItem asChild>
                         <Link href="/admin/users" className="cursor-pointer flex w-full">
                           <User className="mr-2 h-4 w-4" />
-                          <span>{t('admin.userManagement')}</span>
+                          <span>{t('admin.users')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/admin/departments" className="cursor-pointer flex w-full">
                           <Settings className="mr-2 h-4 w-4" />
-                          <span>{t('admin.departmentManagement')}</span>
+                          <span>{t('admin.departments')}</span>
                         </Link>
                       </DropdownMenuItem>
                     </>

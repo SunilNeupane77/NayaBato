@@ -1,4 +1,5 @@
 import connectDB from '@/lib/db/connect';
+// Import models in dependency order
 import Department from '@/models/Department';
 import Issue from '@/models/Issue';
 import { NextResponse } from 'next/server';
@@ -12,7 +13,7 @@ export async function GET(request, { params }) {
     // Connect to database
     await connectDB();
     
-    // Get department ID from params
+    // Get department ID from params - no need to await params directly
     const { id } = params;
     
     // Get query parameters

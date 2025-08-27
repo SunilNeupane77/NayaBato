@@ -33,18 +33,13 @@ const titleStyles = {
   margin: '12px 0',
 };
 
-const subtitleStyles = {
-  fontSize: '18px',
-  fontWeight: 'normal',
-  margin: '12px 0',
-};
-
 const bodyStyles = {
   lineHeight: 1.6,
 };
 
-const infoBoxStyles = {
-  background: '#f4f4f7',
+const alertBoxStyles = {
+  background: '#fef2f2',
+  border: '1px solid #fecaca',
   borderRadius: '4px',
   padding: '20px',
   marginBottom: '20px',
@@ -56,7 +51,7 @@ const buttonContainerStyles = {
 };
 
 const buttonStyles = {
-  backgroundColor: '#2563eb',
+  backgroundColor: '#dc2626',
   borderRadius: '4px',
   color: '#fff',
   display: 'inline-block',
@@ -75,64 +70,71 @@ const footerStyles = {
   textAlign: 'center',
 };
 
-const WelcomeEmail = ({ name, dashboardUrl, role }) => {
+const PasswordResetEmail = ({ name, resetUrl, expiresIn = '1 hour' }) => {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Nayabato - Your Civic Issue Reporting Platform</Preview>
+      <Preview>Reset your Nayabato password</Preview>
       <Body style={baseStyles}>
         <Container style={containerStyles}>
           <Section style={headerStyles}>
-            <Heading style={titleStyles}>Welcome to Nayabato!</Heading>
+            <Heading style={titleStyles}>Password Reset Request</Heading>
           </Section>
           
           <Section style={bodyStyles}>
             <Text>Hello {name},</Text>
             
             <Text>
-              Thank you for joining Nayabato, your platform for civic engagement and community issue reporting.
-              We're excited to have you on board as a {role === 'official' ? 'government official' : 'citizen'}.
+              We received a request to reset your password for your Nayabato account. 
+              If you didn't make this request, you can safely ignore this email.
             </Text>
             
-            <Section style={infoBoxStyles}>
-              <Text style={{ margin: '0 0 10px 0', fontWeight: 'bold' }}>
-                With Nayabato, you can:
+            <Section style={alertBoxStyles}>
+              <Text style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#dc2626' }}>
+                Security Notice:
               </Text>
               <Text style={{ margin: '5px 0' }}>
-                • Report civic issues in your community
+                • This reset link will expire in {expiresIn}
               </Text>
               <Text style={{ margin: '5px 0' }}>
-                • Track the status of reported issues
+                • Only use this link if you requested a password reset
               </Text>
               <Text style={{ margin: '5px 0' }}>
-                • Engage with local officials and other citizens
-              </Text>
-              <Text style={{ margin: '5px 0' }}>
-                • Contribute to making your community better
+                • Never share this link with anyone
               </Text>
             </Section>
             
             <Text>
-              Your account has been successfully created, and you can now log in to start using the platform.
+              To reset your password, click the button below:
             </Text>
             
             <Section style={buttonContainerStyles}>
-              <Link href={dashboardUrl} style={buttonStyles}>
-                Go to Dashboard
+              <Link href={resetUrl} style={buttonStyles}>
+                Reset Password
               </Link>
             </Section>
             
             <Text>
-              If you have any questions or need assistance, please don't hesitate to contact our support team at support@nayabato.org.
+              If the button doesn't work, you can copy and paste this link into your browser:
+            </Text>
+            
+            <Text style={{ 
+              backgroundColor: '#f4f4f7', 
+              padding: '10px', 
+              borderRadius: '4px',
+              wordBreak: 'break-all',
+              fontSize: '14px'
+            }}>
+              {resetUrl}
             </Text>
             
             <Text>
-              Thank you for joining our community!
+              If you continue to have problems, please contact our support team.
             </Text>
             
             <Text>
               Best regards,<br />
-              The Nayabato Team
+              The Nayabato Security Team
             </Text>
           </Section>
           
@@ -141,7 +143,7 @@ const WelcomeEmail = ({ name, dashboardUrl, role }) => {
               © {new Date().getFullYear()} Nayabato. All rights reserved.
             </Text>
             <Text>
-              If you did not create this account, please contact us immediately.
+              This email was sent because a password reset was requested for your account.
             </Text>
           </Section>
         </Container>
@@ -150,4 +152,4 @@ const WelcomeEmail = ({ name, dashboardUrl, role }) => {
   );
 };
 
-export default WelcomeEmail;
+export default PasswordResetEmail;

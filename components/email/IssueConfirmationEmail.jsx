@@ -1,14 +1,13 @@
 import {
-  Body,
-  Container,
-  Head,
-  Heading,
-  Html,
-  Img,
-  Link,
-  Preview,
-  Section,
-  Text,
+    Body,
+    Container,
+    Head,
+    Heading,
+    Html,
+    Link,
+    Preview,
+    Section,
+    Text,
 } from '@react-email/components';
 
 const baseStyles = {
@@ -77,19 +76,18 @@ const footerStyles = {
 };
 
 export default function IssueConfirmationEmail({ issueId, title, location, issueUrl }) {
+  // Create a proper issue URL using the app URL from env or fallback
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const fullIssueUrl = issueUrl || `${baseUrl}/issues/${issueId}`;
+  const issueShortId = issueId.substring(issueId.length - 6);
+  
   return (
     <Html>
       <Head />
-      <Preview>Thank you for reporting issue #{issueId.substring(issueId.length - 6)}</Preview>
+      <Preview>Thank you for reporting issue #{issueShortId} - {title}</Preview>
       <Body style={baseStyles}>
         <Container style={containerStyles}>
           <Section style={headerStyles}>
-            <Img
-              src={`${process.env.NEXT_PUBLIC_APP_URL}/logo.png`}
-              width="120"
-              height="40"
-              alt="Nayabato Logo"
-            />
             <Heading style={titleStyles}>Thank You for Your Report!</Heading>
           </Section>
 
@@ -105,15 +103,18 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
               <strong>{title}</strong>
             </Text>
             <Text style={bodyStyles}>
-              <strong>Issue ID:</strong> #{issueId.substring(issueId.length - 6)}
+              <strong>Issue ID:</strong> #{issueShortId}
             </Text>
             <Text style={bodyStyles}>
               <strong>Location:</strong> {location}
             </Text>
+            <Text style={bodyStyles}>
+              <strong>Status:</strong> Reported - Your issue is now awaiting review
+            </Text>
           </Section>
 
           <Section style={buttonContainerStyles}>
-            <Link href={issueUrl} style={buttonStyles}>
+            <Link href={fullIssueUrl} style={buttonStyles}>
               Track Your Issue
             </Link>
           </Section>
