@@ -23,6 +23,13 @@ export const metadata = {
   description: "Report and track civic issues in your community",
   manifest: "/manifest.json",
   themeColor: "#3b82f6",
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" }
+    ],
+    apple: "/icons/icon-192x192.png"
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",

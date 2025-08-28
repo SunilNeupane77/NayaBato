@@ -75,7 +75,7 @@ export async function PUT(request, context) {
     ['title', 'description'].forEach(k => body[k] && (updates[k] = body[k]));
     if (body.status) return NextResponse.json({ success: false, message: 'Citizens cannot update status' }, { status: 403 });
   } else {
-    ['title', 'description', 'category', 'assignedWard'].forEach(k => body[k] && (updates[k] = body[k]));
+    ['title', 'description', 'category', 'assignedWard', 'priority'].forEach(k => body[k] && (updates[k] = body[k]));
 
     // Handle assignment changes
     if (body.assignedTo && body.assignedTo !== issue.assignedTo?.toString()) {

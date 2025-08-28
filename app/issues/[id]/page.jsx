@@ -51,6 +51,7 @@ export default function IssueDetailPage() {
 
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [newStatus, setNewStatus] = useState('');
+  const [newPriority, setNewPriority] = useState('');
   const [notes, setNotes] = useState('');
   const [loadingUpdate, setLoadingUpdate] = useState(false);
 
@@ -75,32 +76,37 @@ export default function IssueDetailPage() {
   const canUpdate = isAdmin || isOwner;
 
   const onUpdateStatus = async () => {
-    if (!newStatus) {
+    if (!newStatus && !newPriority) {
       toast({
         variant: 'destructive',
-        title: 'Missing status',
-        description: 'Please select a status before updating'
+        title: 'Missing update',
+        description: 'Please select a status or priority to update'
       });
       return;
     }
     
     setLoadingUpdate(true);
     try {
-      await updateIssue.mutateAsync({ id: issue._id, data: { status: newStatus, notes } });
+      const updateData = { notes };
+      if (newStatus) updateData.status = newStatus;
+      if (newPriority) updateData.priority = newPriority;
+      
+      await updateIssue.mutateAsync({ id: issue._id, data: updateData });
       
       toast({
         title: t('common.success'),
-        description: t('issues.statusUpdated', { status: formatStatus(newStatus, t) })
+        description: 'Issue updated successfully'
       });
       
       setNewStatus('');
+      setNewPriority('');
       setNotes('');
     } catch (e) {
       console.error(e);
       toast({
         variant: 'destructive',
         title: 'Update Failed',
-        description: (e).message || 'Failed to update issue status'
+        description: (e).message || 'Failed to update issue'
       });
     } finally {
       setLoadingUpdate(false);
@@ -433,9 +439,23 @@ export default function IssueDetailPage() {
                         </Select>
                       </div>
                       <div>
+                        <label className="text-sm font-medium text-gray-700 block mb-1">Priority</label>
+                        <Select value={newPriority} onValueChange={setNewPriority}>
+                          <SelectTrigger className="border-gray-300">
+                            <SelectValue placeholder="Select priority" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="critical">Critical</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
                         <label className="text-sm font-medium text-gray-700 block mb-1">Notes (optional)</label>
                         <Textarea 
-                          placeholder="Add details about this status update..." 
+                          placeholder="Add details about this update..." 
                           value={notes} 
                           onChange={e => setNotes(e.target.value)} 
                           rows={3}
@@ -449,7 +469,7 @@ export default function IssueDetailPage() {
                       </DialogClose>
                       <Button 
                         onClick={onUpdateStatus} 
-                        disabled={!newStatus || loadingUpdate}
+                        disabled={(!newStatus && !newPriority) || loadingUpdate}
                         className="bg-gradient-to-r from-blue-600 to-blue-700"
                       >
                         {loadingUpdate && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

@@ -1,5 +1,6 @@
 'use client';
 
+import QuickStatusUpdate from '@/components/admin/QuickStatusUpdate';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -73,6 +74,7 @@ export default function IssueCard({ issue, onDelete }) {
 
   const isAdmin = session?.user?.role === 'admin';
   const isOfficial = session?.user?.role === 'official';
+  const canUpdateStatus = isAdmin || isOfficial;
   const isResolved = issue?.status === 'resolved';
   const canDelete = isAdmin || (isOfficial && isResolved);
 
@@ -178,12 +180,15 @@ export default function IssueCard({ issue, onDelete }) {
           )}
         </div>
         
-        {/* View issue buttons - visible on all screen sizes */}
+        {/* View issue buttons and status update - visible on all screen sizes */}
         <div className="mt-4 flex justify-between items-center">
           <div className="text-sm text-gray-600 truncate max-w-[150px]">
             {issue.description ? issue.description.substring(0, 60) + (issue.description.length > 60 ? '...' : '') : ''}
           </div>
-          <div className="flex">
+          <div className="flex items-center gap-2">
+            {canUpdateStatus && (
+              <QuickStatusUpdate issue={issue} />
+            )}
             <Link href={`/issues/${issue._id}`} passHref>
               <Button variant="outline" className="border-teal-600 text-teal-600 hover:bg-teal-50">
                 {t('common.viewDetails')}

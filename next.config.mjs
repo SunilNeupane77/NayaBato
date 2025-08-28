@@ -1,7 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable standalone output for Docker deployment
-  // output: 'standalone', // Commented out for development
+  output: 'standalone',
+  
+  // Disable static generation for problematic pages during Docker build
+  trailingSlash: false,
+  skipTrailingSlashRedirect: true,
   
   // Image configuration for Cloudinary
   images: {

@@ -1,359 +1,379 @@
 'use client';
 
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar, Users, AlertTriangle, CheckCircle, Clock, TrendingUp, MapPin, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
+} from 'recharts';
 
-// Dynamic import for the official issue manager component
-const OfficialIssueManager = dynamic(() => import('@/components/dashboard/OfficialIssueManager'), {
-  loading: () => <div className="w-full h-64 animate-pulse bg-slate-100 rounded-md" />,
-});
-
-// UI Components
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-// Status colors for charts
-const STATUS_COLORS = {
-  'reported': '#f97316', // Orange
-  'under-review': '#3b82f6', // Blue
-  'in-progress': '#eab308', // Yellow
-  'resolved': '#22c55e', // Green
-  'rejected': '#ef4444', // Red
-};
-
-// Format status for display
-const formatStatus = (status) => {
-  const map = {
-    'reported': 'Reported',
-    'under-review': 'Under Review',
-    'in-progress': 'In Progress',
-    'resolved': 'Resolved',
-    'rejected': 'Not Actionable',
-  };
-  return map[status] || status;
-};
-
-// Format category for display
-const formatCategory = (category) => {
-  const map = {
-    'pothole': 'Potholes',
-    'streetlight': 'Streetlights',
-    'garbage': 'Garbage',
-    'water': 'Water Issues',
-    'electricity': 'Electricity',
-    'other': 'Other Issues',
-  };
-  return map[category] || category;
-};
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-  const [stats, setStats] = useState(null);
+  const [stats, setStats] = useState({
+    totalIssues: 0,
+    totalUsers: 0,
+    pendingIssues: 0,
+    resolvedIssues: 0,
+    recentIssues: [],
+    categoryData: [],
+    statusData: [],
+    weeklyData: [],
+    priorityData: [],
+    departmentData: []
+  });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showOfficialView, setShowOfficialView] = useState(false);
 
   useEffect(() => {
-    // Check authentication and authorization
-    if (status === 'unauthenticated') {
-      router.push('/auth/signin?callbackUrl=/admin/dashboard');
-      return;
-    }
+    fetchDashboardData();
+  }, []);
 
-    if (status === 'authenticated' && !['admin', 'official'].includes(session?.user?.role)) {
-      router.push('/');
-      return;
-    }
-    
-    // Set view mode based on role
-    if (status === 'authenticated') {
-      setShowOfficialView(session?.user?.role === 'official');
-    }
+  const fetchDashboardData = async () => {
+    try {
+      const [issuesRes, usersRes, analyticsRes] = await Promise.all([
+        fetch('/api/admin/issues'),
+        fetch('/api/admin/users'),
+        fetch('/api/analytics')
+      ]);
 
-    // Fetch dashboard stats
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/admin/stats');
-        
-        if (!response.ok) {
-          throw new Error('Failed to load dashboard data');
-        }
-        
-        const data = await response.json();
-        setStats(data.stats);
-      } catch (err) {
-        console.error('Error fetching stats:', err);
-        setError(err.message || 'Failed to load dashboard data');
-      } finally {
-        setLoading(false);
-      }
-    };
+      const [issues, users, analytics] = await Promise.all([
+        issuesRes.json(),
+        usersRes.json(),
+        analyticsRes.json()
+      ]);
 
-    if (status === 'authenticated' && ['admin', 'official'].includes(session?.user?.role)) {
-      fetchStats();
+      // Process data for charts
+      const categoryData = Object.entries(
+        issues.issues?.reduce((acc, issue) => {
+          acc[issue.category] = (acc[issue.category] || 0) + 1;
+          return acc;
+        }, {}) || {}
+      ).map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
+
+      const statusData = Object.entries(
+        issues.issues?.reduce((acc, issue) => {
+          acc[issue.status] = (acc[issue.status] || 0) + 1;
+          return acc;
+        }, {}) || {}
+      ).map(([name, value]) => ({ name: name.replace('-', ' ').toUpperCase(), value }));
+
+      const priorityData = Object.entries(
+        issues.issues?.reduce((acc, issue) => {
+          acc[issue.priority || 'medium'] = (acc[issue.priority || 'medium'] || 0) + 1;
+          return acc;
+        }, {}) || {}
+      ).map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }));
+
+      // Weekly trend data (last 7 days)
+      const weeklyData = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - (6 - i));
+        const dayIssues = issues.issues?.filter(issue => 
+          new Date(issue.createdAt).toDateString() === date.toDateString()
+        ).length || 0;
+        return {
+          day: date.toLocaleDateString('en', { weekday: 'short' }),
+          issues: dayIssues,
+          resolved: issues.issues?.filter(issue => 
+            new Date(issue.updatedAt).toDateString() === date.toDateString() && 
+            issue.status === 'resolved'
+          ).length || 0
+        };
+      });
+
+      setStats({
+        totalIssues: issues.issues?.length || 0,
+        totalUsers: users.users?.length || 0,
+        pendingIssues: issues.issues?.filter(i => !['resolved', 'rejected'].includes(i.status)).length || 0,
+        resolvedIssues: issues.issues?.filter(i => i.status === 'resolved').length || 0,
+        recentIssues: issues.issues?.slice(0, 5) || [],
+        categoryData,
+        statusData,
+        weeklyData,
+        priorityData,
+        departmentData: users.users?.reduce((acc, user) => {
+          if (user.department) {
+            acc[user.department] = (acc[user.department] || 0) + 1;
+          }
+          return acc;
+        }, {}) || {}
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
-  }, [status, session, router]);
+  };
 
-  // Show loading state
-  if (status === 'loading' || loading) {
+  const sendWeeklyDigest = async () => {
+    try {
+      const response = await fetch('/api/email/weekly-digest', { method: 'POST' });
+      const data = await response.json();
+      alert(data.message);
+    } catch (error) {
+      alert('Failed to send digest');
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="flex h-[60vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="p-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="flex h-[60vh] flex-col items-center justify-center">
-        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-        <h2 className="text-xl font-semibold mb-2">Error</h2>
-        <p className="text-gray-600">{error}</p>
-        <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-          Try Again
-        </Button>
-      </div>
-    );
-  }
-
-  // Only show dashboard charts and summary for admin, not for official
-  if (showOfficialView) {
-    return (
-      <div className="container mx-auto py-8 px-4">
-        <OfficialIssueManager />
-      </div>
-    );
-  }
-
-  // Extract data for charts
-  const statusData = stats?.issuesByStatus.map(item => ({
-    name: formatStatus(item.status),
-    value: item.count,
-    color: STATUS_COLORS[item.status]
-  })) || [];
-
-  const categoryData = stats?.issuesByCategory.map(item => ({
-    name: formatCategory(item.category),
-    value: item.count
-  })) || [];
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+    <div className="p-6 space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Overview of civic issues</p>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-gray-600">Overview of platform activity and metrics</p>
         </div>
-        <Button onClick={() => router.push('/issues')} className="mt-4 md:mt-0">
-          View All Issues
+        <Button onClick={sendWeeklyDigest} className="bg-purple-600 hover:bg-purple-700">
+          <Mail className="w-4 h-4 mr-2" />
+          Send Weekly Digest
         </Button>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Total Issues
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats?.totalIssues || 0}</div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Pending Issues
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-orange-500">
-              {(stats?.issuesByStatus.find(s => s.status === 'reported')?.count || 0) + 
-               (stats?.issuesByStatus.find(s => s.status === 'under-review')?.count || 0)}
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="border-l-4 border-l-blue-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Issues</p>
+                <p className="text-3xl font-bold text-blue-600">{stats.totalIssues}</p>
+              </div>
+              <AlertTriangle className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              In Progress
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-yellow-500">
-              {stats?.issuesByStatus.find(s => s.status === 'in-progress')?.count || 0}
+
+        <Card className="border-l-4 border-l-green-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Resolved</p>
+                <p className="text-3xl font-bold text-green-600">{stats.resolvedIssues}</p>
+              </div>
+              <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">
-              Resolved Issues
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-500">
-              {stats?.issuesByStatus.find(s => s.status === 'resolved')?.count || 0}
+
+        <Card className="border-l-4 border-l-yellow-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Pending</p>
+                <p className="text-3xl font-bold text-yellow-600">{stats.pendingIssues}</p>
+              </div>
+              <Clock className="h-8 w-8 text-yellow-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-purple-500">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Total Users</p>
+                <p className="text-3xl font-bold text-purple-600">{stats.totalUsers}</p>
+              </div>
+              <Users className="h-8 w-8 text-purple-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="overview" className="w-full mb-8">
-        <TabsList className="mb-6">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="recent">Recent Issues</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Status Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Issues by Status</CardTitle>
-                <CardDescription>Distribution of issues by current status</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={statusData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {statusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color || `#${Math.floor(Math.random()*16777215).toString(16)}`} />
-                      ))}
-                    </Pie>
-                    <Tooltip formatter={(value) => [`${value} issues`, 'Count']} />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            
-            {/* Category Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Issues by Category</CardTitle>
-                <CardDescription>Distribution of issues by category</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={categoryData}
-                    margin={{
-                      top: 5,
-                      right: 30,
-                      left: 20,
-                      bottom: 60,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45} 
-                      textAnchor="end" 
-                      height={70} 
-                      tick={{ fontSize: 12 }} 
-                    />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" name="Issues" fill="#3b82f6" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-        
-        <TabsContent value="recent">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Issues</CardTitle>
-              <CardDescription>Latest reported issues</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {stats?.recentIssues && stats.recentIssues.length > 0 ? (
-                <div className="space-y-4">
-                  {stats.recentIssues.map((issue) => (
-                    <div 
-                      key={issue._id} 
-                      className="flex flex-col md:flex-row justify-between border-b pb-4 cursor-pointer"
-                      onClick={() => router.push(`/issues/${issue._id}`)}
-                    >
-                      <div>
-                        <div className="flex items-center mb-2">
-                          <Badge className="bg-blue-500 mr-2">{formatCategory(issue.category)}</Badge>
-                          <Badge className={`${STATUS_COLORS[issue.status]}`}>
-                            {formatStatus(issue.status)}
-                          </Badge>
-                        </div>
-                        <h3 className="font-medium">{issue.title}</h3>
-                        <p className="text-sm text-gray-500 truncate max-w-md">
-                          {issue.description.substring(0, 100)}...
-                        </p>
-                      </div>
-                      <div className="mt-2 md:mt-0 text-right">
-                        <p className="text-sm text-gray-500">
-                          {new Date(issue.createdAt).toLocaleDateString()}
-                        </p>
-                        <p className="text-sm">
-                          {issue.reporter?.name || 'Anonymous'}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  No recent issues to display
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex justify-center">
-              <Button variant="outline" onClick={() => router.push('/issues')}>
-                View All Issues
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Charts Row 1 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Weekly Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Weekly Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={stats.weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Area type="monotone" dataKey="issues" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} />
+                <Area type="monotone" dataKey="resolved" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.6} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
-      {/* Resolution Time */}
-      <Card className="mb-8">
+        {/* Issue Categories */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Issues by Category</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={stats.categoryData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {stats.categoryData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Status and Category Summary Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Issues by Status */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Issues by Status</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.statusData.map((status, index) => (
+                <div key={status.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    />
+                    <span className="font-medium capitalize">{status.name.replace('-', ' ')}</span>
+                  </div>
+                  <Badge variant="secondary">{status.value}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Issues by Category */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Issues by Category</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.categoryData.map((category, index) => (
+                <div key={category.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-4 h-4 rounded-full" 
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    />
+                    <span className="font-medium capitalize">{category.name}</span>
+                  </div>
+                  <Badge variant="secondary">{category.value}</Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts Row 2 */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Priority Distribution */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Priority Levels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={stats.priorityData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="value" fill="#f59e0b" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Resolution Trend */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Resolution Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={stats.weeklyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="day" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="resolved" stroke="#10b981" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Issues */}
+      <Card>
         <CardHeader>
-          <CardTitle>Average Resolution Time</CardTitle>
-          <CardDescription>Time taken to resolve issues</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Recent Issues
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center">
-              <div className="text-4xl font-bold mb-2">
-                {stats?.averageResolutionTimeInDays
-                  ? `${stats.averageResolutionTimeInDays.toFixed(1)} days`
-                  : 'N/A'}
+          <div className="space-y-4">
+            {stats.recentIssues.map((issue) => (
+              <div key={issue._id} className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <span className="font-medium">{issue.title}</span>
+                  </div>
+                  <Badge variant="outline">{issue.category}</Badge>
+                  <Badge 
+                    className={
+                      issue.status === 'resolved' ? 'bg-green-100 text-green-800' :
+                      issue.status === 'in-progress' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-blue-100 text-blue-800'
+                    }
+                  >
+                    {issue.status}
+                  </Badge>
+                </div>
+                <div className="text-sm text-gray-500">
+                  {new Date(issue.createdAt).toLocaleDateString()}
+                </div>
               </div>
-              <p className="text-gray-500">Average time to resolve an issue</p>
-            </div>
+            ))}
           </div>
         </CardContent>
       </Card>

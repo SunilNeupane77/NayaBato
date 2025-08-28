@@ -41,6 +41,7 @@ const createIssueSchema = (t) => z.object({
   title: z.string().min(1, { message: t("issues.title") + " " + t("common.required") }).max(100, { message: t("issues.title") + " " + "cannot exceed 100 characters" }),
   description: z.string().min(10, { message: t("issues.description") + " " + "must be at least 10 characters" }).max(1000, { message: t("issues.description") + " " + "cannot exceed 1000 characters" }),
   category: z.string({ required_error: t("issues.category") + " " + t("common.required") }),
+  priority: z.string().optional(),
 });
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -305,6 +306,30 @@ export default function IssueForm({ onSuccess, onError }) {
                     <SelectItem value="water">{t('issues.reportIssue.water')}</SelectItem>
                     <SelectItem value="electricity">{t('issues.reportIssue.electricity')}</SelectItem>
                     <SelectItem value="other">{t('issues.reportIssue.other')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="priority"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Priority</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value || "medium"}>
+                  <FormControl>
+                    <SelectTrigger disabled={createIssueMutation.isLoading}>
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
