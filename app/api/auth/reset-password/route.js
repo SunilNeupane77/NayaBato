@@ -1,34 +1,43 @@
-import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db/connect';
-import { verifyOTP } from '@/lib/otp-utils';
 import User from '@/models/User';
-import bcrypt from 'bcryptjs';
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
+    const { email, password } = await request.json();
+    
+    if (!email || !password) {
+      return NextResponse.json(
+        { success: false, message: 'Email and password are required' },
+        { status: 400 }
+      );
+    }
+
     await connectDB();
-    const { email, otp, newPassword } = await request.json();
 
-    if (!email || !otp || !newPassword) {
-      return NextResponse.json({ error: 'Email, OTP and new password required' }, { status: 400 });
-    }
-
-    const verification = await verifyOTP(email, otp, 'password_reset');
-    if (!verification.valid) {
-      return NextResponse.json({ error: verification.message }, { status: 400 });
-    }
-
+    // Find user
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: 'User not found' },
+        { status: 404 }
+      );
     }
 
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(newPassword, salt);
+    // Update password (will be hashed by pre-save hook)
+    user.password = password;
     await user.save();
 
-    return NextResponse.json({ message: 'Password reset successfully' });
+    return NextResponse.json({
+      success: true,
+      message: 'Password reset successfully'
+    });
+
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to reset password' }, { status: 500 });
+    console.error('Reset password error:', error);
+    return NextResponse.json(
+      { success: false, message: 'Failed to reset password' },
+      { status: 500 }
+    );
   }
 }

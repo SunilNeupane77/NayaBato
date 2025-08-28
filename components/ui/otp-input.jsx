@@ -1,45 +1,62 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export default function OTPInput({ length = 6, onComplete, className = "" }) {
+export default function OTPInput({ length = 6, onComplete, disabled = false }) {
   const [otp, setOtp] = useState(new Array(length).fill(''));
   const inputRefs = useRef([]);
 
-  const handleChange = (element, index) => {
-    if (isNaN(element.value)) return;
+  useEffect(() => {
+    if (inputRefs.current[0]) {
+      inputRefs.current[0].focus();
+    }
+  }, []);
+
+  const handleChange = (index, e) => {
+    const value = e.target.value;
+    if (isNaN(value)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = element.value;
+    newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    if (element.value && index < length - 1) {
-      inputRefs.current[index + 1].focus();
+    const combinedOtp = newOtp.join('');
+    if (combinedOtp.length === length) {
+      onComplete(combinedOtp);
     }
 
-    if (newOtp.every(digit => digit !== '')) {
-      onComplete(newOtp.join(''));
+    if (value && index < length - 1 && inputRefs.current[index + 1]) {
+      inputRefs.current[index + 1].focus();
     }
   };
 
-  const handleKeyDown = (e, index) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+  const handleClick = (index) => {
+    inputRefs.current[index].setSelectionRange(1, 1);
+    if (index > 0 && !otp[index - 1]) {
+      inputRefs.current[otp.indexOf('')].focus();
+    }
+  };
+
+  const handleKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otp[index] && index > 0 && inputRefs.current[index - 1]) {
       inputRefs.current[index - 1].focus();
     }
   };
 
   return (
-    <div className={`flex space-x-2 ${className}`}>
-      {otp.map((digit, index) => (
+    <div className="flex gap-2 justify-center">
+      {otp.map((value, index) => (
         <input
           key={index}
-          ref={el => inputRefs.current[index] = el}
           type="text"
-          maxLength="1"
-          value={digit}
-          onChange={e => handleChange(e.target, index)}
-          onKeyDown={e => handleKeyDown(e, index)}
-          className="w-12 h-12 text-center text-xl border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
+          ref={(input) => (inputRefs.current[index] = input)}
+          value={value}
+          onChange={(e) => handleChange(index, e)}
+          onClick={() => handleClick(index)}
+          onKeyDown={(e) => handleKeyDown(index, e)}
+          disabled={disabled}
+          className="w-12 h-12 border-2 rounded-lg text-center text-xl font-semibold focus:border-blue-500 focus:outline-none disabled:bg-gray-100"
+          maxLength={1}
         />
       ))}
     </div>

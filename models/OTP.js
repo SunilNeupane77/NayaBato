@@ -1,30 +1,32 @@
 import mongoose from 'mongoose';
 
-const OTPSchema = new mongoose.Schema({
+const otpSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email']
+    lowercase: true
   },
   otp: {
     type: String,
-    required: true,
-    length: 6
+    required: true
   },
   type: {
     type: String,
-    enum: ['email_verification', 'password_reset'],
+    enum: ['signup', 'password_reset', 'email_verification'],
     required: true
+  },
+  userData: {
+    name: String,
+    password: String,
+    role: String
   },
   expiresAt: {
     type: Date,
     default: Date.now,
-    expires: 600 // 10 minutes
+    expires: 300 // 5 minutes
   }
 }, {
   timestamps: true
 });
 
-OTPSchema.index({ email: 1, type: 1 });
-
-export default mongoose.models.OTP || mongoose.model('OTP', OTPSchema);
+export default mongoose.models.OTP || mongoose.model('OTP', otpSchema);

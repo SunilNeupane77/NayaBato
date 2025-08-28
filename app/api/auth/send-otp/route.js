@@ -1,30 +1,76 @@
-import { NextResponse } from 'next/server';
 import connectDB from '@/lib/db/connect';
-import { createOTP } from '@/lib/otp-utils';
-import { sendEmail } from '@/lib/email';
+import { sendOTPEmail } from '@/lib/email/otp';
+import OTP from '@/models/OTP';
+import User from '@/models/User';
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
-    await connectDB();
-    const { email, type } = await request.json();
-
+    const { email, type, userData } = await request.json();
+    
     if (!email || !type) {
-      return NextResponse.json({ error: 'Email and type required' }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: 'Email and type are required' },
+        { status: 400 }
+      );
     }
 
-    const otp = await createOTP(email, type);
-    
-    const subject = type === 'email_verification' ? 'Email Verification OTP' : 'Password Reset OTP';
-    const html = `
-      <h2>Your OTP Code</h2>
-      <p>Your OTP code is: <strong>${otp}</strong></p>
-      <p>This code will expire in 10 minutes.</p>
-    `;
+    await connectDB();
 
-    await sendEmail(email, subject, html);
+    // For signup, check if user already exists
+    if (type === 'signup') {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return NextResponse.json(
+          { success: false, message: 'Email already registered' },
+          { status: 400 }
+        );
+      }
+    }
 
-    return NextResponse.json({ message: 'OTP sent successfully' });
+    // For password reset, check if user exists
+    if (type === 'password_reset') {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return NextResponse.json(
+          { success: false, message: 'No account found with this email' },
+          { status: 404 }
+        );
+      }
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Delete existing OTPs for this email and type
+    await OTP.deleteMany({ email, type });
+
+    // Create new OTP
+    await OTP.create({
+      email,
+      otp,
+      type,
+      userData: userData || {}
+    });
+
+    // Send OTP email
+    await sendOTPEmail({
+      to: email,
+      otp,
+      type,
+      name: userData?.name || 'User'
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'OTP sent successfully'
+    });
+
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to send OTP' }, { status: 500 });
+    console.error('Send OTP error:', error);
+    return NextResponse.json(
+      { success: false, message: 'Failed to send OTP' },
+      { status: 500 }
+    );
   }
 }

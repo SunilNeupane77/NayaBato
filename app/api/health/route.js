@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { connectDB } from '@/lib/db/connection';
+import connectDB from '@/lib/db/connect';
 
 /**
  * Health check endpoint for monitoring application status

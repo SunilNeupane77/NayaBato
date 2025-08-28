@@ -63,14 +63,19 @@ export default function RegisterForm() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/auth/register', {
+      const userData = {
+        name: values.name,
+        password: values.password,
+        role: values.role
+      };
+
+      const response = await fetch('/api/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: values.name,
           email: values.email,
-          password: values.password,
-          role: values.role
+          type: 'signup',
+          userData
         })
       });
 
@@ -80,21 +85,23 @@ export default function RegisterForm() {
         throw new Error(data.message || t('auth.registrationFailed'));
       }
 
-      // Success toast
       toast({
         title: t('common.success'),
-        description: t('auth.registrationSuccess'),
+        description: 'OTP sent to your email. Please verify to complete registration.',
       });
       
-      // Redirect to login after a brief delay
-      setTimeout(() => {
-        router.push('/auth/signin');
-      }, 2000);
+      // Redirect to OTP verification
+      const params = new URLSearchParams({
+        email: values.email,
+        type: 'signup',
+        userData: encodeURIComponent(JSON.stringify(userData))
+      });
+      
+      router.push(`/auth/verify-otp?${params.toString()}`);
       
     } catch (error) {
       console.error('Registration error:', error);
       
-      // Error toast
       toast({
         variant: 'destructive',
         title: t('common.error'),
