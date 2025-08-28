@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, Edit, Eye, FolderIcon, LayoutGrid, List, MoreVertical, Trash } from 'lucide-react';
+import { AlertCircle, Edit, Eye, FolderIcon, LayoutGrid, List, MoreVertical, Trash, Plus, Users, TrendingUp, Clock, DollarSign, Building } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -28,13 +28,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-
-import { useApiWithToast } from '@/lib/hooks/useApiWithToast';
-import { useLanguage } from '@/lib/i18n/language-context';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const departmentCategories = [
   'pothole',
-  'streetlight',
+  'streetlight', 
   'garbage',
   'water',
   'electricity',
@@ -45,8 +43,6 @@ export default function DepartmentsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { toast } = useToast();
-  const { t } = useLanguage();
-  const api = useApiWithToast();
 
   const [departments, setDepartments] = useState([]);
   const [users, setUsers] = useState([]);
@@ -61,15 +57,63 @@ export default function DepartmentsPage() {
     contactEmail: '',
     contactPhone: '',
     categories: [],
+    budget: { allocated: 0, spent: 0, year: new Date().getFullYear() },
+    workingHours: {
+      start: '09:00',
+      end: '17:00',
+      workingDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+    },
     isActive: true,
   });
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [departmentToDelete, setDepartmentToDelete] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'table'
+  const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'inactive'
-  const [departmentStats, setDepartmentStats] = useState({});
-  const [statsLoading, setStatsLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [categoryFilter, setCategoryFilter] = useState('all-categories');
+  const [sortBy, setSortBy] = useState('name');
+  const [selectedDepartments, setSelectedDepartments] = useState([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedDepartments(filteredDepartments.map(d => d._id));
+    } else {
+      setSelectedDepartments([]);
+    }
+  };
+
+  const handleSelectDepartment = (departmentId, checked) => {
+    if (checked) {
+      setSelectedDepartments(prev => [...prev, departmentId]);
+    } else {
+      setSelectedDepartments(prev => prev.filter(id => id !== departmentId));
+    }
+  };
+
+  const handleBulkAction = async (action) => {
+    if (selectedDepartments.length === 0) return;
+
+    try {
+      const response = await fetch('/api/departments/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, departmentIds: selectedDepartments })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast({ title: 'Success', description: data.message });
+        setSelectedDepartments([]);
+        fetchDepartments();
+      } else {
+        const data = await response.json();
+        toast({ title: 'Error', description: data.error, variant: 'destructive' });
+      }
+    } catch (error) {
+      toast({ title: 'Error', description: 'Bulk operation failed', variant: 'destructive' });
+    }
+  };
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -93,78 +137,57 @@ export default function DepartmentsPage() {
     setError(null);
     
     try {
-      const data = await api.get('/api/departments', {
-        errorTitle: t('common.error'),
-        errorMessage: t('departments.fetchError') || 'Failed to load departments',
-        onError: (err) => setError(err.message || 'Failed to load departments')
+      const params = new URLSearchParams({
+        search: searchQuery,
+        status: statusFilter,
+        category: categoryFilter
       });
       
-      if (data.departments) {
-        setDepartments(data.departments);
-        
-        // Fetch stats for each department
-        await fetchDepartmentStats(data.departments);
+      const response = await fetch(`/api/departments?${params}`);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
+      
+      const data = await response.json();
+      setDepartments(data.departments || []);
+    } catch (err) {
+      console.error('Fetch departments error:', err);
+      setError(err.message || 'Failed to load departments');
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: err.message || 'Failed to load departments'
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchDepartmentStats = async (departmentsList) => {
-    try {
-      setStatsLoading(true);
-      const stats = {};
-      
-      for (const dept of departmentsList) {
-        try {
-          const data = await api.get(`/api/departments/${dept._id}/stats`, {
-            // Silent error - we don't want to show toast for each department stats error
-            onError: () => {} // Suppress toast notifications
-          });
-          
-          if (data && data.success) {
-            stats[dept._id] = data.stats;
-          }
-        } catch (err) {
-          // Just log the error, no need to display it to the user
-          console.error(`Error fetching stats for ${dept.name}:`, err);
-        }
-      }
-      
-      setDepartmentStats(stats);
-    } finally {
-      setStatsLoading(false);
-    }
-  };
-
   const fetchUsers = async () => {
     try {
-      const data = await api.get('/api/users?role=official', {
-        errorTitle: t('common.error'),
-        errorMessage: t('users.fetchError') || 'Failed to load users'
-      });
-      
-      setUsers(data.users || []);
+      const response = await fetch('/api/users?role=official');
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.users || []);
+      }
     } catch (err) {
-      // Error is already handled by the useApiWithToast hook
       console.error('Error fetching users:', err);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: checked
-    }));
+    if (name.includes('.')) {
+      const [parent, child] = name.split('.');
+      setFormData(prev => ({
+        ...prev,
+        [parent]: { ...prev[parent], [child]: value }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCategoryToggle = (category) => {
@@ -178,9 +201,24 @@ export default function DepartmentsPage() {
         categories.push(category);
       }
       
+      return { ...prev, categories };
+    });
+  };
+
+  const handleWorkingDayToggle = (day) => {
+    setFormData(prev => {
+      const workingDays = [...prev.workingHours.workingDays];
+      const index = workingDays.indexOf(day);
+      
+      if (index > -1) {
+        workingDays.splice(index, 1);
+      } else {
+        workingDays.push(day);
+      }
+      
       return {
         ...prev,
-        categories
+        workingHours: { ...prev.workingHours, workingDays }
       };
     });
   };
@@ -191,8 +229,8 @@ export default function DepartmentsPage() {
     if (formData.categories.length === 0) {
       toast({
         variant: 'destructive',
-        title: t('common.error'),
-        description: t('departments.selectAtLeastOneCategory'),
+        title: 'Error',
+        description: 'Please select at least one category',
       });
       return;
     }
@@ -202,33 +240,38 @@ export default function DepartmentsPage() {
         ? `/api/departments/${currentDepartment._id}` 
         : '/api/departments';
       
-      // Use our API hook for consistent error handling
-      if (currentDepartment) {
-        await api.put(url, formData, {
-          successTitle: t('common.success'),
-          successMessage: t('departments.updateSuccess'),
-          errorTitle: t('common.error'),
-          errorMessage: t('departments.updateFailed'),
-          onSuccess: () => {
-            setIsDialogOpen(false);
-            fetchDepartments();
-          }
+      const method = currentDepartment ? 'PUT' : 'POST';
+      const submitData = {
+        ...formData,
+        headOfficer: formData.headOfficer === 'no-officer' ? '' : formData.headOfficer
+      };
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submitData)
+      });
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: currentDepartment ? 'Department updated successfully' : 'Department created successfully'
         });
+        setIsDialogOpen(false);
+        fetchDepartments();
       } else {
-        await api.post(url, formData, {
-          successTitle: t('common.success'),
-          successMessage: t('departments.creationSuccess'),
-          errorTitle: t('common.error'),
-          errorMessage: t('departments.creationError'),
-          onSuccess: () => {
-            setIsDialogOpen(false);
-            fetchDepartments();
-          }
+        const data = await response.json();
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: data.error || 'Failed to save department'
         });
       }
     } catch (err) {
-      // Error is already handled by useApiWithToast
-      console.error('Error saving department:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to save department'
+      });
     }
   };
 
@@ -237,10 +280,16 @@ export default function DepartmentsPage() {
     setFormData({
       name: '',
       description: '',
-      headOfficer: '',
+      headOfficer: 'no-officer',
       contactEmail: '',
       contactPhone: '',
       categories: [],
+      budget: { allocated: 0, spent: 0, year: new Date().getFullYear() },
+      workingHours: {
+        start: '09:00',
+        end: '17:00',
+        workingDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+      },
       isActive: true,
     });
     setIsDialogOpen(true);
@@ -251,10 +300,16 @@ export default function DepartmentsPage() {
     setFormData({
       name: department.name || '',
       description: department.description || '',
-      headOfficer: department.headOfficer?._id || '',
+      headOfficer: department.headOfficer?._id || 'no-officer',
       contactEmail: department.contactEmail || '',
       contactPhone: department.contactPhone || '',
       categories: department.categories || [],
+      budget: department.budget || { allocated: 0, spent: 0, year: new Date().getFullYear() },
+      workingHours: department.workingHours || {
+        start: '09:00',
+        end: '17:00',
+        workingDays: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+      },
       isActive: department.isActive !== undefined ? department.isActive : true,
     });
     setIsDialogOpen(true);
@@ -269,109 +324,233 @@ export default function DepartmentsPage() {
     if (!departmentToDelete) return;
     
     try {
-      await api.del(`/api/departments/${departmentToDelete._id}`, {
-        successTitle: t('common.success'),
-        successMessage: t('departments.deleteSuccess') || 'Department deactivated successfully',
-        errorTitle: t('common.error'),
-        errorMessage: t('departments.deleteFailed'),
-        onSuccess: () => {
-          setIsConfirmDialogOpen(false);
-          fetchDepartments();
-        }
+      const response = await fetch(`/api/departments/${departmentToDelete._id}`, {
+        method: 'DELETE'
       });
+
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: 'Department deactivated successfully'
+        });
+        setIsConfirmDialogOpen(false);
+        fetchDepartments();
+      } else {
+        const data = await response.json();
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: data.error || 'Failed to delete department'
+        });
+      }
     } catch (err) {
-      // Error is already handled by useApiWithToast
-      console.error('Error deleting department:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to delete department'
+      });
     }
   };
-  
-  // Filter departments based on search and status
-  const filteredDepartments = departments.filter(department => {
-    // Filter by search query
-    const matchesSearch = searchQuery === '' || 
-      department.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (department.description && department.description.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    // Filter by status
-    const matchesStatus = statusFilter === 'all' || 
-      (statusFilter === 'active' && department.isActive) || 
-      (statusFilter === 'inactive' && !department.isActive);
-    
-    return matchesSearch && matchesStatus;
-  });
+
+  // Filter and sort departments
+  const filteredDepartments = departments
+    .filter(department => {
+      const matchesSearch = searchQuery === '' || 
+        department.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (department.description && department.description.toLowerCase().includes(searchQuery.toLowerCase()));
+      
+      const matchesStatus = statusFilter === 'all' || 
+        (statusFilter === 'active' && department.isActive) || 
+        (statusFilter === 'inactive' && !department.isActive);
+      
+      const matchesCategory = categoryFilter === '' || categoryFilter === 'all-categories' || 
+        department.categories.includes(categoryFilter);
+      
+      return matchesSearch && matchesStatus && matchesCategory;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'issues':
+          return (b.issueCount || 0) - (a.issueCount || 0);
+        case 'resolution':
+          return (b.resolutionRate || 0) - (a.resolutionRate || 0);
+        default:
+          return 0;
+      }
+    });
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      {/* Header with Stats */}
+      <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {t('departments.departmentsList')}
-          </h1>
-          <p className="text-muted-foreground">
-            {t('admin.departmentManagement')}
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Department Management</h1>
+          <p className="text-muted-foreground">Manage government departments and their operations</p>
         </div>
-        <Button onClick={handleAddDepartment}>
-          {t('departments.createDepartment')}
+        <Button onClick={handleAddDepartment} className="flex items-center gap-2">
+          <Plus className="h-4 w-4" />
+          Add Department
         </Button>
       </div>
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Building className="h-8 w-8 text-blue-600" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-600">Total Departments</p>
+                <p className="text-2xl font-bold">{departments.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Users className="h-8 w-8 text-green-600" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-600">Active Departments</p>
+                <p className="text-2xl font-bold">{departments.filter(d => d.isActive).length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <TrendingUp className="h-8 w-8 text-orange-600" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-600">Total Issues</p>
+                <p className="text-2xl font-bold">{departments.reduce((sum, d) => sum + (d.issueCount || 0), 0)}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center">
+              <Clock className="h-8 w-8 text-purple-600" />
+              <div className="ml-3">
+                <p className="text-sm text-gray-600">Avg Resolution</p>
+                <p className="text-2xl font-bold">
+                  {departments.length > 0 
+                    ? (departments.reduce((sum, d) => sum + (parseFloat(d.resolutionRate) || 0), 0) / departments.length).toFixed(1)
+                    : 0}%
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
       
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 md:items-center">
-        <div className="flex-1">
+      {/* Bulk Actions */}
+      {selectedDepartments.length > 0 && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {selectedDepartments.length} department(s) selected
+              </span>
+              <div className="flex space-x-2">
+                <Button size="sm" onClick={() => handleBulkAction('activate')}>
+                  Activate
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleBulkAction('deactivate')}>
+                  Deactivate
+                </Button>
+                <Button size="sm" variant="destructive" onClick={() => handleBulkAction('delete')}>
+                  Delete
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelectedDepartments([])}>
+                  Clear
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Filters and Controls */}
+      <div className="flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-4 flex-1">
           <Input
-            placeholder={t('common.search')}
+            placeholder="Search departments..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-sm"
           />
-        </div>
-        
-        <div className="flex flex-wrap gap-2">
-          <Select 
-            value={statusFilter}
-            onValueChange={setStatusFilter}
-          >
+          
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('common.all')}</SelectItem>
-              <SelectItem value="active">{t('common.active')}</SelectItem>
-              <SelectItem value="inactive">{t('common.inactive')}</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
             </SelectContent>
           </Select>
-          
-          <div className="flex items-center space-x-2">
-            <Button 
-              variant={viewMode === 'grid' ? 'default' : 'outline'} 
-              size="icon"
-              onClick={() => setViewMode('grid')}
-            >
-              <LayoutGrid className="h-5 w-5" />
-            </Button>
-            <Button 
-              variant={viewMode === 'table' ? 'default' : 'outline'} 
-              size="icon"
-              onClick={() => setViewMode('table')}
-            >
-              <List className="h-5 w-5" />
-            </Button>
-          </div>
+
+          <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all-categories">All Categories</SelectItem>
+              {departmentCategories.map(category => (
+                <SelectItem key={category} value={category}>
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="issues">Issue Count</SelectItem>
+              <SelectItem value="resolution">Resolution Rate</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant={viewMode === 'grid' ? 'default' : 'outline'} 
+            size="icon"
+            onClick={() => setViewMode('grid')}
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant={viewMode === 'table' ? 'default' : 'outline'} 
+            size="icon"
+            onClick={() => setViewMode('table')}
+          >
+            <List className="h-4 w-4" />
+          </Button>
         </div>
       </div>
       
       {/* Loading State */}
       {loading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={i} className="overflow-hidden">
-              <CardHeader className="animate-pulse bg-gray-100 h-12" />
+              <CardHeader className="animate-pulse bg-gray-100 h-20" />
               <CardContent className="mt-4">
                 <div className="animate-pulse bg-gray-100 h-4 mb-2" />
-                <div className="animate-pulse bg-gray-100 h-4 w-2/3" />
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="animate-pulse bg-gray-100 h-8 w-20 rounded-full" />
+                <div className="animate-pulse bg-gray-100 h-4 w-2/3 mb-4" />
+                <div className="flex justify-between">
+                  <div className="animate-pulse bg-gray-100 h-6 w-16 rounded-full" />
+                  <div className="animate-pulse bg-gray-100 h-6 w-12" />
                 </div>
               </CardContent>
             </Card>
@@ -383,7 +562,7 @@ export default function DepartmentsPage() {
       {error && !loading && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>{t('common.error')}</AlertTitle>
+          <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -392,18 +571,17 @@ export default function DepartmentsPage() {
       {!loading && !error && filteredDepartments.length === 0 && (
         <Card className="bg-gray-50 border-dashed">
           <CardContent className="pt-6 text-center">
-            <FolderIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">
-              {t('departments.noDepartmentsFound')}
-            </h3>
+            <Building className="mx-auto h-12 w-12 text-gray-400" />
+            <h3 className="mt-2 text-sm font-medium text-gray-900">No departments found</h3>
             <p className="mt-1 text-sm text-gray-500">
-              {searchQuery || statusFilter !== 'all' 
-                ? t('common.tryAdjustingFilters')
-                : t('departments.createDepartmentPrompt')}
+              {searchQuery || statusFilter !== 'all' || categoryFilter
+                ? 'Try adjusting your filters'
+                : 'Get started by creating your first department'}
             </p>
             <div className="mt-6">
               <Button onClick={handleAddDepartment}>
-                {t('departments.createDepartment')}
+                <Plus className="h-4 w-4 mr-2" />
+                Add Department
               </Button>
             </div>
           </CardContent>
@@ -412,217 +590,352 @@ export default function DepartmentsPage() {
       
       {/* Content - Grid View */}
       {!loading && !error && viewMode === 'grid' && filteredDepartments.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredDepartments.map((department) => (
-            <Card key={department._id} className={`overflow-hidden ${!department.isActive && 'bg-gray-50 opacity-80'}`}>
-              <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span className="truncate">{department.name}</span>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => router.push(`/admin/departments/${department._id}`)}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        {t('common.view')}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEditDepartment(department)}>
-                        <Edit className="mr-2 h-4 w-4" />
-                        {t('common.edit')}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem 
-                        onClick={() => handleDeleteConfirm(department)}
-                        className="text-red-600 focus:text-red-600"
-                      >
-                        <Trash className="mr-2 h-4 w-4" />
-                        {t('common.delete')}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </CardTitle>
-                {department.description && (
-                  <CardDescription className="truncate">
-                    {department.description}
-                  </CardDescription>
-                )}
-              </CardHeader>
-              <CardContent>
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              checked={selectedDepartments.length === filteredDepartments.length}
+              onCheckedChange={handleSelectAll}
+            />
+            <Label>Select All</Label>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredDepartments.map((department) => (
+              <Card key={department._id} className={`overflow-hidden transition-all hover:shadow-lg ${!department.isActive && 'bg-gray-50 opacity-80'}`}>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex items-center space-x-3 flex-1">
+                      <Checkbox
+                        checked={selectedDepartments.includes(department._id)}
+                        onCheckedChange={(checked) => handleSelectDepartment(department._id, checked)}
+                      />
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{department.name}</CardTitle>
+                        {department.description && (
+                          <CardDescription className="mt-1 line-clamp-2">
+                            {department.description}
+                          </CardDescription>
+                        )}
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => router.push(`/admin/departments/${department._id}`)}>
+                          <Eye className="mr-2 h-4 w-4" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/admin/departments/${department._id}/edit`)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem 
+                          onClick={() => handleDeleteConfirm(department)}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash className="mr-2 h-4 w-4" />
+                          Deactivate
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </CardHeader>
+              
+              <CardContent className="pt-0">
+                {/* Categories */}
                 <div className="flex flex-wrap gap-1 mb-4">
-                  {department.categories.map(category => (
-                    <Badge key={category} variant="secondary">
-                      {t(`issues.categories.${category}`) || category}
+                  {department.categories.slice(0, 3).map(category => (
+                    <Badge key={category} variant="secondary" className="text-xs">
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
                     </Badge>
                   ))}
-                </div>
-                
-                <div className="flex justify-between items-center">
-                  <Badge variant={department.isActive ? "default" : "outline"}>
-                    {department.isActive ? t('common.active') : t('common.inactive')}
-                  </Badge>
-                  
-                  {departmentStats[department._id] && (
-                    <div className="text-sm">
-                      <span className="font-medium">{departmentStats[department._id].total || 0}</span> 
-                      <span className="text-gray-500"> {t('issues.issuesFound')}</span>
-                    </div>
+                  {department.categories.length > 3 && (
+                    <Badge variant="outline" className="text-xs">
+                      +{department.categories.length - 3} more
+                    </Badge>
                   )}
                 </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-blue-600">{department.issueCount || 0}</div>
+                    <div className="text-xs text-gray-500">Total Issues</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-lg font-bold text-green-600">{department.resolutionRate || 0}%</div>
+                    <div className="text-xs text-gray-500">Resolution Rate</div>
+                  </div>
+                </div>
+
+                {/* Head Officer */}
+                {department.headOfficer && (
+                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                    <Users className="h-4 w-4 mr-2" />
+                    {department.headOfficer.name}
+                  </div>
+                )}
+
+                {/* Budget Info */}
+                {department.budget && department.budget.allocated > 0 && (
+                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    ${department.budget.allocated.toLocaleString()} allocated
+                  </div>
+                )}
               </CardContent>
-              <CardFooter className="border-t flex justify-between">
+              
+              <CardFooter className="border-t bg-gray-50 flex justify-between items-center">
+                <Badge variant={department.isActive ? "default" : "outline"}>
+                  {department.isActive ? 'Active' : 'Inactive'}
+                </Badge>
                 <Button 
                   variant="outline" 
                   size="sm"
                   onClick={() => router.push(`/admin/departments/${department._id}`)}
                 >
-                  {t('departments.details')}
+                  View Details
                 </Button>
               </CardFooter>
             </Card>
           ))}
+          </div>
         </div>
       )}
       
       {/* Create/Edit Department Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {currentDepartment 
-                ? t('departments.updateDepartment')
-                : t('departments.createDepartment')}
+              {currentDepartment ? 'Update Department' : 'Create New Department'}
             </DialogTitle>
             <DialogDescription>
-              {t('departments.editDescription')}
+              {currentDepartment ? 'Update department information and settings' : 'Add a new department to manage civic issues'}
             </DialogDescription>
           </DialogHeader>
           
           <form onSubmit={handleFormSubmit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  {t('departments.name')}
-                </Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  required
-                />
-              </div>
+            <Tabs defaultValue="basic" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="basic">Basic Info</TabsTrigger>
+                <TabsTrigger value="contact">Contact</TabsTrigger>
+                <TabsTrigger value="operations">Operations</TabsTrigger>
+                <TabsTrigger value="budget">Budget</TabsTrigger>
+              </TabsList>
               
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="description" className="text-right">
-                  {t('departments.description')}
-                </Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                  rows={3}
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="headOfficer" className="text-right">
-                  {t('departments.headOfficer')}
-                </Label>
-                <Select
-                  name="headOfficer"
-                  value={formData.headOfficer}
-                  onValueChange={(value) => setFormData({...formData, headOfficer: value})}
-                >
-                  <SelectTrigger id="headOfficer" className="col-span-3">
-                    <SelectValue placeholder={t('departments.selectAnOfficer')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">{t('departments.selectAnOfficer')}</SelectItem>
-                    {users.map((user) => (
-                      <SelectItem key={user._id} value={user._id}>
-                        {user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="contactEmail" className="text-right">
-                  {t('departments.contactEmail')}
-                </Label>
-                <Input
-                  id="contactEmail"
-                  name="contactEmail"
-                  type="email"
-                  value={formData.contactEmail}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="contactPhone" className="text-right">
-                  {t('departments.contactPhone')}
-                </Label>
-                <Input
-                  id="contactPhone"
-                  name="contactPhone"
-                  value={formData.contactPhone}
-                  onChange={handleInputChange}
-                  className="col-span-3"
-                />
-              </div>
-              
-              <div className="grid grid-cols-4 gap-4">
-                <Label className="text-right pt-0">
-                  {t('departments.categories')}
-                </Label>
-                <div className="col-span-3 grid grid-cols-2 gap-2">
-                  {departmentCategories.map((category) => (
-                    <div key={category} className="flex items-center space-x-2">
-                      <Checkbox 
-                        id={`category-${category}`}
-                        checked={formData.categories.includes(category)}
-                        onCheckedChange={() => handleCategoryToggle(category)}
-                      />
-                      <label
-                        htmlFor={`category-${category}`}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        {t(`issues.categories.${category}`) || category}
-                      </label>
-                    </div>
-                  ))}
+              <TabsContent value="basic" className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name">Department Name *</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="e.g., Public Works Department"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="headOfficer">Head Officer</Label>
+                    <Select
+                      value={formData.headOfficer}
+                      onValueChange={(value) => setFormData({...formData, headOfficer: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select head officer" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="no-officer">No officer assigned</SelectItem>
+                        {users.map((user) => (
+                          <SelectItem key={user._id} value={user._id}>
+                            {user.name} ({user.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label className="text-right">
-                  {t('common.status')}
-                </Label>
+                
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleInputChange}
+                    rows={3}
+                    placeholder="Brief description of department responsibilities..."
+                  />
+                </div>
+                
+                <div>
+                  <Label>Issue Categories *</Label>
+                  <div className="grid grid-cols-3 gap-3 mt-2">
+                    {departmentCategories.map((category) => (
+                      <div key={category} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`category-${category}`}
+                          checked={formData.categories.includes(category)}
+                          onCheckedChange={() => handleCategoryToggle(category)}
+                        />
+                        <label htmlFor={`category-${category}`} className="text-sm font-medium">
+                          {category.charAt(0).toUpperCase() + category.slice(1)}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="isActive"
-                    name="isActive"
                     checked={formData.isActive}
                     onCheckedChange={(checked) => setFormData({...formData, isActive: checked})}
                   />
                   <Label htmlFor="isActive">
-                    {formData.isActive ? t('common.active') : t('common.inactive')}
+                    {formData.isActive ? 'Active Department' : 'Inactive Department'}
                   </Label>
                 </div>
-              </div>
-            </div>
-            <DialogFooter>
+              </TabsContent>
+              
+              <TabsContent value="contact" className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="contactEmail">Contact Email</Label>
+                    <Input
+                      id="contactEmail"
+                      name="contactEmail"
+                      type="email"
+                      value={formData.contactEmail}
+                      onChange={handleInputChange}
+                      placeholder="department@city.gov"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="contactPhone">Contact Phone</Label>
+                    <Input
+                      id="contactPhone"
+                      name="contactPhone"
+                      value={formData.contactPhone}
+                      onChange={handleInputChange}
+                      placeholder="+1 (555) 123-4567"
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="operations" className="space-y-4 mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="workingHours.start">Start Time</Label>
+                    <Input
+                      id="workingHours.start"
+                      name="workingHours.start"
+                      type="time"
+                      value={formData.workingHours.start}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="workingHours.end">End Time</Label>
+                    <Input
+                      id="workingHours.end"
+                      name="workingHours.end"
+                      type="time"
+                      value={formData.workingHours.end}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <Label>Working Days</Label>
+                  <div className="grid grid-cols-4 gap-2 mt-2">
+                    {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
+                      <div key={day} className="flex items-center space-x-2">
+                        <Checkbox 
+                          id={`day-${day}`}
+                          checked={formData.workingHours.workingDays.includes(day)}
+                          onCheckedChange={() => handleWorkingDayToggle(day)}
+                        />
+                        <label htmlFor={`day-${day}`} className="text-sm">
+                          {day.charAt(0).toUpperCase() + day.slice(1, 3)}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="budget" className="space-y-4 mt-4">
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="budget.allocated">Allocated Budget ($)</Label>
+                    <Input
+                      id="budget.allocated"
+                      name="budget.allocated"
+                      type="number"
+                      value={formData.budget.allocated}
+                      onChange={handleInputChange}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="budget.spent">Spent Budget ($)</Label>
+                    <Input
+                      id="budget.spent"
+                      name="budget.spent"
+                      type="number"
+                      value={formData.budget.spent}
+                      onChange={handleInputChange}
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="budget.year">Budget Year</Label>
+                    <Input
+                      id="budget.year"
+                      name="budget.year"
+                      type="number"
+                      value={formData.budget.year}
+                      onChange={handleInputChange}
+                      placeholder={new Date().getFullYear()}
+                    />
+                  </div>
+                </div>
+                
+                {formData.budget.allocated > 0 && (
+                  <div className="mt-4">
+                    <Label>Budget Utilization</Label>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full" 
+                        style={{ 
+                          width: `${Math.min((formData.budget.spent / formData.budget.allocated) * 100, 100)}%` 
+                        }}
+                      ></div>
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {((formData.budget.spent / formData.budget.allocated) * 100).toFixed(1)}% utilized
+                    </p>
+                  </div>
+                )}
+              </TabsContent>
+            </Tabs>
+            
+            <DialogFooter className="mt-6">
+              <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                Cancel
+              </Button>
               <Button type="submit">
-                {currentDepartment ? t('common.save') : t('departments.createDepartment')}
+                {currentDepartment ? 'Update Department' : 'Create Department'}
               </Button>
             </DialogFooter>
           </form>
@@ -633,18 +946,18 @@ export default function DepartmentsPage() {
       <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t('departments.deleteDepartment')}</AlertDialogTitle>
+            <AlertDialogTitle>Deactivate Department</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('departments.deleteConfirm')}
+              Are you sure you want to deactivate "{departmentToDelete?.name}"? This will make the department inactive but preserve all data. You can reactivate it later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 text-white hover:bg-red-700"
               onClick={handleDeleteDepartment}
             >
-              {t('common.delete')}
+              Deactivate
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

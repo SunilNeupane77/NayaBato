@@ -1,125 +1,116 @@
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { updateWithAudit } from '@/lib/db/audit-utils';
-import connectDB from '@/lib/db/connect';
-import Audit from '@/models/Audit';
-import Ward from '@/models/Ward';
-import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
-import { handleApiError, notFound, forbidden } from '@/lib/error-handler';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import connectDB from '@/lib/db/connect';
+import Ward from '@/models/Ward';
+import Issue from '@/models/Issue';
 
-/**
- * Get, update or delete a specific ward by ID
- * @route GET|PUT|DELETE /api/wards/[id]
- */
 export async function GET(request, { params }) {
   try {
-    const { id } = params;
-    
-    // Connect to database
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     
-    // Find the ward
-    const ward = await Ward.findById(id)
-      .populate('officerInCharge', 'name email');
-    
+    const ward = await Ward.findById(params.id)
+      .populate('officerInCharge', 'name email phone')
+      .populate('departments', 'name categories');
+
     if (!ward) {
-      throw notFound('Ward not found');
+      return NextResponse.json({ error: 'Ward not found' }, { status: 404 });
     }
-    
+
+    // Build issue query
+    const { searchParams } = new URL(request.url);
+    const status = searchParams.get('status');
+    const category = searchParams.get('category');
+    const priority = searchParams.get('priority');
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 10;
+
+    const issueQuery = { assignedWard: params.id };
+    if (status) issueQuery.status = status;
+    if (category) issueQuery.category = category;
+    if (priority) issueQuery.priority = priority;
+
+    const [issues, totalIssues, issueStats, performanceMetrics] = await Promise.all([
+      Issue.find(issueQuery)
+        .populate('reporter', 'name email')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      Issue.countDocuments(issueQuery),
+      ward.getIssueStats(),
+      ward.getPerformanceMetrics()
+    ]);
+
     return NextResponse.json({
-      success: true,
-      ward
+      ward,
+      issues,
+      pagination: {
+        page,
+        limit,
+        total: totalIssues,
+        pages: Math.ceil(totalIssues / limit)
+      },
+      issueStats,
+      performanceMetrics
     });
-    
   } catch (error) {
-    return handleApiError(error);
+    console.error('Ward API error:', error);
+    return NextResponse.json({ error: 'Failed to fetch ward details' }, { status: 500 });
   }
 }
 
 export async function PUT(request, { params }) {
   try {
-    const { id } = params;
-    const body = await request.json();
-    
-    // Get session and verify permission
     const session = await getServerSession(authOptions);
-    
     if (!session || session.user.role !== 'admin') {
-      throw forbidden('Not authorized to update wards');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    // Connect to database
+
     await connectDB();
+    const data = await request.json();
     
-    // Get user for audit
-    const user = await import('@/models/User').then(module => module.default.findById(session.user.id));
-    
-    // Update the ward with audit trail
-    const ward = await updateWithAudit({
-      model: Ward,
-      id,
-      updates: body,
-      actor: user,
-      requestInfo: {
-        ip: request.headers.get('x-forwarded-for') || request.ip,
-        userAgent: request.headers.get('user-agent')
-      }
-    });
-    
+    const ward = await Ward.findByIdAndUpdate(
+      params.id,
+      data,
+      { new: true }
+    ).populate('officerInCharge', 'name email');
+
     if (!ward) {
-      throw notFound('Ward not found');
+      return NextResponse.json({ error: 'Ward not found' }, { status: 404 });
     }
-    
-    return NextResponse.json({
-      success: true,
-      ward
-    });
-    
+
+    return NextResponse.json({ ward });
   } catch (error) {
-    return handleApiError(error);
+    return NextResponse.json({ error: 'Failed to update ward' }, { status: 500 });
   }
 }
-
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params;
-    
-    // Get session and verify permission
     const session = await getServerSession(authOptions);
-    
     if (!session || session.user.role !== 'admin') {
-      throw forbidden('Not authorized to delete wards');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    // Connect to database
+
     await connectDB();
     
-    // Find the ward
-    const ward = await Ward.findById(id);
-    
+    // Soft delete - deactivate instead of removing
+    const ward = await Ward.findByIdAndUpdate(
+      params.id,
+      { isActive: false },
+      { new: true }
+    );
+
     if (!ward) {
-      throw notFound('Ward not found');
+      return NextResponse.json({ error: 'Ward not found' }, { status: 404 });
     }
-    
-    // Instead of hard delete, set isActive to false
-    ward.isActive = false;
-    await ward.save();
-    
-    // Log this action
-    await Audit.log({
-      actor: session.user.id,
-      action: 'delete',
-      resourceType: 'Ward',
-      resourceId: id,
-      details: { wardName: ward.name, wardNumber: ward.number }
-    });
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Ward deactivated successfully'
-    });
-    
+
+    return NextResponse.json({ message: 'Ward deactivated successfully' });
   } catch (error) {
-    return handleApiError(error);
+    return NextResponse.json({ error: 'Failed to delete ward' }, { status: 500 });
   }
 }

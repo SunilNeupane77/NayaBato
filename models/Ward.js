@@ -59,6 +59,32 @@ const WardSchema = new mongoose.Schema({
   contactPhone: {
     type: String
   },
+  population: {
+    type: Number,
+    default: 0
+  },
+  area: {
+    type: Number, // in square kilometers
+    default: 0
+  },
+  departments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department'
+  }],
+  facilities: [{
+    name: String,
+    type: {
+      type: String,
+      enum: ['hospital', 'school', 'park', 'police_station', 'fire_station', 'other']
+    },
+    location: {
+      type: {
+        type: String,
+        enum: ['Point']
+      },
+      coordinates: [Number]
+    }
+  }],
   isActive: {
     type: Boolean,
     default: true
@@ -69,27 +95,94 @@ const WardSchema = new mongoose.Schema({
 
 // Create a geospatial index for location queries
 WardSchema.index({ "location.coordinates": "2dsphere" });
-
-// Create an index on ward number for quick lookups
 WardSchema.index({ number: 1 });
 
-// Method to get issues assigned to this ward
-WardSchema.methods.getAssignedIssues = async function() {
-  return await this.model('Issue').find({ 
-    assignedWard: this._id 
-  }).sort({ createdAt: -1 });
+// Method to get issues assigned to this ward with statistics
+WardSchema.methods.getIssueStats = async function() {
+  const stats = await this.model('Issue').aggregate([
+    { $match: { assignedWard: this._id } },
+    {
+      $group: {
+        _id: '$status',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+  
+  const categoryStats = await this.model('Issue').aggregate([
+    { $match: { assignedWard: this._id } },
+    {
+      $group: {
+        _id: '$category',
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  return { statusStats: stats, categoryStats };
 };
 
-// Static method to find nearest ward to coordinates using Haversine formula
+// Method to get recent issues
+WardSchema.methods.getRecentIssues = async function(limit = 10) {
+  return await this.model('Issue').find({ 
+    assignedWard: this._id 
+  })
+  .populate('reporter', 'name email')
+  .sort({ createdAt: -1 })
+  .limit(limit);
+};
+
+// Method to get ward performance metrics
+WardSchema.methods.getPerformanceMetrics = async function() {
+  const totalIssues = await this.model('Issue').countDocuments({ assignedWard: this._id });
+  const resolvedIssues = await this.model('Issue').countDocuments({ 
+    assignedWard: this._id, 
+    status: 'resolved' 
+  });
+  
+  const avgResolutionTime = await this.model('Issue').aggregate([
+    { 
+      $match: { 
+        assignedWard: this._id, 
+        status: 'resolved' 
+      } 
+    },
+    {
+      $project: {
+        resolutionTime: {
+          $divide: [
+            { $subtract: ['$updatedAt', '$createdAt'] },
+            1000 * 60 * 60 * 24 // Convert to days
+          ]
+        }
+      }
+    },
+    {
+      $group: {
+        _id: null,
+        avgTime: { $avg: '$resolutionTime' }
+      }
+    }
+  ]);
+
+  return {
+    totalIssues,
+    resolvedIssues,
+    resolutionRate: totalIssues > 0 ? (resolvedIssues / totalIssues * 100).toFixed(1) : 0,
+    avgResolutionTime: avgResolutionTime[0]?.avgTime?.toFixed(1) || 0
+  };
+};
+
+// Static method to find nearest ward
 WardSchema.statics.findNearest = async function(coordinates, maxDistance = 5000) {
   return await this.find({
     'location.coordinates': {
       $near: {
         $geometry: {
           type: 'Point',
-          coordinates: coordinates // [longitude, latitude]
+          coordinates: coordinates
         },
-        $maxDistance: maxDistance // Distance in meters
+        $maxDistance: maxDistance
       }
     },
     isActive: true

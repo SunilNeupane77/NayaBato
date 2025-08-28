@@ -80,7 +80,16 @@ const IssueSchema = new mongoose.Schema({
     notes: {
       type: String
     }
-  }]
+  }],
+  votes: {
+    upvotes: { type: Number, default: 0 },
+    urgent: { type: Number, default: 0 }
+  },
+  priority: {
+    type: String,
+    enum: ['low', 'medium', 'high', 'critical'],
+    default: 'medium'
+  }
 }, {
   timestamps: true
 });

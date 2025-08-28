@@ -21,6 +21,7 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import PasswordInput from "@/components/ui/password-input";
 import { useToast } from "@/components/ui/use-toast";
 
 // Import language context
@@ -181,7 +182,13 @@ export default function SignInForm({ onSuccess, onError, callbackUrl = '/' }) {
                   </Link>
                 </div>
                 <FormControl>
-                  <Input placeholder="••••••••" type="password" {...field} disabled={isLoading} />
+                  <PasswordInput 
+                    placeholder="••••••••" 
+                    value={field.value}
+                    onChange={field.onChange}
+                    disabled={isLoading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

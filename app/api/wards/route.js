@@ -1,114 +1,171 @@
+import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import connectDB from '@/lib/db/connect';
-import Audit from '@/models/Audit';
 import Ward from '@/models/Ward';
-import { getServerSession } from 'next-auth/next';
-import { NextResponse } from 'next/server';
-import { handleApiError, forbidden, badRequest } from '@/lib/error-handler';
+import Issue from '@/models/Issue';
+import User from '@/models/User';
 
-/**
- * Get all wards or create a new one
- * @route GET|POST /api/wards
- */
+// Haversine formula to calculate distance between two points
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371; // Earth's radius in kilometers
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c; // Distance in kilometers
+}
+
 export async function GET(request) {
   try {
-    // Connect to database
+    const session = await getServerSession(authOptions);
+    if (!session || !['admin', 'official'].includes(session.user.role)) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     await connectDB();
     
-    // Get query parameters
-    const url = new URL(request.url);
-    const isActive = url.searchParams.get('isActive');
-    const near = url.searchParams.get('near'); // Format: "lat,lng,radius"
-    
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 20;
+    const search = searchParams.get('search') || '';
+    const status = searchParams.get('status') || 'all';
+    const sortBy = searchParams.get('sortBy') || 'name';
+    const lat = parseFloat(searchParams.get('lat'));
+    const lng = parseFloat(searchParams.get('lng'));
+    const radius = parseFloat(searchParams.get('radius')) || 10;
+
     // Build query
     const query = {};
-    if (isActive !== null && isActive !== undefined) {
-      query.isActive = isActive === 'true';
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { 'address.street': { $regex: search, $options: 'i' } },
+        { 'address.city': { $regex: search, $options: 'i' } }
+      ];
     }
-    
-    // Handle geo-spatial query
-    if (near) {
-      const [lat, lng, radius] = near.split(',').map(Number);
-      
-      if (!isNaN(lat) && !isNaN(lng) && !isNaN(radius)) {
-        const wards = await Ward.find({
-          'location.coordinates': {
-            $near: {
-              $geometry: {
-                type: 'Point',
-                coordinates: [lng, lat] // MongoDB uses [longitude, latitude]
-              },
-              $maxDistance: radius // Distance in meters
+    if (status !== 'all') {
+      query.isActive = status === 'active';
+    }
+
+    let wards = await Ward.find(query)
+      .populate('officerInCharge', 'name email phone')
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const total = await Ward.countDocuments(query);
+
+    // Calculate distances if coordinates provided
+    if (!isNaN(lat) && !isNaN(lng)) {
+      wards = wards.map(ward => {
+        const distance = ward.coordinates?.latitude && ward.coordinates?.longitude
+          ? calculateDistance(lat, lng, ward.coordinates.latitude, ward.coordinates.longitude)
+          : null;
+        return { ...ward.toObject(), distance };
+      }).filter(ward => !ward.distance || ward.distance <= radius);
+    }
+
+    // Get basic statistics for each ward
+    const wardsWithStats = await Promise.all(
+      wards.map(async (ward) => {
+        try {
+          const totalIssues = await Issue.countDocuments({ assignedWard: ward._id });
+          const resolvedIssues = await Issue.countDocuments({ assignedWard: ward._id, status: 'resolved' });
+          const pendingIssues = await Issue.countDocuments({ assignedWard: ward._id, status: { $in: ['reported', 'under-review'] } });
+
+          return {
+            ...ward.toObject ? ward.toObject() : ward,
+            stats: {
+              totalIssues,
+              resolvedIssues,
+              pendingIssues,
+              resolutionRate: totalIssues > 0 ? ((resolvedIssues / totalIssues) * 100).toFixed(1) : 0
             }
-          }
-        }).populate('officerInCharge', 'name email');
-        
-        return NextResponse.json({
-          success: true,
-          count: wards.length,
-          wards
-        });
+          };
+        } catch (err) {
+          console.error('Error fetching stats for ward:', ward._id, err);
+          return {
+            ...ward.toObject ? ward.toObject() : ward,
+            stats: {
+              totalIssues: 0,
+              resolvedIssues: 0,
+              pendingIssues: 0,
+              resolutionRate: 0
+            }
+          };
+        }
+      })
+    );
+
+    // Sort wards
+    wardsWithStats.sort((a, b) => {
+      switch (sortBy) {
+        case 'distance':
+          return (a.distance || Infinity) - (b.distance || Infinity);
+        case 'issues':
+          return b.stats.totalIssues - a.stats.totalIssues;
+        case 'resolution':
+          return parseFloat(b.stats.resolutionRate) - parseFloat(a.stats.resolutionRate);
+        case 'population':
+          return (b.population || 0) - (a.population || 0);
+        default:
+          return a.name.localeCompare(b.name);
       }
-    }
-    
-    // Find wards with standard query
-    const wards = await Ward.find(query)
-      .populate('officerInCharge', 'name email')
-      .sort({ number: 1 });
-    
-    return NextResponse.json({
-      success: true,
-      count: wards.length,
-      wards
     });
-    
+
+    return NextResponse.json({
+      wards: wardsWithStats,
+      pagination: {
+        page,
+        limit,
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
-    return handleApiError(error);
+    console.error('Wards API error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to fetch wards',
+      details: error.message,
+      wards: [] // Return empty array as fallback
+    }, { status: 500 });
   }
 }
 
 export async function POST(request) {
   try {
-    // Get session and verify admin permission
     const session = await getServerSession(authOptions);
-    
     if (!session || session.user.role !== 'admin') {
-      throw forbidden('Not authorized to create wards');
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    // Connect to database
+
     await connectDB();
-    
-    const body = await request.json();
+    const data = await request.json();
     
     // Validate required fields
-    if (!body.name || !body.number || !body.location) {
-      throw badRequest('Ward name, number, and location are required');
+    if (!data.name || !data.number) {
+      return NextResponse.json({ 
+        error: 'Name and number are required' 
+      }, { status: 400 });
     }
+
+    // Check if ward number already exists
+    const existingWard = await Ward.findOne({ number: data.number });
+    if (existingWard) {
+      return NextResponse.json({ 
+        error: 'Ward number already exists' 
+      }, { status: 400 });
+    }
+
+    const ward = await Ward.create(data);
+    await ward.populate('officerInCharge', 'name email');
     
-    // Create ward
-    const ward = await Ward.create(body);
-    
-    // Log this action
-    await Audit.log({
-      actor: session.user.id,
-      action: 'create',
-      resourceType: 'Ward',
-      resourceId: ward._id,
-      details: { wardData: ward }
-    });
-    
-    return NextResponse.json({
-      success: true,
-      ward
-    }, { status: 201 });
-    
+    return NextResponse.json({ ward }, { status: 201 });
   } catch (error) {
-    // Handle duplicate key error
-    if (error.code === 11000) {
-      return handleApiError(badRequest('A ward with this number already exists'));
-    }
-    
-    return handleApiError(error);
+    return NextResponse.json({ error: 'Failed to create ward' }, { status: 500 });
   }
 }
