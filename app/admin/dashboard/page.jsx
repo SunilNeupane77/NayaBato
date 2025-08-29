@@ -110,11 +110,20 @@ export default function AdminDashboard() {
 
   const sendWeeklyDigest = async () => {
     try {
+      setLoading(true);
       const response = await fetch('/api/email/weekly-digest', { method: 'POST' });
       const data = await response.json();
-      alert(data.message);
+      
+      if (response.ok) {
+        alert(`✅ ${data.message}\n\nDetails:\n• Total Subscribers: ${data.details.totalSubscribers}\n• Successfully Sent: ${data.details.successCount}\n• Failed: ${data.details.failCount}`);
+      } else {
+        alert(`❌ Error: ${data.error}`);
+      }
     } catch (error) {
-      alert('Failed to send digest');
+      alert('❌ Failed to send weekly digest. Please try again.');
+      console.error('Weekly digest error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 

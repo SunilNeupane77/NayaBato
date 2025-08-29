@@ -8,6 +8,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import WeeklyDigestSubscription from "@/components/WeeklyDigestSubscription";
 
 // Animations
 const fadeIn = {
@@ -439,6 +440,21 @@ export default function HomePage() {
               </div>
             </div>
           </motion.div>
+        </div>
+      </motion.section>
+
+      {/* Newsletter Subscription Section */}
+      <motion.section
+        className="py-16 bg-white"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.5 }}
+        variants={fadeIn}
+      >
+        <div className="container mx-auto px-6">
+          <div className="max-w-2xl mx-auto">
+            <WeeklyDigestSubscription />
+          </div>
         </div>
       </motion.section>
 

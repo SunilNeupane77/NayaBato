@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function IssueConfirmationEmail({ issueId, title, location, issueUrl }) {
+export default function NewsletterSubscriptionEmail({ email }) {
   return (
     <div style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -10,77 +10,55 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
     }}>
       {/* Header */}
       <div style={{
-        background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+        background: 'linear-gradient(135deg, #0d9488 0%, #06b6d4 100%)',
         padding: '40px 30px',
         textAlign: 'center',
         borderRadius: '12px 12px 0 0'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
         <h1 style={{
           color: '#ffffff',
-          fontSize: '24px',
+          fontSize: '28px',
           fontWeight: 'bold',
           margin: '0 0 10px 0',
           letterSpacing: '-0.5px'
         }}>
-          Issue Reported Successfully!
+          🎉 Welcome to Nayabato!
         </h1>
         <p style={{
-          color: '#d1fae5',
+          color: '#e6fffa',
           fontSize: '16px',
           margin: '0',
           opacity: '0.9'
         }}>
-          Thank you for helping improve our community
+          Your weekly community digest awaits
         </p>
       </div>
 
       {/* Main Content */}
       <div style={{ padding: '40px 30px' }}>
         <div style={{
-          backgroundColor: '#f0fdf4',
+          backgroundColor: '#f0fdfa',
           padding: '24px',
           borderRadius: '8px',
-          borderLeft: '4px solid #059669',
+          borderLeft: '4px solid #0d9488',
           marginBottom: '30px'
         }}>
           <h2 style={{
-            color: '#065f46',
-            fontSize: '18px',
-            margin: '0 0 16px 0',
+            color: '#0f766e',
+            fontSize: '20px',
+            margin: '0 0 12px 0',
             fontWeight: '600'
           }}>
-            📋 Issue Details
+            📧 You're all set!
           </h2>
-          
-          <div style={{ marginBottom: '12px' }}>
-            <strong style={{ color: '#1f2937', fontSize: '14px' }}>Issue ID:</strong>
-            <span style={{
-              backgroundColor: '#e5e7eb',
-              color: '#374151',
-              padding: '2px 8px',
-              borderRadius: '4px',
-              fontSize: '12px',
-              fontFamily: 'monospace',
-              marginLeft: '8px'
-            }}>
-              #{issueId}
-            </span>
-          </div>
-          
-          <div style={{ marginBottom: '12px' }}>
-            <strong style={{ color: '#1f2937', fontSize: '14px' }}>Title:</strong>
-            <p style={{ margin: '4px 0 0 0', color: '#374151', fontSize: '16px' }}>
-              {title}
-            </p>
-          </div>
-          
-          <div style={{ marginBottom: '0' }}>
-            <strong style={{ color: '#1f2937', fontSize: '14px' }}>Location:</strong>
-            <p style={{ margin: '4px 0 0 0', color: '#374151', fontSize: '14px' }}>
-              📍 {location}
-            </p>
-          </div>
+          <p style={{
+            color: '#134e4a',
+            fontSize: '16px',
+            lineHeight: '1.6',
+            margin: '0'
+          }}>
+            Thank you for subscribing to our weekly digest. You'll receive curated updates about community issues and their resolutions.
+          </p>
         </div>
 
         <div style={{ marginBottom: '30px' }}>
@@ -90,13 +68,17 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
             margin: '0 0 16px 0',
             fontWeight: '600'
           }}>
-            What happens next?
+            What to expect:
           </h3>
           
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '12px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              marginBottom: '12px'
+            }}>
               <span style={{
-                backgroundColor: '#3b82f6',
+                backgroundColor: '#0d9488',
                 color: 'white',
                 borderRadius: '50%',
                 width: '24px',
@@ -107,20 +89,26 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
                 fontSize: '12px',
                 marginRight: '12px',
                 flexShrink: '0'
-              }}>1</span>
+              }}>
+                📊
+              </span>
               <div>
-                <strong style={{ color: '#1f2937' }}>Review Process</strong>
+                <strong style={{ color: '#1f2937' }}>Weekly Statistics</strong>
                 <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-                  Our team will review your report within 24-48 hours
+                  Track community progress and resolution rates
                 </p>
               </div>
             </div>
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '12px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              marginBottom: '12px'
+            }}>
               <span style={{
-                backgroundColor: '#f59e0b',
+                backgroundColor: '#0d9488',
                 color: 'white',
                 borderRadius: '50%',
                 width: '24px',
@@ -131,20 +119,26 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
                 fontSize: '12px',
                 marginRight: '12px',
                 flexShrink: '0'
-              }}>2</span>
+              }}>
+                🏘️
+              </span>
               <div>
-                <strong style={{ color: '#1f2937' }}>Assignment</strong>
+                <strong style={{ color: '#1f2937' }}>Local Updates</strong>
                 <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-                  The issue will be assigned to the appropriate department
+                  Stay informed about issues in your area
                 </p>
               </div>
             </div>
           </div>
 
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '12px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              marginBottom: '12px'
+            }}>
               <span style={{
-                backgroundColor: '#059669',
+                backgroundColor: '#0d9488',
                 color: 'white',
                 borderRadius: '50%',
                 width: '24px',
@@ -155,11 +149,13 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
                 fontSize: '12px',
                 marginRight: '12px',
                 flexShrink: '0'
-              }}>3</span>
+              }}>
+                ✅
+              </span>
               <div>
-                <strong style={{ color: '#1f2937' }}>Resolution</strong>
+                <strong style={{ color: '#1f2937' }}>Success Stories</strong>
                 <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-                  You'll receive updates as progress is made
+                  Celebrate resolved issues and community wins
                 </p>
               </div>
             </div>
@@ -168,31 +164,29 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
 
         <div style={{
           backgroundColor: '#f9fafb',
-          padding: '24px',
+          padding: '20px',
           borderRadius: '8px',
           textAlign: 'center',
           marginBottom: '30px'
         }}>
           <p style={{
             color: '#374151',
-            fontSize: '16px',
-            margin: '0 0 16px 0',
-            fontWeight: '500'
+            fontSize: '14px',
+            margin: '0 0 12px 0'
           }}>
-            Track your issue progress
+            Ready to make a difference in your community?
           </p>
-          <a href={issueUrl} style={{
+          <a href={`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/issues/report`} style={{
             backgroundColor: '#0d9488',
             color: '#ffffff',
-            padding: '14px 28px',
-            borderRadius: '8px',
+            padding: '12px 24px',
+            borderRadius: '6px',
             textDecoration: 'none',
-            fontSize: '16px',
+            fontSize: '14px',
             fontWeight: '600',
-            display: 'inline-block',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+            display: 'inline-block'
           }}>
-            View Issue Details →
+            Report an Issue
           </a>
         </div>
       </div>
@@ -209,7 +203,7 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
           fontSize: '12px',
           margin: '0 0 8px 0'
         }}>
-          Questions? Reply to this email or contact support
+          This email was sent to <strong>{email}</strong>
         </p>
         <p style={{
           color: '#9ca3af',

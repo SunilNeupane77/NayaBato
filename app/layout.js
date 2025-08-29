@@ -22,7 +22,6 @@ export const metadata = {
   title: "Nayabato - Civic Issue Reporting",
   description: "Report and track civic issues in your community",
   manifest: "/manifest.json",
-  themeColor: "#3b82f6",
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
@@ -41,6 +40,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  themeColor: "#0d9488",
 };
 
 export default function RootLayout({ children }) {

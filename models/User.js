@@ -19,7 +19,9 @@ const UserSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please add a password'],
+    required: function() {
+      return !this.isNewsletterOnly;
+    },
     minlength: [6, 'Password must be at least 6 characters'],
     select: false // Don't return password in queries
   },
@@ -50,6 +52,16 @@ const UserSchema = new mongoose.Schema({
       default: false
     }
   },
+  preferences: {
+    weeklyDigest: {
+      type: Boolean,
+      default: false
+    }
+  },
+  isNewsletterOnly: {
+    type: Boolean,
+    default: false
+  },
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, {
@@ -58,8 +70,9 @@ const UserSchema = new mongoose.Schema({
 
 // Encrypt password using bcrypt
 UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) {
-    next();
+  // Skip password hashing for newsletter-only users
+  if (this.isNewsletterOnly || !this.password || !this.isModified('password')) {
+    return next();
   }
 
   const salt = await bcrypt.genSalt(10);

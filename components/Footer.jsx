@@ -45,11 +45,11 @@ export default function Footer() {
             <h3 className="text-lg font-semibold text-white mb-4">{t('footer.connectWithUs')}</h3>
             <div className="flex items-center mb-3">
               <Mail size={18} className="mr-3" />
-              <span className="text-sm">info@nayabato.com</span>
+              <span className="text-sm">sunilneupane957@gmail.com</span>
             </div>
             <div className="flex items-center mb-4">
               <Phone size={18} className="mr-3" />
-              <span className="text-sm">+1 (555) 123-4567</span>
+              <span className="text-sm">9860137848</span>
             </div>
             <div className="flex space-x-4 mt-4">
               <a href="#" className="hover:text-white transition-colors duration-300"><Facebook size={22} /></a>

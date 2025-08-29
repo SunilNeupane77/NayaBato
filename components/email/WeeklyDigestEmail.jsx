@@ -1,102 +1,15 @@
-import {
-    Body,
-    Container,
-    Head,
-    Heading,
-    Html,
-    Link,
-    Preview,
-    Section,
-    Text,
-} from '@react-email/components';
+import React from 'react';
 
-const baseStyles = {
-  fontFamily: 'system-ui, -apple-system, "Segoe UI", sans-serif',
-  color: '#333',
-};
-
-const containerStyles = {
-  maxWidth: '600px',
-  margin: '0 auto',
-  padding: '20px',
-};
-
-const headerStyles = {
-  borderBottom: '1px solid #eaeaea',
-  paddingBottom: '20px',
-  marginBottom: '20px',
-};
-
-const titleStyles = {
-  fontSize: '24px',
-  fontWeight: 'bold',
-  margin: '12px 0',
-};
-
-const bodyStyles = {
-  lineHeight: 1.6,
-};
-
-const statsBoxStyles = {
-  background: '#f0f9ff',
-  border: '1px solid #bae6fd',
-  borderRadius: '8px',
-  padding: '20px',
-  marginBottom: '20px',
-};
-
-const statItemStyles = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  padding: '10px 0',
-  borderBottom: '1px solid #e0f2fe',
-};
-
-const issueItemStyles = {
-  background: '#fafafa',
-  border: '1px solid #e5e5e5',
-  borderRadius: '6px',
-  padding: '15px',
-  marginBottom: '15px',
-};
-
-const buttonContainerStyles = {
-  textAlign: 'center',
-  margin: '30px 0',
-};
-
-const buttonStyles = {
-  backgroundColor: '#2563eb',
-  borderRadius: '4px',
-  color: '#fff',
-  display: 'inline-block',
-  fontSize: '16px',
-  fontWeight: 'bold',
-  padding: '12px 24px',
-  textDecoration: 'none',
-};
-
-const footerStyles = {
-  borderTop: '1px solid #eaeaea',
-  paddingTop: '20px',
-  marginTop: '20px',
-  fontSize: '12px',
-  color: '#666',
-  textAlign: 'center',
-};
-
-const WeeklyDigestEmail = ({ 
+export default function WeeklyDigestEmail({ 
   userName, 
   weekStart, 
   weekEnd, 
   stats, 
   recentIssues, 
   dashboardUrl 
-}) => {
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('en-US', {
-      weekday: 'long',
+}) {
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
@@ -104,155 +17,279 @@ const WeeklyDigestEmail = ({
   };
 
   const getStatusColor = (status) => {
-    const colors = {
-      'reported': '#6b7280',
-      'under-review': '#f59e0b',
-      'in-progress': '#3b82f6',
-      'resolved': '#10b981',
-      'rejected': '#ef4444'
-    };
-    return colors[status] || '#6b7280';
+    switch (status) {
+      case 'resolved': return '#059669';
+      case 'in-progress': return '#d97706';
+      case 'under-review': return '#2563eb';
+      default: return '#6b7280';
+    }
   };
 
   return (
-    <Html>
-      <Head />
-      <Preview>Your weekly Nayabato community update</Preview>
-      <Body style={baseStyles}>
-        <Container style={containerStyles}>
-          <Section style={headerStyles}>
-            <Heading style={titleStyles}>Weekly Community Digest</Heading>
-            <Text style={{ color: '#6b7280', margin: '0' }}>
-              {formatDate(weekStart)} - {formatDate(weekEnd)}
-            </Text>
-          </Section>
-          
-          <Section style={bodyStyles}>
-            <Text>Hello {userName},</Text>
-            
-            <Text>
-              Here's your weekly summary of community activity on Nayabato. 
-              Stay informed about what's happening in your area!
-            </Text>
-            
-            <Section style={statsBoxStyles}>
-              <Heading style={{ fontSize: '18px', margin: '0 0 15px 0', color: '#0369a1' }}>
-                📊 This Week's Activity
-              </Heading>
-              
-              <div style={statItemStyles}>
-                <Text style={{ margin: '0', fontWeight: 'bold' }}>New Issues Reported</Text>
-                <Text style={{ margin: '0', fontSize: '18px', fontWeight: 'bold', color: '#dc2626' }}>
-                  {stats.newIssues || 0}
-                </Text>
-              </div>
-              
-              <div style={statItemStyles}>
-                <Text style={{ margin: '0', fontWeight: 'bold' }}>Issues Resolved</Text>
-                <Text style={{ margin: '0', fontSize: '18px', fontWeight: 'bold', color: '#16a34a' }}>
-                  {stats.resolvedIssues || 0}
-                </Text>
-              </div>
-              
-              <div style={statItemStyles}>
-                <Text style={{ margin: '0', fontWeight: 'bold' }}>Issues In Progress</Text>
-                <Text style={{ margin: '0', fontSize: '18px', fontWeight: 'bold', color: '#2563eb' }}>
-                  {stats.inProgressIssues || 0}
-                </Text>
-              </div>
-              
-              <div style={{ ...statItemStyles, borderBottom: 'none' }}>
-                <Text style={{ margin: '0', fontWeight: 'bold' }}>Total Active Issues</Text>
-                <Text style={{ margin: '0', fontSize: '18px', fontWeight: 'bold', color: '#7c3aed' }}>
-                  {stats.totalActiveIssues || 0}
-                </Text>
-              </div>
-            </Section>
+    <div style={{
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      maxWidth: '600px',
+      margin: '0 auto',
+      backgroundColor: '#ffffff'
+    }}>
+      {/* Header */}
+      <div style={{
+        background: 'linear-gradient(135deg, #0d9488 0%, #06b6d4 100%)',
+        padding: '40px 30px',
+        textAlign: 'center',
+        borderRadius: '12px 12px 0 0'
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+        <h1 style={{
+          color: '#ffffff',
+          fontSize: '28px',
+          fontWeight: 'bold',
+          margin: '0 0 10px 0',
+          letterSpacing: '-0.5px'
+        }}>
+          Weekly Community Report
+        </h1>
+        <p style={{
+          color: '#e6fffa',
+          fontSize: '16px',
+          margin: '0',
+          opacity: '0.9'
+        }}>
+          {formatDate(weekStart)} - {formatDate(weekEnd)}
+        </p>
+      </div>
 
-            {recentIssues && recentIssues.length > 0 && (
-              <>
-                <Heading style={{ fontSize: '18px', margin: '30px 0 15px 0' }}>
-                  🔥 Recent Issues in Your Area
-                </Heading>
-                
-                {recentIssues.slice(0, 5).map((issue, index) => (
-                  <div key={index} style={issueItemStyles}>
-                    <Text style={{ 
-                      margin: '0 0 8px 0', 
-                      fontWeight: 'bold', 
-                      fontSize: '16px' 
-                    }}>
-                      {issue.title}
-                    </Text>
-                    
-                    <Text style={{ 
-                      margin: '0 0 8px 0', 
-                      color: '#6b7280',
-                      fontSize: '14px'
-                    }}>
-                      📍 {issue.location?.address || 'Location not specified'}
-                    </Text>
-                    
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'center' 
-                    }}>
-                      <span style={{
-                        backgroundColor: getStatusColor(issue.status),
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '12px',
-                        textTransform: 'uppercase',
-                        fontWeight: 'bold'
-                      }}>
-                        {issue.status.replace('-', ' ')}
-                      </span>
-                      
-                      <Text style={{ 
-                        margin: '0', 
-                        fontSize: '12px', 
-                        color: '#9ca3af' 
-                      }}>
-                        {new Date(issue.createdAt).toLocaleDateString()}
-                      </Text>
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-            
-            <Section style={buttonContainerStyles}>
-              <Link href={dashboardUrl} style={buttonStyles}>
-                View Full Dashboard
-              </Link>
-            </Section>
-            
-            <Text>
-              Thank you for being an active member of your community! 
-              Together, we're making our neighborhoods better places to live.
-            </Text>
-            
-            <Text>
-              Best regards,<br />
-              The Nayabato Team
-            </Text>
-          </Section>
+      {/* Main Content */}
+      <div style={{ padding: '40px 30px' }}>
+        {/* Greeting */}
+        <div style={{ marginBottom: '30px' }}>
+          <h2 style={{
+            color: '#1f2937',
+            fontSize: '20px',
+            margin: '0 0 12px 0',
+            fontWeight: '600'
+          }}>
+            Hello {userName}! 👋
+          </h2>
+          <p style={{
+            color: '#6b7280',
+            fontSize: '16px',
+            lineHeight: '1.6',
+            margin: '0'
+          }}>
+            Here's what happened in your community this week.
+          </p>
+        </div>
+
+        {/* Statistics */}
+        <div style={{
+          backgroundColor: '#f0fdfa',
+          padding: '24px',
+          borderRadius: '8px',
+          borderLeft: '4px solid #0d9488',
+          marginBottom: '30px'
+        }}>
+          <h3 style={{
+            color: '#0f766e',
+            fontSize: '18px',
+            margin: '0 0 16px 0',
+            fontWeight: '600'
+          }}>
+            📈 Weekly Summary
+          </h3>
           
-          <Section style={footerStyles}>
-            <Text>
-              © {new Date().getFullYear()} Nayabato. All rights reserved.
-            </Text>
-            <Text>
-              You're receiving this digest because you opted in to weekly updates. 
-              You can change your email preferences in your account settings.
-            </Text>
-          </Section>
-        </Container>
-      </Body>
-    </Html>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: '32px',
+                fontWeight: 'bold',
+                color: '#0d9488',
+                marginBottom: '4px'
+              }}>
+                {stats.totalReported}
+              </div>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>New Reports</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontSize: '32px',
+                fontWeight: 'bold',
+                color: '#059669',
+                marginBottom: '4px'
+              }}>
+                {stats.totalResolved}
+              </div>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>Resolved</div>
+            </div>
+          </div>
+
+          <div style={{ 
+            marginTop: '20px', 
+            paddingTop: '16px', 
+            borderTop: '1px solid #d1fae5' 
+          }}>
+            <div style={{ fontSize: '14px', color: '#047857', marginBottom: '8px' }}>
+              <strong>Current Status:</strong>
+            </div>
+            <div style={{ fontSize: '14px', color: '#6b7280' }}>
+              • In Progress: {stats.inProgress} issues<br/>
+              • Under Review: {stats.underReview} issues
+            </div>
+          </div>
+        </div>
+
+        {/* Categories */}
+        {Object.keys(stats.categories).length > 0 && (
+          <div style={{
+            backgroundColor: '#f9fafb',
+            padding: '20px',
+            borderRadius: '8px',
+            marginBottom: '30px'
+          }}>
+            <h3 style={{
+              color: '#1f2937',
+              fontSize: '16px',
+              margin: '0 0 12px 0',
+              fontWeight: '600'
+            }}>
+              📋 Top Categories This Week
+            </h3>
+            {Object.entries(stats.categories).map(([category, count]) => (
+              <div key={category} style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '8px 0',
+                borderBottom: '1px solid #e5e7eb'
+              }}>
+                <span style={{ color: '#374151', fontSize: '14px', textTransform: 'capitalize' }}>
+                  {category.replace('-', ' ')}
+                </span>
+                <span style={{
+                  backgroundColor: '#0d9488',
+                  color: 'white',
+                  padding: '2px 8px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: '600'
+                }}>
+                  {count}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Recent Issues */}
+        {recentIssues && recentIssues.length > 0 && (
+          <div style={{ marginBottom: '30px' }}>
+            <h3 style={{
+              color: '#1f2937',
+              fontSize: '18px',
+              margin: '0 0 16px 0',
+              fontWeight: '600'
+            }}>
+              🔥 Recent Activity
+            </h3>
+            
+            {recentIssues.slice(0, 3).map((issue, index) => (
+              <div key={issue.id} style={{
+                backgroundColor: '#ffffff',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '16px',
+                marginBottom: '12px'
+              }}>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '8px'
+                }}>
+                  <h4 style={{
+                    color: '#1f2937',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    margin: '0',
+                    flex: '1'
+                  }}>
+                    {issue.title}
+                  </h4>
+                  <span style={{
+                    backgroundColor: getStatusColor(issue.status),
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '12px',
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    textTransform: 'uppercase',
+                    marginLeft: '8px'
+                  }}>
+                    {issue.status.replace('-', ' ')}
+                  </span>
+                </div>
+                <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                  📍 {issue.location} • By {issue.reportedBy}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* CTA */}
+        <div style={{
+          backgroundColor: '#f9fafb',
+          padding: '24px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          marginBottom: '30px'
+        }}>
+          <p style={{
+            color: '#374151',
+            fontSize: '16px',
+            margin: '0 0 16px 0',
+            fontWeight: '500'
+          }}>
+            Want to see more details?
+          </p>
+          <a href={dashboardUrl || `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard`} style={{
+            backgroundColor: '#0d9488',
+            color: '#ffffff',
+            padding: '14px 28px',
+            borderRadius: '8px',
+            textDecoration: 'none',
+            fontSize: '16px',
+            fontWeight: '600',
+            display: 'inline-block',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+          }}>
+            View Dashboard →
+          </a>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div style={{
+        backgroundColor: '#f3f4f6',
+        padding: '30px',
+        textAlign: 'center',
+        borderRadius: '0 0 12px 12px'
+      }}>
+        <p style={{
+          color: '#6b7280',
+          fontSize: '12px',
+          margin: '0 0 8px 0'
+        }}>
+          You're receiving this because you subscribed to weekly updates
+        </p>
+        <p style={{
+          color: '#9ca3af',
+          fontSize: '11px',
+          margin: '0'
+        }}>
+          © 2024 Nayabato. Building stronger communities together.
+        </p>
+      </div>
+    </div>
   );
-};
-
-export default WeeklyDigestEmail;
+}

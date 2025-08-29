@@ -2,7 +2,7 @@
 
 import LanguageSwitcher from '@/components/ui/language-switcher';
 import { useLanguage } from '@/lib/i18n/language-context';
-import { AlertTriangle, Bell, LogOut, Menu, Settings, User, X } from 'lucide-react';
+import { AlertTriangle, Bell, LogOut, Menu, Settings, User, Users, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -132,14 +132,32 @@ export default function Navigation() {
             
             {/* Citizen-specific links */}
             {session?.user?.role === 'citizen' && (
-              <Link
-                href="/issues/report"
-                className={`text-sm ${
-                  isActive('/issues/report') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                }`}
-              >
-                {t('navigation.reportIssue')}
-              </Link>
+              <>
+                <Link
+                  href="/citizen/dashboard"
+                  className={`text-sm ${
+                    isActive('/citizen/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  href="/issues/report"
+                  className={`text-sm ${
+                    isActive('/issues/report') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  {t('navigation.reportIssue')}
+                </Link>
+                <Link
+                  href="/citizen/my-reports"
+                  className={`text-sm ${
+                    isActive('/citizen/my-reports') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
+                  }`}
+                >
+                  My Reports
+                </Link>
+              </>
             )}
             {status === 'authenticated' && (
               <Link
@@ -236,6 +254,37 @@ export default function Navigation() {
                       </DropdownMenuItem>
                     </>
                   )}
+                  
+                  {/* Citizen-specific links */}
+                  {session?.user?.role === 'citizen' && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link href="/citizen/dashboard" className="cursor-pointer flex w-full">
+                          <Settings className="mr-2 h-4 w-4" />
+                          <span>Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/issues/report" className="cursor-pointer flex w-full">
+                          <AlertTriangle className="mr-2 h-4 w-4" />
+                          <span>{t('navigation.reportIssue')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/citizen/my-reports" className="cursor-pointer flex w-full">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>My Reports</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link href="/citizen/community" className="cursor-pointer flex w-full">
+                          <Users className="mr-2 h-4 w-4" />
+                          <span>Community</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
                   {status === 'authenticated' && (
                     <DropdownMenuItem asChild>
                       <Link href="/notifications" className="cursor-pointer flex w-full">
