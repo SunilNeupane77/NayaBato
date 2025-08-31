@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 import { useToast } from '@/components/ui/use-toast';
 
@@ -13,6 +14,7 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+  const { t } = useLanguage();
   
   // Check authorization for admin and official roles
   useEffect(() => {
@@ -20,8 +22,8 @@ export default function AdminLayout({ children }) {
       router.push('/auth/signin?callbackUrl=/admin/dashboard');
     } else if (status === 'authenticated' && !['admin', 'official'].includes(session?.user?.role)) {
       toast({
-        title: "Access Denied",
-        description: "Only administrators and officials can access this area.",
+        title: t('admin.accessDenied'),
+        description: t('admin.accessDeniedMessage'),
         variant: "destructive"
       });
       router.push('/');
@@ -41,8 +43,8 @@ export default function AdminLayout({ children }) {
       {/* Sidebar */}
       <div className="w-64 bg-gray-900 text-white">
         <div className="p-4">
-          <h1 className="text-xl font-bold">{session?.user?.role === 'admin' ? 'Admin Panel' : 'Management Panel'}</h1>
-          <p className="text-gray-400 text-sm">Manage the platform</p>
+          <h1 className="text-xl font-bold">{session?.user?.role === 'admin' ? t('admin.adminPanel') : t('admin.managementPanel')}</h1>
+          <p className="text-gray-400 text-sm">{t('admin.managePlatform')}</p>
         </div>
         
         <nav className="mt-6">
@@ -58,7 +60,7 @@ export default function AdminLayout({ children }) {
               >
                 <div className="flex items-center">
                   <BarChart className="h-5 w-5 mr-3" />
-                  <span>Dashboard</span>
+                  <span>{t('admin.dashboard')}</span>
                 </div>
               </Link>
             </li>
@@ -77,7 +79,7 @@ export default function AdminLayout({ children }) {
                   >
                     <div className="flex items-center">
                       <Users className="h-5 w-5 mr-3" />
-                      <span>User Management</span>
+                      <span>{t('admin.userManagement')}</span>
                     </div>
                   </Link>
                 </li>
@@ -92,7 +94,7 @@ export default function AdminLayout({ children }) {
                   >
                     <div className="flex items-center">
                       <Building className="h-5 w-5 mr-3" />
-                      <span>Departments</span>
+                      <span>{t('admin.departments')}</span>
                     </div>
                   </Link>
                 </li>
@@ -107,7 +109,7 @@ export default function AdminLayout({ children }) {
                   >
                     <div className="flex items-center">
                       <FileText className="h-5 w-5 mr-3" />
-                      <span>Audit Logs</span>
+                      <span>{t('admin.auditLogs')}</span>
                     </div>
                   </Link>
                 </li>
@@ -122,7 +124,7 @@ export default function AdminLayout({ children }) {
                   >
                     <div className="flex items-center">
                       <MapPin className="h-5 w-5 mr-3" />
-                      <span>Ward Management</span>
+                      <span>{t('admin.wardManagement')}</span>
                     </div>
                   </Link>
                 </li>
@@ -137,7 +139,7 @@ export default function AdminLayout({ children }) {
               >
                 <div className="flex items-center">
                   <AlertTriangle className="h-5 w-5 mr-3" />
-                  <span>Issues</span>
+                  <span>{t('admin.issues')}</span>
                 </div>
               </Link>
             </li>

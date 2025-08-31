@@ -155,7 +155,7 @@ export default function Navigation() {
                     isActive('/citizen/my-reports') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
                   }`}
                 >
-                  My Reports
+                  {t('citizen.myReports')}
                 </Link>
               </>
             )}
@@ -261,7 +261,7 @@ export default function Navigation() {
                       <DropdownMenuItem asChild>
                         <Link href="/citizen/dashboard" className="cursor-pointer flex w-full">
                           <Settings className="mr-2 h-4 w-4" />
-                          <span>Dashboard</span>
+                          <span>{t('navigation.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -273,13 +273,13 @@ export default function Navigation() {
                       <DropdownMenuItem asChild>
                         <Link href="/citizen/my-reports" className="cursor-pointer flex w-full">
                           <User className="mr-2 h-4 w-4" />
-                          <span>My Reports</span>
+                          <span>{t('citizen.myReports')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link href="/citizen/community" className="cursor-pointer flex w-full">
                           <Users className="mr-2 h-4 w-4" />
-                          <span>Community</span>
+                          <span>{t('citizen.community')}</span>
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -406,7 +406,7 @@ export default function Navigation() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {t('navigation.dashboard')}
+                  Dashboard
                 </Link>
                 <Link
                   href="/issues"

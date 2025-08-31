@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useLanguage } from '@/lib/i18n/language-context';
 import Link from 'next/link';
 import { 
   Plus, 
@@ -32,6 +33,7 @@ import { Badge } from '@/components/ui/badge';
 
 export default function CitizenDashboard() {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [stats, setStats] = useState({
     myIssues: 0,
     resolved: 0,
@@ -99,10 +101,10 @@ export default function CitizenDashboard() {
                 </div>
                 <div>
                   <h1 className="text-2xl sm:text-3xl font-bold">
-                    Welcome back, {session?.user?.name}! 
+                    {t('citizen.dashboard.welcomeBack')}, {session?.user?.name}! 
                   </h1>
                   <p className="text-teal-100 text-sm sm:text-base">
-                    Ready to make a difference today? ✨
+                    {t('citizen.dashboard.readyToMakeDifference')} ✨
                   </p>
                 </div>
               </div>
@@ -110,7 +112,7 @@ export default function CitizenDashboard() {
             <Button asChild className="bg-white text-teal-600 hover:bg-gray-50 font-semibold shadow-lg w-full sm:w-auto">
               <Link href="/issues/report">
                 <Plus className="w-4 h-4 mr-2" />
-                Report New Issue
+                {t('citizen.dashboard.reportNewIssue')}
               </Link>
             </Button>
           </div>
@@ -122,9 +124,9 @@ export default function CitizenDashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-teal-700">My Reports</p>
+                  <p className="text-xs sm:text-sm font-medium text-teal-700">{t('citizen.dashboard.myReports')}</p>
                   <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-teal-900">{stats.myIssues}</p>
-                  <p className="text-xs text-teal-600 mt-1">Total submitted</p>
+                  <p className="text-xs text-teal-600 mt-1">{t('citizen.dashboard.totalSubmitted')}</p>
                 </div>
                 <div className="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center shadow-lg">
                   <Camera className="w-6 h-6 text-white" />
@@ -137,9 +139,9 @@ export default function CitizenDashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-green-700">Resolved</p>
+                  <p className="text-xs sm:text-sm font-medium text-green-700">{t('citizen.dashboard.resolved')}</p>
                   <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-900">{stats.resolved}</p>
-                  <p className="text-xs text-green-600 mt-1">Issues fixed</p>
+                  <p className="text-xs text-green-600 mt-1">{t('citizen.dashboard.issuesFixed')}</p>
                 </div>
                 <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
                   <CheckCircle className="w-6 h-6 text-white" />
@@ -152,9 +154,9 @@ export default function CitizenDashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-yellow-700">Pending</p>
+                  <p className="text-xs sm:text-sm font-medium text-yellow-700">{t('citizen.dashboard.pending')}</p>
                   <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-yellow-900">{stats.pending}</p>
-                  <p className="text-xs text-yellow-600 mt-1">In progress</p>
+                  <p className="text-xs text-yellow-600 mt-1">{t('citizen.dashboard.inProgress')}</p>
                 </div>
                 <div className="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center shadow-lg">
                   <Clock className="w-6 h-6 text-white" />
@@ -167,9 +169,9 @@ export default function CitizenDashboard() {
             <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs sm:text-sm font-medium text-blue-700">Impact Score</p>
+                  <p className="text-xs sm:text-sm font-medium text-blue-700">{t('citizen.dashboard.impactScore')}</p>
                   <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-blue-900">{stats.impactScore || 0}</p>
-                  <p className="text-xs text-blue-600 mt-1">Community points</p>
+                  <p className="text-xs text-blue-600 mt-1">{t('citizen.dashboard.communityPoints')}</p>
                 </div>
                 <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
                   <Zap className="w-6 h-6 text-white" />
@@ -186,8 +188,8 @@ export default function CitizenDashboard() {
               <div className="w-8 h-8 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-lg flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />
               </div>
-              Quick Actions
-              <span className="text-sm font-normal text-gray-500">Choose your next step</span>
+              {t('citizen.dashboard.quickActions')}
+              <span className="text-sm font-normal text-gray-500">{t('citizen.dashboard.chooseNextStep')}</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -197,7 +199,7 @@ export default function CitizenDashboard() {
                   <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-teal-200 transition-colors">
                     <Camera className="w-5 h-5 text-teal-600" />
                   </div>
-                  <span className="text-xs sm:text-sm font-medium">Report Issue</span>
+                  <span className="text-xs sm:text-sm font-medium">{t('citizen.dashboard.reportIssue')}</span>
                 </Link>
               </Button>
               
@@ -206,7 +208,7 @@ export default function CitizenDashboard() {
                   <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-blue-200 transition-colors">
                     <MapPin className="w-5 h-5 text-blue-600" />
                   </div>
-                  <span className="text-xs sm:text-sm font-medium">Browse Issues</span>
+                  <span className="text-xs sm:text-sm font-medium">{t('citizen.dashboard.browseIssues')}</span>
                 </Link>
               </Button>
               
@@ -215,7 +217,7 @@ export default function CitizenDashboard() {
                   <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-purple-200 transition-colors">
                     <BarChart3 className="w-5 h-5 text-purple-600" />
                   </div>
-                  <span className="text-xs sm:text-sm font-medium">My Reports</span>
+                  <span className="text-xs sm:text-sm font-medium">{t('citizen.dashboard.myReports')}</span>
                 </Link>
               </Button>
               
@@ -224,7 +226,7 @@ export default function CitizenDashboard() {
                   <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mb-2 group-hover:bg-green-200 transition-colors">
                     <Users className="w-5 h-5 text-green-600" />
                   </div>
-                  <span className="text-xs sm:text-sm font-medium">Community</span>
+                  <span className="text-xs sm:text-sm font-medium">{t('citizen.dashboard.community')}</span>
                 </Link>
               </Button>
             </div>
@@ -239,8 +241,8 @@ export default function CitizenDashboard() {
                 <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-lg flex items-center justify-center">
                   <Activity className="w-4 h-4 text-white" />
                 </div>
-                My Recent Reports
-                <span className="text-sm font-normal text-gray-500">Latest activity</span>
+                {t('citizen.dashboard.myRecentReports')}
+                <span className="text-sm font-normal text-gray-500">{t('citizen.dashboard.latestActivity')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -256,14 +258,14 @@ export default function CitizenDashboard() {
                       </div>
                       <div className="flex items-center text-xs sm:text-sm text-gray-600 group-hover:text-teal-600 transition-colors">
                         <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
-                        <span className="truncate">{issue.location?.address || 'Unknown location'}</span>
+                        <span className="truncate">{issue.location?.address || t('citizen.dashboard.unknownLocation')}</span>
                       </div>
                     </div>
                   ))}
                   <Button asChild variant="outline" className="w-full mt-4 border-teal-200 text-teal-700 hover:bg-teal-50">
                     <Link href="/citizen/my-reports" className="flex items-center justify-center gap-2">
                       <Eye className="w-4 h-4" />
-                      View All Reports
+                      {t('citizen.dashboard.viewAllReports')}
                       <ArrowRight className="w-4 h-4" />
                     </Link>
                   </Button>
@@ -273,12 +275,12 @@ export default function CitizenDashboard() {
                   <div className="w-16 h-16 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Camera className="w-8 h-8 text-teal-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">No reports yet</h3>
-                  <p className="text-gray-600 text-sm sm:text-base mb-6">Start making a difference in your community</p>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('citizen.dashboard.noReportsYet')}</h3>
+                  <p className="text-gray-600 text-sm sm:text-base mb-6">{t('citizen.dashboard.startMakingDifference')}</p>
                   <Button asChild className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600">
                     <Link href="/issues/report" className="flex items-center gap-2">
                       <Plus className="w-4 h-4" />
-                      Report Your First Issue
+                      {t('citizen.dashboard.reportFirstIssue')}
                     </Link>
                   </Button>
                 </div>
@@ -293,8 +295,8 @@ export default function CitizenDashboard() {
                 <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
                   <TrendingUp className="w-4 h-4 text-white" />
                 </div>
-                Community Impact
-                <span className="text-sm font-normal text-gray-500">This week</span>
+                {t('citizen.dashboard.communityImpact')}
+                <span className="text-sm font-normal text-gray-500">{t('citizen.dashboard.thisWeek')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -304,7 +306,7 @@ export default function CitizenDashboard() {
                     <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
                       <CheckCircle className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-green-800">Issues Resolved</span>
+                    <span className="text-sm font-medium text-green-800">{t('citizen.dashboard.issuesResolved')}</span>
                   </div>
                   <span className="font-bold text-green-700 text-lg">{stats.communityStats?.weeklyResolved || 0}</span>
                 </div>
@@ -314,7 +316,7 @@ export default function CitizenDashboard() {
                     <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
                       <Users className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-blue-800">Active Members</span>
+                    <span className="text-sm font-medium text-blue-800">{t('citizen.dashboard.activeMembers')}</span>
                   </div>
                   <span className="font-bold text-blue-700 text-lg">{stats.communityStats?.activeMembers || 0}</span>
                 </div>
@@ -324,7 +326,7 @@ export default function CitizenDashboard() {
                     <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
                       <BarChart3 className="w-4 h-4 text-white" />
                     </div>
-                    <span className="text-sm font-medium text-purple-800">Total Reports</span>
+                    <span className="text-sm font-medium text-purple-800">{t('citizen.dashboard.totalReports')}</span>
                   </div>
                   <span className="font-bold text-purple-700 text-lg">{stats.communityStats?.totalReports || 0}</span>
                 </div>
@@ -332,7 +334,7 @@ export default function CitizenDashboard() {
                 <Button asChild variant="outline" className="w-full mt-6 border-teal-200 text-teal-700 hover:bg-teal-50">
                   <Link href="/citizen/community" className="flex items-center justify-center gap-2">
                     <Users className="w-4 h-4" />
-                    View Community Stats
+                    {t('citizen.dashboard.viewCommunityStats')}
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </Button>
@@ -349,8 +351,8 @@ export default function CitizenDashboard() {
                 <div className="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
                   <Award className="w-4 h-4 text-white" />
                 </div>
-                Your Achievements
-                <span className="text-sm font-normal text-gray-500">Celebrating your impact</span>
+                {t('citizen.dashboard.yourAchievements')}
+                <span className="text-sm font-normal text-gray-500">{t('citizen.dashboard.celebratingImpact')}</span>
               </CardTitle>
             </CardHeader>
             <CardContent>

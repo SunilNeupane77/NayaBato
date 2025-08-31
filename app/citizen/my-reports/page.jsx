@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useLanguage } from '@/lib/i18n/language-context';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -37,6 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export default function MyReportsPage() {
   const { data: session } = useSession();
+  const { t } = useLanguage();
   const [issues, setIssues] = useState([]);
   const [filteredIssues, setFilteredIssues] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,7 +142,7 @@ export default function MyReportsPage() {
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                    My Reports
+                    {t('citizen.myReports')}
                   </h1>
                   <p className="text-gray-600 flex items-center gap-2">
                     <Activity className="w-4 h-4" />
