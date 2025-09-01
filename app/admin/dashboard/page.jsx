@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import RealTimeStats from '@/components/admin/RealTimeStats';
 import { Calendar, Users, AlertTriangle, CheckCircle, Clock, TrendingUp, MapPin, Mail } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { 
@@ -157,6 +158,9 @@ export default function AdminDashboard() {
           Send Weekly Digest
         </Button>
       </div>
+
+      {/* Real-time Session Stats */}
+      <RealTimeStats />
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

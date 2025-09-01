@@ -51,7 +51,6 @@ export default function Navigation() {
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo and site name */}
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <img
@@ -62,8 +61,6 @@ export default function Navigation() {
               <span className="font-bold text-xl">{t('common.appName')}</span>
             </Link>
           </div>
-
-          {/* Desktop navigation */}
           <nav className="hidden md:flex space-x-6 ml-8">
             <Link
               href="/"
@@ -90,7 +87,6 @@ export default function Navigation() {
               {t('navigation.about')}
             </Link>
             
-            {/* Role-specific navigation links */}
             {session?.user?.role === 'admin' && (
               <>
                 <Link
@@ -130,7 +126,6 @@ export default function Navigation() {
               </Link>
             )}
             
-            {/* Citizen-specific links */}
             {session?.user?.role === 'citizen' && (
               <>
                 <Link
@@ -171,7 +166,6 @@ export default function Navigation() {
             )}
           </nav>
 
-          {/* User menu or sign in button */}
           <div className="flex items-center ml-auto">
             <div className="mr-4">
               <LanguageSwitcher />

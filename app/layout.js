@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import AuthProvider from "@/components/AuthProvider";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation";
 import QueryProvider from "@/components/QueryProvider";
@@ -54,19 +55,21 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-50`}
       >
-        <AuthProvider>
-          <QueryProvider>
-            <LanguageProvider>
-              <ToastProviderWrapper>
-                <Navigation />
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </ToastProviderWrapper>
-            </LanguageProvider>
-          </QueryProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <QueryProvider>
+              <LanguageProvider>
+                <ToastProviderWrapper>
+                  <Navigation />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                </ToastProviderWrapper>
+              </LanguageProvider>
+            </QueryProvider>
+          </AuthProvider>
+        </ErrorBoundary>
         <script
           dangerouslySetInnerHTML={{
             __html: `

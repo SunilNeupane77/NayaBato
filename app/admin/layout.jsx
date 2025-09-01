@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, BarChart, Building, FileText, MapPin, Users } from 'lucide-react';
+import { AlertTriangle, BarChart, Building, FileText, MapPin, Users, Monitor, TrendingUp, Activity } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -80,6 +80,51 @@ export default function AdminLayout({ children }) {
                     <div className="flex items-center">
                       <Users className="h-5 w-5 mr-3" />
                       <span>{t('admin.userManagement')}</span>
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/admin/sessions"
+                    className={`block px-4 py-2 ${
+                      isActive('/admin/sessions')
+                        ? 'bg-blue-700 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <Monitor className="h-5 w-5 mr-3" />
+                      <span>User Sessions</span>
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/admin/activities"
+                    className={`block px-4 py-2 ${
+                      isActive('/admin/activities')
+                        ? 'bg-blue-700 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <Activity className="h-5 w-5 mr-3" />
+                      <span>User Activities</span>
+                    </div>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/admin/analytics"
+                    className={`block px-4 py-2 ${
+                      isActive('/admin/analytics')
+                        ? 'bg-blue-700 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <TrendingUp className="h-5 w-5 mr-3" />
+                      <span>Analytics</span>
                     </div>
                   </Link>
                 </li>
