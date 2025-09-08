@@ -18,7 +18,7 @@ const terms = [
   },
   {
     title: "Intellectual Property",
-    description: "The Service and its content are the exclusive property of the Nayabato team and are protected by copyright and other laws.",
+    description: "The Service and its content are the exclusive property of the Nayabato platform and are protected by copyright and other laws.",
     icon: ShieldCheckIcon,
   },
   {
@@ -43,33 +43,91 @@ const terms = [
   },
   {
     title: "Contact Us",
-    description: "If you have any questions about these Terms, please contact us at support@nayabato.com.",
+    description: "If you have any questions about these Terms, please contact us through our support channels.",
     icon: EnvelopeIcon,
   },
 ];
 
 const TermsOfServicePage = () => {
   return (
-    <div className="bg-gray-50 py-12 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-            Terms of Service
-          </h1>
-          <p className="mt-4 text-xl text-gray-600">
-            Please read our terms carefully before using our service.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      {/* Header Section */}
+      <div className="relative overflow-hidden bg-white shadow-sm">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-5"></div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-6">
+              <DocumentTextIcon className="w-8 h-8 text-blue-600" />
+            </div>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+              Terms of Service
+            </h1>
+            <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-600 leading-relaxed">
+              Please read our terms carefully before using our service. These terms govern your use of the Nayabato platform.
+            </p>
+            <div className="mt-8 text-sm text-gray-500">
+              Last updated: {new Date().toLocaleDateString()}
+            </div>
+          </div>
         </div>
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {terms.map((term) => (
-            <div key={term.title} className="bg-white shadow-lg rounded-lg p-6">
-              <div className="flex items-center justify-center h-12 w-12 rounded-md bg-indigo-500 text-white">
-                <term.icon className="h-6 w-6" aria-hidden="true" />
+      </div>
+
+      {/* Terms Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {terms.map((term, index) => (
+            <div 
+              key={term.title} 
+              className="group relative bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-blue-200 p-8"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-t-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              
+              <div className="flex items-center mb-6">
+                <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white shadow-lg">
+                  <term.icon className="w-6 h-6" />
+                </div>
+                <div className="ml-4 text-sm font-medium text-blue-600">
+                  Section {index + 1}
+                </div>
               </div>
-              <h2 className="mt-4 text-xl font-semibold text-gray-800">{term.title}</h2>
-              <p className="mt-2 text-gray-600">{term.description}</p>
+              
+              <h3 className="text-xl font-semibold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors duration-300">
+                {term.title}
+              </h3>
+              
+              <p className="text-gray-600 leading-relaxed">
+                {term.description}
+              </p>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Footer CTA */}
+      <div className="bg-gray-50 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-center">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">
+              Questions about our Terms?
+            </h3>
+            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
+              If you have any questions or concerns about these Terms of Service, we're here to help.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="/about" 
+                className="inline-flex items-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-200"
+              >
+                Learn More About Us
+              </a>
+              <a 
+                href="/" 
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+              >
+                Back to Home
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>

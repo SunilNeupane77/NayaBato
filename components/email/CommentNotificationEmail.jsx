@@ -143,7 +143,7 @@ const CommentNotificationEmail = ({
             
             <Text>
               Best regards,<br />
-              The Nayabato Team
+              Nayabato Platform
             </Text>
           </Section>
           

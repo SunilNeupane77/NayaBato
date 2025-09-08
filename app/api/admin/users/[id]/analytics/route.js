@@ -16,24 +16,24 @@ export async function GET(request, { params }) {
 
     await connectDB();
 
-    const user = await User.findById(params.userId);
+    const user = await User.findById(params.id);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get user sessions
-    const sessions = await UserSession.find({ userId: params.userId })
+    const sessions = await UserSession.find({ userId: params.id })
       .sort({ loginTime: -1 })
       .limit(10);
 
     // Get user activities
-    const activities = await UserActivity.find({ userId: params.userId })
+    const activities = await UserActivity.find({ userId: params.id })
       .sort({ createdAt: -1 })
       .limit(50);
 
     // Activity summary
     const activitySummary = await UserActivity.aggregate([
-      { $match: { userId: params.userId } },
+      { $match: { userId: params.id } },
       {
         $group: {
           _id: '$action',
@@ -46,7 +46,7 @@ export async function GET(request, { params }) {
 
     // Session statistics
     const sessionStats = await UserSession.aggregate([
-      { $match: { userId: params.userId } },
+      { $match: { userId: params.id } },
       {
         $group: {
           _id: null,

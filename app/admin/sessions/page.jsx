@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { format } from 'date-fns';
+import RealTimeStats from '@/components/admin/RealTimeStats';
 import { Monitor, Smartphone, Globe, Clock, Users, Activity } from 'lucide-react';
 
 export default function SessionsPage() {
@@ -75,6 +76,9 @@ export default function SessionsPage() {
           </select>
         </div>
       </div>
+
+      {/* Real-time Session Stats */}
+      <RealTimeStats />
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -62,7 +62,6 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-10 pt-6 pb-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
           <p>&copy; {currentYear} {t('common.appName')}. {t('footer.rights')}</p>
-          <p className="mt-4 md:mt-0">{t('footer.designedWith')}</p>
         </div>
       </div>
     </footer>

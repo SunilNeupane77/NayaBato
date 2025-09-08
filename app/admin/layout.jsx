@@ -83,6 +83,13 @@ export default function AdminLayout({ children }) {
                     </div>
                   </Link>
                 </li>
+                
+                {/* Real-time Data Section */}
+                <li className="px-4 py-2 mt-4">
+                  <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    Real-time Data
+                  </div>
+                </li>
                 <li>
                   <Link
                     href="/admin/sessions"
@@ -128,6 +135,7 @@ export default function AdminLayout({ children }) {
                     </div>
                   </Link>
                 </li>
+                
                 <li>
                   <Link
                     href="/admin/departments"

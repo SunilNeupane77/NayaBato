@@ -58,7 +58,6 @@ const UserSessionSchema = new mongoose.Schema({
 });
 
 UserSessionSchema.index({ userId: 1, isActive: 1 });
-UserSessionSchema.index({ sessionId: 1 });
 UserSessionSchema.index({ loginTime: -1 });
 
 export default mongoose.models.UserSession || mongoose.model('UserSession', UserSessionSchema);

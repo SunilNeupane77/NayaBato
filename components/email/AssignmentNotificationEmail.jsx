@@ -221,7 +221,7 @@ const AssignmentNotificationEmail = ({
             
             <Text>
               Best regards,<br />
-              The Nayabato Team
+              Nayabato Platform
             </Text>
           </Section>
           

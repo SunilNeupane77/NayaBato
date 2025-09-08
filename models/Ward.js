@@ -95,7 +95,6 @@ const WardSchema = new mongoose.Schema({
 
 // Create a geospatial index for location queries
 WardSchema.index({ "location.coordinates": "2dsphere" });
-WardSchema.index({ number: 1 });
 
 // Method to get issues assigned to this ward with statistics
 WardSchema.methods.getIssueStats = async function() {
