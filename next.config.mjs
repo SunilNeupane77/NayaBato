@@ -7,12 +7,22 @@ const nextConfig = {
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
   
-  // Image configuration for Cloudinary
+  // Image configuration for Cloudinary and external sources
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.tile.openstreetmap.org',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdnjs.cloudflare.com',
         pathname: '/**',
       },
     ],
@@ -23,7 +33,7 @@ const nextConfig = {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
   },
 
-  // PWA configuration
+  // Headers without CSP for development
   async headers() {
     return [
       {

@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema({
   password: {
     type: String,
     required: function() {
-      return !this.isNewsletterOnly;
+      return !this.isNewsletterOnly && !this.googleId;
     },
     minlength: [6, 'Password must be at least 6 characters'],
     select: false // Don't return password in queries
@@ -36,6 +36,14 @@ const UserSchema = new mongoose.Schema({
     default: ''
   },
   phoneNumber: {
+    type: String
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true
+  },
+  avatar: {
     type: String
   },
   verified: {

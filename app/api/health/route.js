@@ -1,5 +1,7 @@
+import { NextResponse } from 'next/server';
+
 export async function GET() {
-  return Response.json({ status: 'ok' });
+  return NextResponse.json({ status: 'ok', timestamp: new Date().toISOString() });
 }
 
 export async function HEAD() {

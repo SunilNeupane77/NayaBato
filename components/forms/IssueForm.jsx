@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Camera, Loader2, MapPin, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import LocationPicker from '../maps/LocationPicker';
@@ -54,6 +54,8 @@ export default function IssueForm({ onSuccess, onError }) {
   const [location, setLocation] = useState(null);
   const [locationError, setLocationError] = useState(null);
   const [submitError, setSubmitError] = useState(null);
+  const [position, setPosition] = useState(null);
+  const [address, setAddress] = useState('');
 
   // Use the createIssue mutation from React Query
   const createIssueMutation = useCreateIssue({
@@ -180,6 +182,21 @@ export default function IssueForm({ onSuccess, onError }) {
     setImages(prev => prev.filter((_, i) => i !== index));
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
+
+  // Sync position and address with location state
+  useEffect(() => {
+    if (position && address) {
+      const formattedLocation = {
+        address: address,
+        coordinates: {
+          type: "Point",
+          coordinates: [position[1], position[0]] // MongoDB uses [longitude, latitude] format
+        }
+      };
+      setLocation(formattedLocation);
+      setLocationError(null);
+    }
+  }, [position, address]);
 
   // Wrap in useCallback to prevent recreation on each render
   const handleLocationSelect = useCallback((selectedLocation) => {
@@ -369,7 +386,12 @@ export default function IssueForm({ onSuccess, onError }) {
             </p>
 
             <div className="border rounded-md p-1 bg-gray-50">
-              <LocationPicker onLocationSelect={handleLocationSelect} />
+              <LocationPicker 
+                position={position}
+                setPosition={setPosition}
+                address={address}
+                setAddress={setAddress}
+              />
             </div>
 
             {location && (

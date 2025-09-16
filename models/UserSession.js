@@ -14,7 +14,6 @@ const UserSessionSchema = new mongoose.Schema({
   ipAddress: String,
   userAgent: String,
   device: {
-    type: String,
     browser: String,
     os: String,
     isMobile: Boolean

@@ -3,10 +3,15 @@ import User from '@/models/User';
 import bcrypt from 'bcryptjs';
 import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
 import { SessionTracker } from '@/lib/session-tracker';
 
 export const authOptions = {
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -14,58 +19,133 @@ export const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials, req) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        await connectDB();
-
-        const user = await User.findOne({ email: credentials.email }).select('+password');
-        
-        if (!user) {
-          return null;
-        }
-
-        const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
-        
-        if (!isPasswordMatch) {
-          return null;
-        }
-        
-        // Check if the user account needs verification (officials and admins)
-        if ((user.role === 'official' || user.role === 'admin') && !user.verified) {
-          throw new Error('Account pending approval. Please contact an administrator.');
-        }
-
-        // Create session tracking (non-blocking)
-        let sessionId = null;
         try {
-          sessionId = await SessionTracker.createSession(user._id, req);
-        } catch (error) {
-          console.error('Session tracking error:', error);
-          // Continue with authentication even if session tracking fails
-        }
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
 
-        return {
-          id: user._id.toString(),
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          verified: user.verified,
-          department: user.department || null,
-          sessionId
-        };
+          await connectDB();
+
+          const user = await User.findOne({ email: credentials.email }).select('+password');
+          
+          if (!user) {
+            return null;
+          }
+
+          const isPasswordMatch = await bcrypt.compare(credentials.password, user.password);
+          
+          if (!isPasswordMatch) {
+            return null;
+          }
+          
+          // Check if the user account needs verification (officials and admins)
+          if ((user.role === 'official' || user.role === 'admin') && !user.verified) {
+            throw new Error('Account pending approval. Please contact an administrator.');
+          }
+
+          // Create session tracking (non-blocking)
+          let sessionId = null;
+          try {
+            sessionId = await SessionTracker.createSession(user._id, req);
+          } catch (error) {
+            console.error('Session tracking error:', error);
+            // Continue with authentication even if session tracking fails
+          }
+
+          return {
+            id: user._id.toString(),
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            verified: user.verified,
+            department: user.department || null,
+            sessionId
+          };
+        } catch (error) {
+          console.error('Credentials auth error:', error);
+          throw error;
+        }
       }
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account, profile }) {
+      if (account?.provider === 'google') {
+        try {
+          await connectDB();
+          console.log('Google OAuth attempt for:', user.email);
+          
+          let existingUser = await User.findOne({ email: user.email });
+          console.log('Existing user found:', !!existingUser);
+          
+          if (!existingUser) {
+            console.log('Creating new Google user');
+            existingUser = await User.create({
+              name: user.name,
+              email: user.email,
+              role: 'citizen',
+              verified: true,
+              googleId: profile.sub,
+              avatar: user.image,
+              notifications: {
+                email: true,
+                digest: false
+              },
+              preferences: {
+                weeklyDigest: false
+              }
+            });
+            console.log('New Google user created');
+          } else if (!existingUser.googleId) {
+            console.log('Linking Google to existing user');
+            existingUser.googleId = profile.sub;
+            if (!existingUser.avatar && user.image) {
+              existingUser.avatar = user.image;
+            }
+            if (Array.isArray(existingUser.notifications)) {
+              existingUser.notifications = {
+                email: true,
+                digest: false
+              };
+            }
+            await existingUser.save();
+            console.log('Google account linked');
+          }
+          
+          return true;
+        } catch (error) {
+          console.error('Google sign-in error:', error);
+          return false;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
-        token.id = user.id;
-        token.role = user.role;
-        token.department = user.department;
-        token.verified = user.verified;
-        token.sessionId = user.sessionId;
+        if (account?.provider === 'google') {
+          await connectDB();
+          const dbUser = await User.findOne({ email: user.email });
+          if (dbUser) {
+            token.id = dbUser._id.toString();
+            token.role = dbUser.role;
+            token.department = dbUser.department;
+            token.verified = dbUser.verified;
+            
+            // Create session for Google login
+            try {
+              const sessionId = await SessionTracker.createSession(dbUser._id);
+              token.sessionId = sessionId;
+            } catch (error) {
+              console.error('Session tracking error:', error);
+            }
+          }
+        } else {
+          token.id = user.id;
+          token.role = user.role;
+          token.department = user.department;
+          token.verified = user.verified;
+          token.sessionId = user.sessionId;
+        }
       }
       return token;
     },
@@ -100,6 +180,20 @@ export const authOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+  logger: {
+    error(code, metadata) {
+      console.error('NextAuth Error:', code, metadata);
+    },
+    warn(code) {
+      console.warn('NextAuth Warning:', code);
+    },
+    debug(code, metadata) {
+      if (process.env.NODE_ENV === 'development') {
+        console.log('NextAuth Debug:', code, metadata);
+      }
+    }
+  }
 };
 
 const handler = NextAuth(authOptions);

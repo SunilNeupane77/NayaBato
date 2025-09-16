@@ -50,7 +50,7 @@ export default function PWAInstaller() {
           <div>
             <h3 className="font-semibold text-gray-900">Install Nayabato</h3>
             <p className="text-sm text-gray-600">
-              Get quick access and work offline
+              Get quick access to Nayabato
             </p>
           </div>
         </div>

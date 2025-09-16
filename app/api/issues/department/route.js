@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
-import { Issue } from '@/models/Issue';
-import { connectToDB } from '@/lib/db/connect';
+import Issue from '@/models/Issue';
+import connectDB from '@/lib/db/connect';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -12,7 +12,7 @@ export async function GET(request) {
   }
 
   try {
-    await connectToDB();
+    await connectDB();
     const issues = await Issue.find({ department });
     return NextResponse.json({ issues });
   } catch (error) {
