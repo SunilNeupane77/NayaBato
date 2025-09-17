@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
-import { ArrowLeft, Shield, ClipboardList, Bell, Home } from 'lucide-react';
+import { useState, Suspense } from 'react';
+import { ArrowLeft, Shield, ClipboardList, Bell, Home, Loader2 } from 'lucide-react';
 
 // UI Components
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -16,7 +16,7 @@ import SignInForm from '@/components/forms/SignInForm';
 // Language
 import { useLanguage } from '@/lib/i18n/language-context';
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/';
@@ -120,5 +120,21 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 flex items-center justify-center">
+        <Card className="border-0 shadow-xl">
+          <CardContent className="flex items-center justify-center p-8">
+            <Loader2 className="h-8 w-8 animate-spin" />
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   );
 }
