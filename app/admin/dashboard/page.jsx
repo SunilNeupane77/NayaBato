@@ -129,13 +129,13 @@ export default function AdminDashboard() {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {[...Array(4)].map((_, i) => (
             <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-1/2"></div>
+              <CardContent className="p-4 sm:p-6">
+                <div className="h-3 sm:h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-6 sm:h-8 bg-gray-200 rounded w-1/2"></div>
               </CardContent>
             </Card>
           ))}
@@ -145,39 +145,42 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-gray-600">Overview of platform activity and metrics</p>
+          <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-sm sm:text-base text-gray-600">Overview of platform activity and metrics</p>
         </div>
-        <Button onClick={sendWeeklyDigest} className="bg-purple-600 hover:bg-purple-700">
+        <Button 
+          onClick={sendWeeklyDigest} 
+          className="bg-purple-600 hover:bg-purple-700 mobile-button touch-target w-full sm:w-auto"
+        >
           <Mail className="w-4 h-4 mr-2" />
           Send Weekly Digest
         </Button>
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <Card className="border-l-4 border-l-blue-500">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Issues</p>
-                <p className="text-3xl font-bold text-blue-600">{stats.totalIssues}</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Issues</p>
+                <p className="text-2xl sm:text-3xl font-bold text-blue-600">{stats.totalIssues}</p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-blue-500" />
+              <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 flex-shrink-0" />
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-l-4 border-l-green-500">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Resolved</p>
-                <p className="text-3xl font-bold text-green-600">{stats.resolvedIssues}</p>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Resolved</p>
+                <p className="text-2xl sm:text-3xl font-bold text-green-600">{stats.resolvedIssues}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
             </div>

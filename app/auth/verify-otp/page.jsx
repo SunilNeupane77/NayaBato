@@ -18,9 +18,9 @@ function VerifyOTPContent() {
   const [isResending, setIsResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
   
-  const email = searchParams.get('email');
-  const type = searchParams.get('type');
-  const userData = searchParams.get('userData') ? JSON.parse(decodeURIComponent(searchParams.get('userData'))) : null;
+  const email = searchParams?.get('email');
+  const type = searchParams?.get('type');
+  const userData = searchParams?.get('userData') ? JSON.parse(decodeURIComponent(searchParams.get('userData'))) : null;
 
   useEffect(() => {
     if (!email || !type) {

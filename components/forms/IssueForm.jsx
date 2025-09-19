@@ -275,26 +275,31 @@ export default function IssueForm({ onSuccess, onError }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {submitError && (
         <Alert variant="destructive">
-          <AlertDescription>{submitError}</AlertDescription>
+          <AlertDescription className="text-sm">{submitError}</AlertDescription>
         </Alert>
       )}
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
           <FormField
             control={form.control}
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center">
+                <FormLabel className="flex items-center text-sm sm:text-base">
                   {t('issues.reportIssue.issueTitle')}
                   <span className="text-red-500 ml-1">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder={t('issues.reportIssue.issueTitlePlaceholder')} {...field} disabled={createIssueMutation.isLoading} />
+                  <Input 
+                    placeholder={t('issues.reportIssue.issueTitlePlaceholder')} 
+                    {...field} 
+                    disabled={createIssueMutation.isLoading}
+                    className="mobile-text touch-target"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -306,13 +311,13 @@ export default function IssueForm({ onSuccess, onError }) {
             name="category"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center">
+                <FormLabel className="flex items-center text-sm sm:text-base">
                   {t('issues.reportIssue.category')}
                   <span className="text-red-500 ml-1">*</span>
                 </FormLabel>
                 <Select onValueChange={field.onChange} value={field.value} disabled={createIssueMutation.isLoading}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="touch-target">
                       <SelectValue placeholder={t('issues.reportIssue.selectCategory')} />
                     </SelectTrigger>
                   </FormControl>

@@ -129,6 +129,152 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Prevent horizontal scroll on mobile */
+    overflow-x: hidden;
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+    /* Better text rendering on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Enhanced mobile-first responsive utilities */
+  .mobile-container {
+    @apply px-3 sm:px-6 lg:px-8 max-w-full;
+  }
+  
+  .mobile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6;
+  }
+  
+  .mobile-card {
+    @apply p-3 sm:p-6 rounded-lg shadow-sm;
+  }
+  
+  .mobile-text {
+    @apply text-sm sm:text-base leading-relaxed;
+  }
+  
+  .mobile-heading {
+    @apply text-lg sm:text-xl lg:text-2xl font-semibold leading-tight;
+  }
+  
+  .mobile-subheading {
+    @apply text-base sm:text-lg lg:text-xl font-medium;
+  }
+  
+  .mobile-button {
+    @apply px-3 py-2.5 sm:px-4 sm:py-2 text-sm sm:text-base font-medium rounded-lg transition-all duration-200;
+  }
+  
+  .mobile-input {
+    @apply px-3 py-3 sm:px-3 sm:py-2 text-base sm:text-sm rounded-lg border-2 focus:border-primary transition-colors;
+  }
+  
+  /* Enhanced touch-friendly interactive elements */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  .touch-button {
+    @apply min-h-[48px] px-4 py-3 rounded-lg font-medium transition-all duration-200 active:scale-95;
+  }
+  
+  .touch-link {
+    @apply min-h-[44px] flex items-center px-2 py-2 rounded-md transition-colors duration-200;
+  }
+  
+  /* Safe area support for mobile devices */
+  .safe-area-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+  
+  .safe-area-left {
+    padding-left: max(env(safe-area-inset-left), 0px);
+  }
+  
+  .safe-area-right {
+    padding-right: max(env(safe-area-inset-right), 0px);
+  }
+  
+  /* Mobile-specific form enhancements */
+  .mobile-form {
+    @apply space-y-4 sm:space-y-6;
+  }
+  
+  .mobile-form-group {
+    @apply space-y-2;
+  }
+  
+  .mobile-form-label {
+    @apply text-sm font-medium text-gray-700 block;
+  }
+  
+  /* Mobile navigation enhancements */
+  .mobile-nav-item {
+    @apply px-3 py-3 rounded-lg text-base font-medium transition-all duration-200 active:bg-gray-100;
+  }
+  
+  /* Mobile card layouts */
+  .mobile-card-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+  
+  .mobile-stats-grid {
+    @apply grid grid-cols-2 sm:grid-cols-4 gap-3;
+  }
+  
+  /* Mobile typography scale */
+  .mobile-title {
+    @apply text-xl sm:text-3xl lg:text-4xl font-bold leading-tight;
+  }
+  
+  .mobile-subtitle {
+    @apply text-lg sm:text-2xl lg:text-3xl font-semibold;
+  }
+  
+  .mobile-body {
+    @apply text-sm sm:text-base leading-relaxed;
+  }
+  
+  .mobile-caption {
+    @apply text-xs sm:text-sm text-gray-600;
+  }
+  
+  /* Mobile spacing utilities */
+  .mobile-section {
+    @apply py-6 sm:py-12 lg:py-16;
+  }
+  
+  .mobile-section-sm {
+    @apply py-4 sm:py-8;
+  }
+  
+  /* Mobile visibility utilities */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+  
+  .tablet-up {
+    @apply hidden sm:block;
+  }
+  
+  /* Mobile scroll enhancements */
+  .mobile-scroll {
+    @apply overflow-x-auto;
+  }
+  
+  /* Mobile focus states */
+  .mobile-focus {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-white;
   }
 }
 

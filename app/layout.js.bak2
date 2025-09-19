@@ -26,7 +26,8 @@ export const metadata = {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon.ico", sizes: "any" }
-    ]
+    ],
+    apple: "/icons/icon-192x192.png"
   },
 };
 
@@ -46,19 +47,6 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-50`}
       >
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                  for(let registration of registrations) {
-                    registration.unregister();
-                  }
-                });
-              }
-            `,
-          }}
-        />
         <ErrorBoundary>
           <AuthProvider>
             <QueryProvider>

@@ -54,15 +54,15 @@ const FeatureCard = ({ icon, title, children }) => (
 const StatCard = ({ number, label, icon }) => (
   <motion.div
     variants={fadeIn}
-    className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
+    className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100"
   >
-    <div className="flex items-center gap-4">
-      <div className="p-3 rounded-lg bg-teal-50 text-teal-600">
+    <div className="flex items-center gap-3 sm:gap-4">
+      <div className="p-2 sm:p-3 rounded-lg bg-teal-50 text-teal-600 flex-shrink-0">
         {icon}
       </div>
-      <div>
-        <p className="text-3xl font-bold text-gray-800">{number}</p>
-        <p className="text-sm text-gray-500">{label}</p>
+      <div className="min-w-0">
+        <p className="text-2xl sm:text-3xl font-bold text-gray-800 truncate">{number}</p>
+        <p className="text-xs sm:text-sm text-gray-500 truncate">{label}</p>
       </div>
     </div>
   </motion.div>
@@ -88,16 +88,16 @@ export default function HomePage() {
     <div className="flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100">
       {/* Hero Section with Abstract Shapes */}
       <motion.section
-        className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-indigo-600 text-white py-28"
+        className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-indigo-600 text-white py-16 sm:py-20 lg:py-28"
         initial="hidden"
         animate="visible"
         variants={staggerContainer}
       >
         {/* Enhanced Abstract Shapes with More Dynamic Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-teal-400 opacity-20 blur-3xl animate-pulse-slow"></div>
-          <div className="absolute top-1/3 -left-24 w-72 h-72 rounded-full bg-indigo-500 opacity-20 blur-3xl animate-pulse-slow"></div>
-          <div className="absolute bottom-0 right-1/3 w-80 h-80 rounded-full bg-cyan-400 opacity-20 blur-3xl animate-pulse-slow"></div>
+          <div className="absolute -top-12 -right-12 sm:-top-24 sm:-right-24 w-48 h-48 sm:w-96 sm:h-96 rounded-full bg-teal-400 opacity-20 blur-3xl animate-pulse-slow"></div>
+          <div className="absolute top-1/3 -left-12 sm:-left-24 w-36 h-36 sm:w-72 sm:h-72 rounded-full bg-indigo-500 opacity-20 blur-3xl animate-pulse-slow"></div>
+          <div className="absolute bottom-0 right-1/3 w-40 h-40 sm:w-80 sm:h-80 rounded-full bg-cyan-400 opacity-20 blur-3xl animate-pulse-slow"></div>
           
           {/* Added floating elements */}
           <div className="absolute top-1/4 right-1/4 w-12 h-12 rounded-lg bg-white opacity-10 animate-float-slow rotate-12"></div>
@@ -108,26 +108,26 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-[url('/images/hero/grid-pattern.svg')] opacity-10"></div>
         </div>
 
-        <div className="container relative z-10 mx-auto px-6 flex flex-col md:flex-row items-center gap-12">
+        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
           <motion.div
             variants={fadeInFromLeft}
-            className="md:w-1/2 text-center md:text-left"
+            className="lg:w-1/2 text-center lg:text-left"
           >
-            <div className="inline-flex items-center px-4 py-2 bg-white/10 rounded-full backdrop-blur-sm mb-6">
+            <div className="inline-flex items-center px-3 py-2 sm:px-4 sm:py-2 bg-white/10 rounded-full backdrop-blur-sm mb-4 sm:mb-6">
               <span className="animate-pulse w-2 h-2 bg-teal-400 rounded-full mr-2"></span>
-              <span className="text-sm font-medium text-white/90">{t('home.hero.announcement')}</span>
+              <span className="text-xs sm:text-sm font-medium text-white/90">{t('home.hero.announcement')}</span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-extrabold mb-4 sm:mb-6 leading-tight tracking-tight">
               {t('home.hero.heading')}
             </h1>
-            <p className="text-lg md:text-xl mb-10 text-teal-100/90 max-w-xl mx-auto md:mx-0">
+            <p className="text-base sm:text-lg lg:text-xl mb-6 sm:mb-8 lg:mb-10 text-teal-100/90 max-w-xl mx-auto lg:mx-0">
               {t('home.hero.description')}
             </p>
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start mb-8">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start mb-6 sm:mb-8">
               <Button
                 asChild
                 size="lg"
-                className="bg-white text-indigo-700 hover:bg-teal-50 font-semibold hover:scale-105 transition-transform shadow-lg"
+                className="bg-white text-indigo-700 hover:bg-teal-50 font-semibold hover:scale-105 transition-transform shadow-lg mobile-button touch-target"
               >
                 <Link href="/issues/report">{t('home.hero.reportButton')}</Link>
               </Button>
@@ -135,19 +135,19 @@ export default function HomePage() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-white/80 bg-orange-600 text-black hover:bg-white/20 font-semibold transition-colors"
+                className="border-white/80 bg-orange-600 text-black hover:bg-white/20 font-semibold transition-colors mobile-button touch-target"
               >
                 <Link href="/issues">{t('home.hero.viewButton')}</Link>
               </Button>
             </div>
           </motion.div>
 
-          <motion.div variants={fadeInFromRight} className="md:w-1/2 flex justify-center relative">
+          <motion.div variants={fadeInFromRight} className="lg:w-1/2 flex justify-center relative mt-8 lg:mt-0">
             {/* Enhanced Device Frame with Dashboard */}
             <div className="relative">
               {/* Decorative elements */}
-              <div className="absolute -top-10 -left-10 w-20 h-20 bg-gradient-to-br from-pink-400 to-red-500 rounded-lg rotate-12 opacity-70 blur-xl animate-pulse-slow"></div>
-              <div className="absolute -bottom-8 -right-8 w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg -rotate-12 opacity-70 blur-xl animate-pulse-slow"></div>
+              <div className="absolute -top-6 -left-6 sm:-top-10 sm:-left-10 w-12 h-12 sm:w-20 sm:h-20 bg-gradient-to-br from-pink-400 to-red-500 rounded-lg rotate-12 opacity-70 blur-xl animate-pulse-slow"></div>
+              <div className="absolute -bottom-4 -right-4 sm:-bottom-8 sm:-right-8 w-12 h-12 sm:w-20 sm:h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg -rotate-12 opacity-70 blur-xl animate-pulse-slow"></div>
               <div className="absolute top-1/2 right-full mr-8 w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full opacity-60 blur-lg animate-float-medium"></div>
               <div className="absolute bottom-1/4 left-full ml-8 w-12 h-12 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg opacity-60 blur-lg animate-float-slow rotate-45"></div>
               

@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 
 export async function GET() {
-  return NextResponse.json({ status: 'ok', timestamp: new Date().toISOString() });
+  return NextResponse.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    service: 'nayabato-api'
+  });
 }
 
 export async function HEAD() {
-  return new Response(null, { status: 200 });
+  return new NextResponse(null, { status: 200 });
 }

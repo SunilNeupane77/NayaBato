@@ -48,20 +48,20 @@ export default function Navigation() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 safe-area-top">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+        <div className="flex items-center justify-between h-16 xs:h-16 sm:h-16">
+          <div className="flex items-center min-w-0">
             <Link href="/" className="flex items-center">
               <img
                 src="/globe.svg"
                 alt="Nayabato Logo"
-                className="h-8 w-8 mr-2"
+                className="h-6 w-6 sm:h-8 sm:w-8 mr-2 flex-shrink-0"
               />
-              <span className="font-bold text-xl">{t('common.appName')}</span>
+              <span className="font-bold text-lg sm:text-xl truncate">{t('common.appName')}</span>
             </Link>
           </div>
-          <nav className="hidden md:flex space-x-6 ml-8">
+          <nav className="hidden lg:flex space-x-4 xl:space-x-6 ml-8">
             <Link
               href="/"
               className={`text-sm ${
@@ -166,14 +166,14 @@ export default function Navigation() {
             )}
           </nav>
 
-          <div className="flex items-center ml-auto">
-            <div className="mr-4">
+          <div className="flex items-center ml-auto space-x-2 sm:space-x-3">
+            <div className="hidden sm:block">
               <LanguageSwitcher />
             </div>
             {status === 'authenticated' ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10" aria-label="User menu">
+                  <Button variant="ghost" className="relative rounded-full p-0 h-8 w-8 sm:h-10 sm:w-10 touch-target" aria-label="User menu">
                     <Avatar>
                       <AvatarFallback>{getInitials(session?.user?.name)}</AvatarFallback>
                     </Avatar>
@@ -295,11 +295,11 @@ export default function Navigation() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex space-x-3">
-                <Button asChild variant="ghost" size="sm">
+              <div className="hidden sm:flex space-x-2 lg:space-x-3">
+                <Button asChild variant="ghost" size="sm" className="mobile-button">
                   <Link href="/auth/signin">{t('navigation.signIn')}</Link>
                 </Button>
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="mobile-button">
                   <Link href="/auth/register">{t('navigation.register')}</Link>
                 </Button>
               </div>
@@ -308,13 +308,13 @@ export default function Navigation() {
             {/* Mobile menu button */}
             <button
               onClick={toggleMenu}
-              className="ml-4 p-2 md:hidden"
+              className="p-2 lg:hidden touch-target"
               aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
             >
               {isMenuOpen ? (
-                <X className="h-6 w-6" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
               ) : (
-                <Menu className="h-6 w-6" />
+                <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
               )}
             </button>
           </div>
@@ -323,118 +323,154 @@ export default function Navigation() {
 
       {/* Mobile navigation menu */}
       {isMenuOpen && (
-        <div className="md:hidden py-4 px-4 border-t border-gray-200 bg-gray-50">
-          <nav className="flex flex-col space-y-3">
-            <Link
-              href="/"
-              className={`px-3 py-2 rounded-md ${
-                isActive('/') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {t('navigation.home')}
-            </Link>
-            <Link
-              href="/issues"
-              className={`px-3 py-2 rounded-md ${
-                isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {t('navigation.issues')}
-            </Link>
-            <Link
-              href="/about"
-              className={`px-3 py-2 rounded-md ${
-                isActive('/about') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
-              }`}
-              onClick={() => setIsMenuOpen(false)}
-            >
-              {t('navigation.about')}
-            </Link>
-            {/* Role-specific mobile navigation */}
-            {(session?.user?.role === 'admin' || session?.user?.role === 'official') && (
+        <div className="lg:hidden animate-slide-down bg-white border-t border-gray-200 safe-area-bottom">
+          <div className="px-3 sm:px-4 py-4">
+            {/* Language switcher for mobile */}
+            <div className="sm:hidden mb-4 pb-4 border-b border-gray-200">
+              <LanguageSwitcher />
+            </div>
+            
+            <nav className="space-y-1">
               <Link
-                href="/admin/dashboard"
-                className={`px-3 py-2 rounded-md ${
-                  isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
+                href="/"
+                className={`mobile-nav-item block ${
+                  isActive('/') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                {session?.user?.role === 'admin' ? t('admin.dashboard') : t('navigation.dashboard')}
+                {t('navigation.home')}
               </Link>
-            )}
-            
-            {session?.user?.role === 'admin' && (
-              <>
-                <Link
-                  href="/admin/users"
-                  className={`px-3 py-2 rounded-md ${
-                    isActive('/admin/users') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t('admin.userManagement')}
-                </Link>
-              </>
-            )}
-            
-            {session?.user?.role === 'citizen' && (
               <Link
-                href="/issues/report"
-                className={`px-3 py-2 rounded-md ${
-                  isActive('/issues/report') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
+                href="/issues"
+                className={`mobile-nav-item block ${
+                  isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
-                {t('navigation.reportIssue')}
+                {t('navigation.issues')}
               </Link>
-            )}
-            
-            {session?.user?.role === 'official' && (
-              <>
+              <Link
+                href="/about"
+                className={`mobile-nav-item block ${
+                  isActive('/about') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {t('navigation.about')}
+              </Link>
+              
+              {/* Role-specific mobile navigation */}
+              {(session?.user?.role === 'admin' || session?.user?.role === 'official') && (
                 <Link
                   href="/admin/dashboard"
-                  className={`px-3 py-2 rounded-md ${
-                    isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
+                  className={`mobile-nav-item block ${
+                    isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Dashboard
+                  {session?.user?.role === 'admin' ? t('admin.dashboard') : t('navigation.dashboard')}
                 </Link>
+              )}
+              
+              {session?.user?.role === 'admin' && (
+                <>
+                  <Link
+                    href="/admin/users"
+                    className={`mobile-nav-item block ${
+                      isActive('/admin/users') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('admin.userManagement')}
+                  </Link>
+                  <Link
+                    href="/admin/departments"
+                    className={`mobile-nav-item block ${
+                      isActive('/admin/departments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('admin.departments')}
+                  </Link>
+                </>
+              )}
+              
+              {session?.user?.role === 'citizen' && (
+                <>
+                  <Link
+                    href="/citizen/dashboard"
+                    className={`mobile-nav-item block ${
+                      isActive('/citizen/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('navigation.dashboard')}
+                  </Link>
+                  <Link
+                    href="/issues/report"
+                    className={`mobile-nav-item block ${
+                      isActive('/issues/report') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('navigation.reportIssue')}
+                  </Link>
+                  <Link
+                    href="/citizen/my-reports"
+                    className={`mobile-nav-item block ${
+                      isActive('/citizen/my-reports') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {t('citizen.myReports')}
+                  </Link>
+                </>
+              )}
+              
+              {session?.user?.role === 'official' && (
                 <Link
                   href="/issues"
-                  className={`px-3 py-2 rounded-md ${
-                    isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600'
+                  className={`mobile-nav-item block ${
+                    isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {t('navigation.reviewIssues')}
                 </Link>
-              </>
-            )}
-            
-            {status !== 'authenticated' && (
-              <div className="pt-3 border-t border-gray-200">
-                <div className="flex flex-col space-y-2">
+              )}
+              
+              {status === 'authenticated' && (
+                <Link
+                  href="/notifications"
+                  className={`mobile-nav-item block ${
+                    isActive('/notifications') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {t('navigation.notifications')}
+                </Link>
+              )}
+              
+              {status !== 'authenticated' && (
+                <div className="pt-4 border-t border-gray-200 mt-4 space-y-3">
                   <Link
                     href="/auth/signin"
-                    className="px-3 py-2 text-center rounded-md border border-gray-300 text-gray-700"
+                    className="touch-button w-full text-center border border-gray-300 text-gray-700 hover:bg-gray-50"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navigation.signIn')}
                   </Link>
                   <Link
                     href="/auth/register"
-                    className="px-3 py-2 text-center rounded-md bg-blue-600 text-white"
+                    className="touch-button w-full text-center bg-blue-600 text-white hover:bg-blue-700"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {t('navigation.register')}
                   </Link>
                 </div>
-              </div>
-            )}
-          </nav>
+              )}
+            </nav>
+          </div>
         </div>
       )}
     </header>
