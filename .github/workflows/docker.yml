@@ -83,10 +83,11 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.22.0
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:sha-${{ github.sha }}
+          # FIX: remove 'sha-' prefix
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           format: 'sarif'
           output: 'trivy-results.sarif'
-          scanners: 'vuln' # disable secret scanning for speed
+          scanners: 'vuln'       # only vulnerability scanning
           skip-version-check: true
 
       - name: Upload Trivy scan results to GitHub Security tab
@@ -122,7 +123,8 @@ jobs:
           script: |
             echo "Deploying to production..."
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker pull ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+            # FIX: remove 'sha-' prefix
+            docker pull ghcr.io/${{ github.repository }}:${{ github.sha }}
             docker stop nayabato || true
             docker rm nayabato || true
-            docker run -d --name nayabato -p 80:3000 ghcr.io/${{ github.repository }}:sha-${{ github.sha }}
+            docker run -d --name nayabato -p 80:3000 ghcr.io/${{ github.repository }}:${{ github.sha }}
