@@ -11,7 +11,7 @@ import {
 } from './dropdown-menu';
 
 export default function LanguageSwitcher() {
-  const { language, setLanguage } = useLanguage();
+  const { locale, setLocale } = useLanguage();
 
   const languages = [
     { code: 'en', name: 'English' },
@@ -29,8 +29,8 @@ export default function LanguageSwitcher() {
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => setLanguage(lang.code)}
-            className={language === lang.code ? 'bg-accent' : ''}
+            onClick={() => setLocale(lang.code)}
+            className={locale === lang.code ? 'bg-accent' : ''}
           >
             {lang.name}
           </DropdownMenuItem>

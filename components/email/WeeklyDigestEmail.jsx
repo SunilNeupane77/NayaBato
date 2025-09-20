@@ -287,7 +287,7 @@ export default function WeeklyDigestEmail({
           fontSize: '11px',
           margin: '0'
         }}>
-          © 2024 Nayabato. Building stronger communities together.
+          © {new Date().getFullYear()} Nayabato. Building stronger communities together.
         </p>
       </div>
     </div>

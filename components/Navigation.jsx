@@ -167,7 +167,7 @@ export default function Navigation() {
                       : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
                   } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
-                  <Link href="/citizen/dashboard">Dashboard</Link>
+                  <Link href="/citizen/dashboard">{t('navigation.dashboard')}</Link>
                 </Button>
                 <Button
                   asChild

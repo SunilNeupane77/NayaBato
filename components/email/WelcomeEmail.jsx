@@ -223,7 +223,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
           fontSize: '11px',
           margin: '0'
         }}>
-          © 2024 Nayabato. Building stronger communities together.
+          © {new Date().getFullYear()} Nayabato. Building stronger communities together.
         </p>
       </div>
     </div>

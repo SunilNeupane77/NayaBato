@@ -8,11 +8,15 @@ import dynamic from 'next/dynamic';
 // Dynamically import the entire map component to avoid SSR issues
 const DynamicMap = dynamic(() => import('./MapComponent'), { 
   ssr: false,
-  loading: () => (
-    <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-      <div className="text-gray-500">Loading map...</div>
-    </div>
-  )
+  loading: () => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { t } = useLanguage();
+    return (
+      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="text-gray-500">{t('common.loadingMap')}</div>
+      </div>
+    );
+  }
 });
 
 export default function LocationPicker({ 
@@ -46,7 +50,7 @@ export default function LocationPicker({
   if (!isClient) {
     return (
       <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-        <div className="text-gray-500">Loading map...</div>
+        <div className="text-gray-500">{t('common.loadingMap')}</div>
       </div>
     );
   }

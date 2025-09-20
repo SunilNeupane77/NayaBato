@@ -4,6 +4,7 @@ import { Icon } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState } from 'react';
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
+import { useLanguage } from '@/lib/i18n/language-context';
 
 // Fix Leaflet icon issues in Next.js
 let DefaultIcon;
@@ -23,6 +24,7 @@ if (typeof window !== 'undefined') {
  */
 export default function IssueLocationMap({ location }) {
   const [isMounted, setIsMounted] = useState(false);
+  const { t } = useLanguage();
   
   useEffect(() => {
     setIsMounted(true);
@@ -31,7 +33,7 @@ export default function IssueLocationMap({ location }) {
   if (!isMounted) {
     return (
       <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-        <p className="text-gray-500">Loading map...</p>
+        <p className="text-gray-500">{t('common.loadingMap')}</p>
       </div>
     );
   }
@@ -39,7 +41,7 @@ export default function IssueLocationMap({ location }) {
   if (!location || !location.coordinates || !location.coordinates.coordinates) {
     return (
       <div className="w-full h-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-        <p className="text-gray-500">Location unavailable</p>
+        <p className="text-gray-500">{t('common.locationUnavailable')}</p>
       </div>
     );
   }
@@ -64,7 +66,7 @@ export default function IssueLocationMap({ location }) {
       <Marker position={position} icon={DefaultIcon}>
         <Popup>
           <div>
-            <p><strong>Issue Location</strong></p>
+            <p><strong>{t('common.issueLocation')}</strong></p>
             <p className="text-xs">{address || 'No address provided'}</p>
           </div>
         </Popup>

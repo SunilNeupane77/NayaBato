@@ -240,7 +240,7 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
           fontSize: '11px',
           margin: '0'
         }}>
-          © 2024 Nayabato. Building stronger communities together.
+          © {new Date().getFullYear()} Nayabato. Building stronger communities together.
         </p>
       </div>
     </div>

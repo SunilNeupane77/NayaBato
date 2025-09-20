@@ -216,7 +216,7 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
           fontSize: '11px',
           margin: '0'
         }}>
-          © 2024 Nayabato. Building stronger communities together.
+          © {new Date().getFullYear()} Nayabato. Building stronger communities together.
         </p>
       </div>
     </div>

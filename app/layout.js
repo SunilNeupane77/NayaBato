@@ -6,6 +6,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import Footer from "@/components/Footer";
 import Navigation from "@/components/Navigation";
 import QueryProvider from "@/components/QueryProvider";
+import SessionTimeout from "@/components/SessionTimeout";
 import { ToastProviderWrapper } from "@/components/ui/use-toast";
 import { LanguageProvider } from "@/lib/i18n/language-context";
 
@@ -69,6 +70,7 @@ export default function RootLayout({ children }) {
                     {children}
                   </main>
                   <Footer />
+                  <SessionTimeout />
                 </ToastProviderWrapper>
               </LanguageProvider>
             </QueryProvider>

@@ -440,7 +440,7 @@ export default function CommunityPage() {
                           </div>
                           <div className="text-sm text-gray-600 flex items-center gap-2">
                             <UserCheck className="w-4 h-4" />
-                            {member.reportCount} reports • Member since 2024
+                            {member.reportCount} reports • Member since {new Date(member.createdAt).getFullYear()}
                           </div>
                         </div>
                       </div>

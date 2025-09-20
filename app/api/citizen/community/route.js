@@ -69,7 +69,8 @@ export async function GET() {
           name: '$user.name',
           reportCount: 1,
           resolvedCount: 1,
-          impactScore: 1
+          impactScore: 1,
+          createdAt: '$user.createdAt'
         }
       }
     ]);
