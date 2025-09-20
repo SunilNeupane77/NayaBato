@@ -83,11 +83,11 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.22.0
         with:
-          # Scan the actual tags pushed by the build
-          image-ref: ${{ steps.meta.outputs.tags }}
+          # FIX: pick only the first tag
+          image-ref: ${{ steps.meta.outputs.tags.split(',')[0] }}
           format: sarif
           output: trivy-results.sarif
-          scanners: vuln  # only OS/library vulnerabilities
+          scanners: vuln
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
@@ -122,7 +122,8 @@ jobs:
           script: |
             echo "Deploying to production..."
             docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
-            docker pull ${{ steps.meta.outputs.tags }}  # use the actual pushed tag
+            # Pull the first tag pushed by build step
+            docker pull ${{ steps.meta.outputs.tags.split(',')[0] }}
             docker stop nayabato || true
             docker rm nayabato || true
-            docker run -d --name nayabato -p 80:3000 ${{ steps.meta.outputs.tags }}
+            docker run -d --name nayabato -p 80:3000 ${{ steps.meta.outputs.tags.split(',')[0] }}
