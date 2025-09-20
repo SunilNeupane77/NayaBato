@@ -27,7 +27,7 @@ const UserSessionSchema = new mongoose.Schema({
     default: Date.now
   },
   logoutTime: Date,
-  sessionDuration: Number, // in minutes
+  sessionDuration: Number, 
   isActive: {
     type: Boolean,
     default: true

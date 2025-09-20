@@ -1,101 +1,151 @@
 'use client';
 
-import { useState } from 'react';
+import { ArrowLeft, Lock, Save } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { redirect } from 'next/navigation';
-import PasswordInput from '@/components/ui/password-input';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 
 export default function ChangePasswordPage() {
-  const { data: session, status } = useSession();
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { data: session } = useSession();
+  const router = useRouter();
   const { toast } = useToast();
-
-  if (status === 'loading') return <div>Loading...</div>;
-  if (!session) redirect('/auth/signin');
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    if (newPassword !== confirmPassword) {
-      toast({ title: 'Error', description: 'New passwords do not match', variant: 'destructive' });
+    if (formData.newPassword !== formData.confirmPassword) {
+      toast({
+        title: "Error",
+        description: "New passwords do not match.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (formData.newPassword.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive"
+      });
       return;
     }
 
     setLoading(true);
+
     try {
-      const response = await fetch('/api/auth/change-password', {
-        method: 'POST',
+      const response = await fetch('/api/users/change-password', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword, newPassword })
+        body: JSON.stringify({
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword
+        })
       });
 
-      const data = await response.json();
-      
       if (response.ok) {
-        toast({ title: 'Success', description: 'Password changed successfully' });
-        setCurrentPassword('');
-        setNewPassword('');
-        setConfirmPassword('');
+        toast({
+          title: "Password changed",
+          description: "Your password has been successfully updated."
+        });
+        router.push('/profile');
       } else {
-        toast({ title: 'Error', description: data.error, variant: 'destructive' });
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to change password');
       }
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to change password', variant: 'destructive' });
+      toast({
+        title: "Error",
+        description: error.message || "Failed to change password. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-6 bg-white rounded-lg shadow">
-      <h1 className="text-2xl font-bold mb-6">Change Password</h1>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">Current Password</label>
-          <PasswordInput
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-            placeholder="Enter current password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+    <div className="container mx-auto px-4 py-8 max-w-md">
+      <div className="mb-6">
+        <Button variant="ghost" asChild className="mb-4">
+          <Link href="/profile">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Profile
+          </Link>
+        </Button>
+        <h1 className="text-3xl font-bold">Change Password</h1>
+        <p className="text-gray-600">Update your account password</p>
+      </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">New Password</label>
-          <PasswordInput
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="Enter new password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Lock className="h-5 w-5 mr-2" />
+            Security
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="currentPassword">Current Password</Label>
+              <Input
+                id="currentPassword"
+                type="password"
+                value={formData.currentPassword}
+                onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
+                required
+              />
+            </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Confirm New Password</label>
-          <PasswordInput
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            placeholder="Confirm new password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          />
-        </div>
+            <div>
+              <Label htmlFor="newPassword">New Password</Label>
+              <Input
+                id="newPassword"
+                type="password"
+                value={formData.newPassword}
+                onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
+                required
+                minLength={6}
+              />
+            </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
-        >
-          {loading ? 'Changing...' : 'Change Password'}
-        </button>
-      </form>
+            <div>
+              <Label htmlFor="confirmPassword">Confirm New Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                required
+                minLength={6}
+              />
+            </div>
+
+            <div className="flex gap-4 pt-4">
+              <Button type="submit" disabled={loading} className="flex-1">
+                <Save className="h-4 w-4 mr-2" />
+                {loading ? 'Changing...' : 'Change Password'}
+              </Button>
+              <Button type="button" variant="outline" asChild>
+                <Link href="/profile">Cancel</Link>
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 }

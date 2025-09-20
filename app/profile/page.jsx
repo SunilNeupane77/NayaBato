@@ -426,8 +426,10 @@ export default function ProfilePage() {
                       </Link>
                     </Button>
                     
-                    <Button variant="destructive" className="w-full">
-                      Delete Account
+                    <Button variant="destructive" className="w-full" asChild>
+                      <Link href="/profile/delete-account">
+                        Delete Account
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>

@@ -56,7 +56,6 @@ AuditSchema.statics.log = async function(data) {
     return await this.create(data);
   } catch (error) {
     console.error('Error logging audit entry:', error);
-    // Don't throw error to prevent disrupting main operations
     return null;
   }
 };

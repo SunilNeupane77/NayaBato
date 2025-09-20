@@ -38,6 +38,14 @@ const UserSchema = new mongoose.Schema({
   phoneNumber: {
     type: String
   },
+  bio: {
+    type: String,
+    maxlength: [500, 'Bio cannot be more than 500 characters']
+  },
+  location: {
+    type: String,
+    maxlength: [100, 'Location cannot be more than 100 characters']
+  },
   googleId: {
     type: String,
     unique: true,

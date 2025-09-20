@@ -87,18 +87,20 @@ export default function Navigation() {
             >
               <Link href="/issues">{t('navigation.issues')}</Link>
             </Button>
-            <Button
-              asChild
-              variant={isActive('/about') ? 'default' : 'ghost'}
-              size="sm"
-              className={`${
-                isActive('/about') 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
-              } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
-            >
-              <Link href="/about">{t('navigation.about')}</Link>
-            </Button>
+            {!session && (
+              <Button
+                asChild
+                variant={isActive('/about') ? 'default' : 'ghost'}
+                size="sm"
+                className={`${
+                  isActive('/about') 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
+              >
+                <Link href="/about">{t('navigation.about')}</Link>
+              </Button>
+            )}
             
             {session?.user?.role === 'admin' && (
               <>
@@ -392,15 +394,17 @@ export default function Navigation() {
               >
                 {t('navigation.issues')}
               </Link>
-              <Link
-                href="/about"
-                className={`mobile-nav-item block ${
-                  isActive('/about') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.about')}
-              </Link>
+              {!session && (
+                <Link
+                  href="/about"
+                  className={`mobile-nav-item block ${
+                    isActive('/about') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {t('navigation.about')}
+                </Link>
+              )}
               
               {/* Role-specific mobile navigation */}
               {(session?.user?.role === 'admin' || session?.user?.role === 'official') && (
