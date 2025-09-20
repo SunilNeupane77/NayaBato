@@ -158,7 +158,7 @@ export default function IssuesPage() {
                 ? `${pagination.total} ${pagination.total === 1 ? t('issues.issueFound') : t('issues.issuesFound')}`
                 : `${Array.isArray(issues) ? issues.length : 0} ${Array.isArray(issues) && issues.length === 1 ? t('issues.issueFound') : t('issues.issuesFound')}`}
               {hasActiveFilters && ` ${t('issues.withCurrentFilters')}`}
-              {pagination?.total > 0 && ` • ${t('issues.pageOf', { current: page, total: pagination.pages || 1 })}`}
+              {pagination?.total > 0 && ` • Page ${page} of ${pagination.pages || 1}`}
             </p>
           </div>
           
@@ -401,7 +401,7 @@ export default function IssuesPage() {
                 
                 <div className="sm:hidden flex items-center">
                   <span className="text-sm text-gray-500">
-                    {t('issues.pageOf', { current: page, total: pagination.pages || 1 })}
+                    Page {page} of {pagination.pages || 1}
                   </span>
                 </div>
                 

@@ -156,6 +156,19 @@ export const authOptions = {
         session.user.department = token.department;
         session.user.verified = token.verified;
         session.user.sessionId = token.sessionId;
+        
+        // Fetch user avatar from database for Google users
+        if (token.id) {
+          try {
+            await connectDB();
+            const dbUser = await User.findById(token.id).select('avatar');
+            if (dbUser?.avatar) {
+              session.user.image = dbUser.avatar;
+            }
+          } catch (error) {
+            console.error('Error fetching user avatar:', error);
+          }
+        }
       }
       return session;
     }

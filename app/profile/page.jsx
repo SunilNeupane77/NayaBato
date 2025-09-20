@@ -190,12 +190,6 @@ export default function ProfilePage() {
                   Change Password
                 </Link>
               </Button>
-              
-              <Button asChild className="w-full">
-                <Link href="/issues/report">
-                  Report New Issue
-                </Link>
-              </Button>
             </div>
           </CardContent>
         </Card>

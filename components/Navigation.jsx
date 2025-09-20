@@ -1,5 +1,6 @@
 'use client';
 
+import { UserAvatar } from '@/components/ui/user-avatar';
 import LanguageSwitcher from '@/components/ui/language-switcher';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { AlertTriangle, Bell, LogOut, Menu, Settings, User, Users, X } from 'lucide-react';
@@ -8,7 +9,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -61,108 +62,140 @@ export default function Navigation() {
               <span className="font-bold text-lg sm:text-xl truncate">{t('common.appName')}</span>
             </Link>
           </div>
-          <nav className="hidden lg:flex space-x-4 xl:space-x-6 ml-8">
-            <Link
-              href="/"
-              className={`text-sm ${
-                isActive('/') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-              }`}
+          <nav className="hidden lg:flex space-x-2 xl:space-x-3 ml-8">
+            <Button
+              asChild
+              variant={isActive('/') ? 'default' : 'ghost'}
+              size="sm"
+              className={`${
+                isActive('/') 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+              } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
             >
-              {t('navigation.home')}
-            </Link>
-            <Link
-              href="/issues"
-              className={`text-sm ${
-                isActive('/issues') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-              }`}
+              <Link href="/">{t('navigation.home')}</Link>
+            </Button>
+            <Button
+              asChild
+              variant={isActive('/issues') ? 'default' : 'ghost'}
+              size="sm"
+              className={`${
+                isActive('/issues') 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+              } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
             >
-              {t('navigation.issues')}
-            </Link>
-            <Link
-              href="/about"
-              className={`text-sm ${
-                isActive('/about') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-              }`}
+              <Link href="/issues">{t('navigation.issues')}</Link>
+            </Button>
+            <Button
+              asChild
+              variant={isActive('/about') ? 'default' : 'ghost'}
+              size="sm"
+              className={`${
+                isActive('/about') 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+              } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
             >
-              {t('navigation.about')}
-            </Link>
+              <Link href="/about">{t('navigation.about')}</Link>
+            </Button>
             
             {session?.user?.role === 'admin' && (
               <>
-                <Link
-                  href="/admin/dashboard"
-                  className={`text-sm ${
-                    isActive('/admin/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                  }`}
+                <Button
+                  asChild
+                  variant={isActive('/admin/dashboard') ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`${
+                    isActive('/admin/dashboard') 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
-                  {t('admin.dashboard')}
-                </Link>
-                <Link
-                  href="/admin/users"
-                  className={`text-sm ${
-                    isActive('/admin/users') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                  }`}
+                  <Link href="/admin/dashboard">{t('admin.dashboard')}</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant={isActive('/admin/users') ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`${
+                    isActive('/admin/users') 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
-                  {t('admin.users')}
-                </Link>
-                <Link
-                  href="/admin/departments"
-                  className={`text-sm ${
-                    isActive('/admin/departments') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                  }`}
+                  <Link href="/admin/users">{t('admin.users')}</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant={isActive('/admin/departments') ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`${
+                    isActive('/admin/departments') 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
-                  {t('admin.departments')}
-                </Link>
+                  <Link href="/admin/departments">{t('admin.departments')}</Link>
+                </Button>
               </>
             )}
             {session?.user?.role === 'official' && (
-              <Link
-                href="/admin/dashboard"
-                className={`text-sm ${
-                  isActive('/admin/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                }`}
+              <Button
+                asChild
+                variant={isActive('/admin/dashboard') ? 'default' : 'ghost'}
+                size="sm"
+                className={`${
+                  isActive('/admin/dashboard') 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
               >
-                {t('navigation.dashboard')}
-              </Link>
+                <Link href="/admin/dashboard">{t('navigation.dashboard')}</Link>
+              </Button>
             )}
             
             {session?.user?.role === 'citizen' && (
               <>
-                <Link
-                  href="/citizen/dashboard"
-                  className={`text-sm ${
-                    isActive('/citizen/dashboard') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                  }`}
+                <Button
+                  asChild
+                  variant={isActive('/citizen/dashboard') ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`${
+                    isActive('/citizen/dashboard') 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/issues/report"
-                  className={`text-sm ${
-                    isActive('/issues/report') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                  }`}
+                  <Link href="/citizen/dashboard">Dashboard</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant={isActive('/citizen/my-reports') ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`${
+                    isActive('/citizen/my-reports') 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
-                  {t('navigation.reportIssue')}
-                </Link>
-                <Link
-                  href="/citizen/my-reports"
-                  className={`text-sm ${
-                    isActive('/citizen/my-reports') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                  }`}
-                >
-                  {t('citizen.myReports')}
-                </Link>
+                  <Link href="/citizen/my-reports">{t('citizen.myReports')}</Link>
+                </Button>
               </>
             )}
             {status === 'authenticated' && (
-              <Link
-                href="/notifications"
-                className={`text-sm ${
-                  isActive('/notifications') ? 'text-blue-600 font-medium' : 'text-gray-600 hover:text-blue-600'
-                }`}
+              <Button
+                asChild
+                variant={isActive('/notifications') ? 'default' : 'ghost'}
+                size="sm"
+                className={`${
+                  isActive('/notifications') 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
               >
-                {t('navigation.notifications')}
-              </Link>
+                <Link href="/notifications">{t('navigation.notifications')}</Link>
+              </Button>
             )}
           </nav>
 
@@ -171,61 +204,67 @@ export default function Navigation() {
               <LanguageSwitcher />
             </div>
             {status === 'authenticated' ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative rounded-full p-0 h-8 w-8 sm:h-10 sm:w-10 touch-target" aria-label="User menu">
-                    <Avatar>
-                      <AvatarFallback>{getInitials(session?.user?.name)}</AvatarFallback>
-                    </Avatar>
-                    {session?.user?.role && (
-                      <Badge className="absolute -bottom-1 -right-1 px-1 py-0 text-[10px]">
-                        {session.user.role}
-                      </Badge>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{session?.user?.name}</p>
-                      <p className="text-xs leading-none text-gray-500">{session?.user?.email}</p>
+              <div className="flex items-center space-x-3">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10 hover:bg-gray-100 transition-colors duration-200" aria-label="User menu">
+                      <UserAvatar 
+                        user={session?.user} 
+                        size="lg"
+                        showBorder={true}
+                        className="h-10 w-10"
+                      />
+                      {session?.user?.role && (
+                        <Badge className="absolute -bottom-1 -right-1 px-1.5 py-0.5 text-[10px] bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full font-medium">
+                          {session.user.role}
+                        </Badge>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-80 p-2">
+                  <DropdownMenuLabel className="p-4">
+                    <div className="flex items-center space-x-4">
+                      <UserAvatar 
+                        user={session?.user} 
+                        size="lg"
+                        className="h-12 w-12"
+                      />
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-base font-semibold leading-none">{session?.user?.name}</p>
+                        <p className="text-sm leading-none text-gray-500">{session?.user?.email}</p>
+                        <Badge variant="outline" className="w-fit mt-2 text-xs">
+                          {session?.user?.role || 'citizen'}
+                        </Badge>
+                      </div>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer flex w-full">
-                      <User className="mr-2 h-4 w-4" />
-                      <span>{t('navigation.profile')}</span>
+                  <DropdownMenuSeparator className="my-2" />
+                  <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                    <Link href="/profile" className="flex w-full items-center">
+                      <User className="mr-3 h-5 w-5 text-gray-500" />
+                      <span className="text-sm font-medium">{t('navigation.profile')}</span>
                     </Link>
                   </DropdownMenuItem>
-                  {session?.user?.role === 'citizen' && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/issues/report" className="cursor-pointer flex w-full">
-                        <AlertTriangle className="mr-2 h-4 w-4" />
-                        <span>{t('navigation.reportIssue')}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  )}
                   
                   {/* Admin-specific links */}
                   {session?.user?.role === 'admin' && (
                     <>
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin/dashboard" className="cursor-pointer flex w-full">
-                          <Settings className="mr-2 h-4 w-4" />
-                          <span>{t('admin.dashboard')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/admin/dashboard" className="flex w-full items-center">
+                          <Settings className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('admin.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin/users" className="cursor-pointer flex w-full">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>{t('admin.users')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/admin/users" className="flex w-full items-center">
+                          <User className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('admin.users')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin/departments" className="cursor-pointer flex w-full">
-                          <Settings className="mr-2 h-4 w-4" />
-                          <span>{t('admin.departments')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/admin/departments" className="flex w-full items-center">
+                          <Settings className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('admin.departments')}</span>
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -234,16 +273,16 @@ export default function Navigation() {
                   {/* Official-specific links */}
                   {session?.user?.role === 'official' && (
                     <>
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin/dashboard" className="cursor-pointer flex w-full">
-                          <Settings className="mr-2 h-4 w-4" />
-                          <span>{t('navigation.dashboard')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/admin/dashboard" className="flex w-full items-center">
+                          <Settings className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('navigation.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/issues" className="cursor-pointer flex w-full">
-                          <AlertTriangle className="mr-2 h-4 w-4" />
-                          <span>{t('navigation.reviewIssues')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/issues" className="flex w-full items-center">
+                          <AlertTriangle className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('navigation.reviewIssues')}</span>
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -252,54 +291,58 @@ export default function Navigation() {
                   {/* Citizen-specific links */}
                   {session?.user?.role === 'citizen' && (
                     <>
-                      <DropdownMenuItem asChild>
-                        <Link href="/citizen/dashboard" className="cursor-pointer flex w-full">
-                          <Settings className="mr-2 h-4 w-4" />
-                          <span>{t('navigation.dashboard')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/citizen/dashboard" className="flex w-full items-center">
+                          <Settings className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('navigation.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/issues/report" className="cursor-pointer flex w-full">
-                          <AlertTriangle className="mr-2 h-4 w-4" />
-                          <span>{t('navigation.reportIssue')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/citizen/my-reports" className="flex w-full items-center">
+                          <User className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('citizen.myReports')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/citizen/my-reports" className="cursor-pointer flex w-full">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>{t('citizen.myReports')}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/citizen/community" className="cursor-pointer flex w-full">
-                          <Users className="mr-2 h-4 w-4" />
-                          <span>{t('citizen.community')}</span>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                        <Link href="/citizen/community" className="flex w-full items-center">
+                          <Users className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">{t('citizen.community')}</span>
                         </Link>
                       </DropdownMenuItem>
                     </>
                   )}
                   
                   {status === 'authenticated' && (
-                    <DropdownMenuItem asChild>
-                      <Link href="/notifications" className="cursor-pointer flex w-full">
-                        <Bell className="mr-2 h-4 w-4" />
-                        <span>{t('navigation.notifications')}</span>
+                    <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <Link href="/notifications" className="flex w-full items-center">
+                        <Bell className="mr-3 h-5 w-5 text-gray-500" />
+                        <span className="text-sm font-medium">{t('navigation.notifications')}</span>
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className="cursor-pointer">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>{t('navigation.signOut')}</span>
+                  <DropdownMenuSeparator className="my-2" />
+                  <DropdownMenuItem onClick={() => signOut({ callbackUrl: '/' })} className="p-3 cursor-pointer hover:bg-red-50 rounded-md text-red-600">
+                    <LogOut className="mr-3 h-5 w-5" />
+                    <span className="text-sm font-medium">{t('navigation.signOut')}</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </div>
             ) : (
-              <div className="hidden sm:flex space-x-2 lg:space-x-3">
-                <Button asChild variant="ghost" size="sm" className="mobile-button">
+              <div className="hidden sm:flex items-center space-x-3">
+                <Button 
+                  asChild 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                >
                   <Link href="/auth/signin">{t('navigation.signIn')}</Link>
                 </Button>
-                <Button asChild size="sm" className="mobile-button">
+                <Button 
+                  asChild 
+                  size="sm" 
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
+                >
                   <Link href="/auth/register">{t('navigation.register')}</Link>
                 </Button>
               </div>
@@ -407,15 +450,6 @@ export default function Navigation() {
                     {t('navigation.dashboard')}
                   </Link>
                   <Link
-                    href="/issues/report"
-                    className={`mobile-nav-item block ${
-                      isActive('/issues/report') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {t('navigation.reportIssue')}
-                  </Link>
-                  <Link
                     href="/citizen/my-reports"
                     className={`mobile-nav-item block ${
                       isActive('/citizen/my-reports') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
@@ -452,21 +486,30 @@ export default function Navigation() {
               )}
               
               {status !== 'authenticated' && (
-                <div className="pt-4 border-t border-gray-200 mt-4 space-y-3">
-                  <Link
-                    href="/auth/signin"
-                    className="touch-button w-full text-center border border-gray-300 text-gray-700 hover:bg-gray-50"
-                    onClick={() => setIsMenuOpen(false)}
+                <div className="pt-6 border-t border-gray-200 mt-6 space-y-4">
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full h-12 text-gray-700 border-gray-300 hover:bg-gray-50 font-medium rounded-lg transition-all duration-200"
                   >
-                    {t('navigation.signIn')}
-                  </Link>
-                  <Link
-                    href="/auth/register"
-                    className="touch-button w-full text-center bg-blue-600 text-white hover:bg-blue-700"
-                    onClick={() => setIsMenuOpen(false)}
+                    <Link
+                      href="/auth/signin"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {t('navigation.signIn')}
+                    </Link>
+                  </Button>
+                  <Button
+                    asChild
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
                   >
-                    {t('navigation.register')}
-                  </Link>
+                    <Link
+                      href="/auth/register"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {t('navigation.register')}
+                    </Link>
+                  </Button>
                 </div>
               )}
             </nav>
