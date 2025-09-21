@@ -368,7 +368,7 @@ export default function Navigation() {
 
       {/* Mobile navigation menu */}
       {isMenuOpen && (
-        <div className="lg:hidden animate-slide-down bg-white border-t border-gray-200 safe-area-bottom">
+        <div className="lg:hidden animate-slide-down bg-white border-t border-gray-200 safe-area-bottom absolute top-full left-0 right-0 z-40">
           <div className="px-3 sm:px-4 py-4">
             {/* Language switcher for mobile */}
             <div className="sm:hidden mb-4 pb-4 border-b border-gray-200">

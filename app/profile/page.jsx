@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 // UI Components
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { UserAvatar } from '@/components/ui/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -128,11 +129,12 @@ export default function ProfilePage() {
         <Card className="lg:col-span-1">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <Avatar className="h-24 w-24">
-                <AvatarFallback className="text-2xl">
-                  {getInitials(session?.user?.name)}
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatar 
+                user={session?.user} 
+                size="xl"
+                className="h-24 w-24"
+                showBorder={true}
+              />
             </div>
             <CardTitle className="text-2xl">{session?.user?.name}</CardTitle>
             <div className="flex justify-center">

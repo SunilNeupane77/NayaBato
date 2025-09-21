@@ -4,11 +4,25 @@ import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 
 function LocationMarker({ position, setPosition, address, setAddress }) {
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`
+      );
+      const data = await response.json();
+      return data.display_name || `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    } catch (error) {
+      console.error('Reverse geocoding failed:', error);
+      return `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+    }
+  };
+
   const map = useMapEvents({
-    click: (e) => {
+    click: async (e) => {
       const { lat, lng } = e.latlng;
       setPosition([lat, lng]);
-      setAddress(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+      const locationName = await reverseGeocode(lat, lng);
+      setAddress(locationName);
     },
   });
 

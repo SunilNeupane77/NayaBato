@@ -1,24 +1,21 @@
-# Development overrides for Nayabato
+# Local development overrides
 services:
   nayabato-app:
     build:
-      target: deps
+      target: builder
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
     command: npm run dev
     environment:
       - NODE_ENV=development
       - NEXT_TELEMETRY_DISABLED=1
       - MONGODB_URI=mongodb://mongodb:27017/nayabato
-    volumes:
-      - .:/app
-      - /app/node_modules
-      - /app/.next
-    ports:
-      - "3000:3000"
-      - "9229:9229" # Node.js debugging port
-
-  # Enable mongo-express for development
+      
+  # Enable debugging tools
   mongo-express:
-    image: mongo-express:latest
+    image: docker.io/library/mongo-express:latest
     restart: always
     ports:
       - "8081:8081"

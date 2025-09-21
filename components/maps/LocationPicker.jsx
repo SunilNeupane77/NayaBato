@@ -33,12 +33,25 @@ export default function LocationPicker({
     setIsClient(true);
   }, []);
 
-  const getCurrentLocation = () => {
+  const getCurrentLocation = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords;
           setPosition([latitude, longitude]);
+          
+          // Get location name using reverse geocoding
+          try {
+            const response = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`
+            );
+            const data = await response.json();
+            const locationName = data.display_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+            setAddress(locationName);
+          } catch (error) {
+            console.error('Reverse geocoding failed:', error);
+            setAddress(`${latitude.toFixed(6)}, ${longitude.toFixed(6)}`);
+          }
         },
         (error) => {
           console.error('Error getting location:', error);
@@ -60,7 +73,7 @@ export default function LocationPicker({
       <div className="flex items-center justify-between">
         <label className="block text-sm font-medium text-gray-700">
           <MapPin className="inline w-4 h-4 mr-1" />
-          {t('forms.location')}
+          {t('maps.issueLocation') || t('forms.location')}
         </label>
         <button
           type="button"
@@ -68,7 +81,7 @@ export default function LocationPicker({
           className="flex items-center text-sm text-blue-600 hover:text-blue-500"
         >
           <Navigation className="w-4 h-4 mr-1" />
-          {t('forms.useCurrentLocation')}
+          {t('maps.useCurrentLocation')}
         </button>
       </div>
       
@@ -79,9 +92,12 @@ export default function LocationPicker({
         setAddress={setAddress}
       />
       
-      {address && (
-        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-          <strong>{t('forms.selectedLocation')}:</strong> {address}
+      {address && position && (
+        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg space-y-1">
+          <div><strong>{t('maps.selectedLocation')}:</strong> {address}</div>
+          <div className="text-xs text-gray-500">
+            <strong>{t('maps.coordinates')}:</strong> {position[0].toFixed(6)}, {position[1].toFixed(6)}
+          </div>
         </div>
       )}
     </div>

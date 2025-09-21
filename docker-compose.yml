@@ -1,46 +1,59 @@
 services:
-  app:
+  nayabato-app:
     build:
       context: .
-      args:
-        - MONGODB_URI=mongodb://mongo:27017/nayabato
-        - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-dummy-secret-for-build}
-        - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
-        - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-dummy}
-        - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-dummy}
-        - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-dummy}
+    image: sunilneupane77/nayabato:latest
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - MONGODB_URI=mongodb://mongo:27017/nayabato
-      - NEXTAUTH_URL=http://localhost:3000
-      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
-      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
-      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
-      - EMAIL_SERVER_HOST=${EMAIL_SERVER_HOST}
-      - EMAIL_SERVER_PORT=${EMAIL_SERVER_PORT}
-      - EMAIL_SERVER_USER=${EMAIL_SERVER_USER}
-      - EMAIL_SERVER_PASSWORD=${EMAIL_SERVER_PASSWORD}
-      - EMAIL_FROM=${EMAIL_FROM}
+      - MONGODB_URI=mongodb://mongodb:27017/nayabato
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3000}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET:-default-nextauth-secret}
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME:-dummy}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY:-dummy}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET:-dummy}
+      - EMAIL_SERVER_HOST=${EMAIL_SERVER_HOST:-smtp.gmail.com}
+      - EMAIL_SERVER_PORT=${EMAIL_SERVER_PORT:-587}
+      - EMAIL_SERVER_USER=${EMAIL_SERVER_USER:-dummy}
+      - EMAIL_SERVER_PASSWORD=${EMAIL_SERVER_PASSWORD:-dummy}
+      - EMAIL_USER=${EMAIL_USER:-dummy}
+      - EMAIL_PASS=${EMAIL_PASS:-dummy}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@example.com}
+      - TEST_EMAIL=${TEST_EMAIL}
+      - REPLY_TO_EMAIL=${REPLY_TO_EMAIL}
+      - JWT_SECRET=${JWT_SECRET:-default-jwt-secret}
+      - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
     depends_on:
-      - mongo
+      - mongodb
     networks:
       - nayabato-network
 
-  mongo:
-    image: mongo:7
+  mongodb:
+    image: docker.io/library/mongo:7
     restart: always
     ports:
-      - "27017:27017"
+      - "27018:27017"
     volumes:
       - mongo-data:/data/db
+    networks:
+      - nayabato-network
+      
+  redis:
+    image: redis:alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
     networks:
       - nayabato-network
 
 volumes:
   mongo-data:
+  redis-data:
 
 networks:
   nayabato-network:
