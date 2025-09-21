@@ -48,3 +48,32 @@ export async function GET(request, { params }) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function PUT(request, { params }) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || session.user.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    await connectDB();
+    const body = await request.json();
+
+    const userSession = await UserSession.findOneAndUpdate(
+      { sessionId: params.sessionId },
+      { $set: body },
+      { new: true }
+    ).populate('userId', 'name email role');
+
+    if (!userSession) {
+      return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ session: userSession });
+
+  } catch (error) {
+    console.error('Session update error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}

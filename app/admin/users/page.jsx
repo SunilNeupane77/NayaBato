@@ -27,6 +27,8 @@ export default function UserManagementPage() {
   const [verificationFilter, setVerificationFilter] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [limit] = useState(20);
   const [selectedUser, setSelectedUser] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -81,6 +83,7 @@ export default function UserManagementPage() {
       const data = await response.json();
       setUsers(data.users);
       setTotalPages(data.totalPages);
+      setTotalUsers(data.total);
     } catch (err) {
       setError(err.message);
       toast({
@@ -381,28 +384,35 @@ export default function UserManagementPage() {
             </div>
           )}
           
-          {/* Pagination */}
+          {/* Enhanced Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center mt-6 gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setPage(p => Math.max(p - 1, 1))}
-                disabled={page === 1}
-              >
-                Previous
-              </Button>
-              
-              <span className="flex items-center px-3">
-                Page {page} of {totalPages}
-              </span>
-              
-              <Button
-                variant="outline"
-                onClick={() => setPage(p => Math.min(p + 1, totalPages))}
-                disabled={page === totalPages}
-              >
-                Next
-              </Button>
+            <div className="flex items-center justify-between bg-white px-4 py-3 border-t border-gray-200 mt-6">
+              <div className="flex items-center">
+                <p className="text-sm text-gray-700">
+                  Showing {((page - 1) * limit) + 1} to{' '}
+                  {Math.min(page * limit, totalUsers)} of{' '}
+                  {totalUsers} users
+                </p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setPage(p => Math.max(p - 1, 1))}
+                  disabled={page === 1}
+                >
+                  Previous
+                </Button>
+                <span className="text-sm text-gray-700 px-3">
+                  Page {page} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setPage(p => Math.min(p + 1, totalPages))}
+                  disabled={page === totalPages}
+                >
+                  Next
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>
