@@ -1,217 +1,188 @@
-# Nayabato
+# 🏙️ NayaBato
 
-## Empowering Communities Through Civic Engagement
+**Empowering Communities Through Civic Engagement**
 
-Nayabato is a modern, full-stack web application designed to facilitate civic engagement by providing a platform for citizens to report and track local issues. It aims to foster transparency and accountability between community members and local authorities or relevant departments.
+A modern full-stack web application that bridges the gap between citizens and local authorities, providing a streamlined platform for reporting, tracking, and resolving community issues.
 
-## Problem Statement
+## 🚀 Quick Start
 
-Many communities face challenges in effectively reporting and resolving local issues such as potholes, broken streetlights, illegal dumping, or public safety concerns. Existing reporting mechanisms can be cumbersome, lack transparency, and often leave citizens unaware of the status of their reported issues. This leads to frustration, disengagement, and prolonged unresolved problems.
+```bash
+# Clone repository
+git clone https://github.com/your-username/nayabato.git
+cd nayabato
 
-Nayabato addresses these issues by:
-*   Providing an intuitive and accessible platform for reporting.
-*   Ensuring transparency in the issue resolution process.
-*   Enabling communication and updates between reporters and administrators.
-*   Offering an administrative interface for efficient management and tracking of issues.
+# Install dependencies
+npm install
 
-## Features
+# Setup environment
+cp .env.example .env.local
+# Edit .env.local with your configuration
 
-*   **User Authentication:** Secure registration and sign-in for users.
-*   **Issue Reporting:**
-    *   Detailed issue submission forms.
-    *   Location picking via interactive maps.
-    *   Image upload capabilities (via Cloudinary).
-*   **Issue Tracking & Management:**
-    *   View active and resolved issues.
-    *   Detailed issue pages with status updates.
-    *   Commenting system for discussion and additional information.
-*   **Notifications:** Real-time updates on issue status changes and new comments.
-*   **User Profiles:** Personalized dashboards for managing reported issues and profile information.
-*   **Admin Dashboard:**
-    *   Comprehensive overview of system statistics.
-    *   User management (view, edit, delete).
-    *   Department management.
-    *   Audit logs for tracking system activities.
-*   **Comprehensive Email System:** 
-    *   Automated emails for issue confirmation and status updates.
-    *   Password reset functionality with secure email delivery.
-    *   Comment notifications to keep users engaged.
-    *   Assignment notifications for officials when issues are assigned.
-    *   Weekly digest emails summarizing platform activity.
-    *   Welcome emails for new user onboarding.
-*   **Enhanced Toast Notifications:** 
-    *   Real-time visual feedback with multiple variants (success, error, warning, info).
-    *   Smooth animations including bounce-in effects and progress bars.
-    *   Improved positioning and visibility for better user experience.
-*   **Responsive Design:** Optimized for various devices (desktop, tablet, mobile).
-*   **Legal Pages:** Dedicated Privacy Policy and Terms of Service pages.
+# Run development server
+npm run dev
+```
 
-## Tech Stack
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-Nayabato is built using a modern JavaScript ecosystem, leveraging the power of Next.js for a robust full-stack experience.
+## 🛠️ Tech Stack
 
-*   **Frontend:**
-    *   **Next.js:** React framework for server-side rendering, static site generation, and API routes.
-    *   **React:** JavaScript library for building user interfaces.
-    *   **Tailwind CSS:** A utility-first CSS framework for rapid UI development.
-    *   **Shadcn UI:** Reusable UI components built with Radix UI and Tailwind CSS.
-*   **Backend:**
-    *   **Next.js API Routes:** Serverless functions for handling API requests.
-    *   **Node.js:** JavaScript runtime environment.
-    *   **MongoDB:** NoSQL database for flexible data storage.
-    *   **Mongoose:** MongoDB object data modeling (ODM) for Node.js.
-*   **Authentication:**
-    *   **NextAuth.js:** Flexible authentication for Next.js applications.
-*   **Cloud Services:**
-    *   **Cloudinary:** Cloud-based image and video management.
-    *   **Nodemailer:** Module for sending emails from Node.js applications.
-*   **Other Libraries:**
-    *   `lucide-react`: Beautifully simple and customizable open-source icons.
-    *   `react-query` (or `@tanstack/react-query`): For data fetching, caching, and synchronization.
-    *   `bcryptjs`: For password hashing.
+- **Frontend**: Next.js 15, React 19, Tailwind CSS, Framer Motion
+- **Backend**: Next.js API Routes, MongoDB, Mongoose
+- **Authentication**: NextAuth.js
+- **UI Components**: Radix UI, Shadcn/ui
+- **Maps**: React Leaflet
+- **Email**: Nodemailer
+- **Media**: Cloudinary
+- **Charts**: Recharts
 
-## Project Structure
+## ✨ Key Features
 
-The project follows a standard Next.js application structure with clear separation of concerns:
+### For Citizens
+- **Issue Reporting**: Submit detailed reports with photos and location
+- **Real-time Tracking**: Monitor issue status and progress
+- **Interactive Maps**: Visual location selection and issue browsing
+- **Notifications**: Email updates and in-app notifications
+
+### For Administrators
+- **Dashboard Analytics**: Comprehensive issue statistics and trends
+- **User Management**: Manage citizens and department officials
+- **Department System**: Organize issues by responsible departments
+- **Audit Logs**: Track all system activities
+
+### Communication
+- **Email System**: Automated notifications and weekly digests
+- **Comment System**: Two-way communication on issues
+- **Status Updates**: Real-time progress tracking
+
+## 📁 Project Structure
 
 ```
 nayabato/
-├── app/                      # Next.js App Router: Pages, layouts, and API routes
-│   ├── api/                  # Backend API routes (e.g., /api/issues, /api/auth)
-│   ├── auth/                 # Authentication-related pages (register, signin)
-│   ├── issues/               # Issue-related pages (report, view, list)
-│   ├── admin/                # Admin dashboard pages and layouts
-│   ├── privacy-policy/       # Privacy Policy page
-│   ├── terms-of-service/     # Terms of Service page
-│   ├── favicon.ico           # Favicon
-│   ├── globals.css           # Global CSS styles (Tailwind CSS imports)
-│   ├── layout.js             # Root layout for the application
-│   └── page.jsx              # Home page
-├── components/               # Reusable React components
-│   ├── comments/             # Components for comments (form, item, section)
-│   ├── email/                # Email templates (for Nodemailer)
-│   ├── forms/                # Reusable form components
-│   ├── maps/                 # Map-related components (location picker, issue map)
-│   ├── ui/                   # Shadcn UI components
-│   ├── AuthProvider.jsx      # Context provider for authentication
-│   ├── Footer.jsx            # Application footer
-│   ├── Navigation.jsx        # Application navigation bar
-│   └── QueryProvider.jsx     # Context provider for react-query
-├── lib/                      # Utility functions, configurations, and database connections
-│   ├── auth/                 # Authentication utilities
-│   ├── cloudinary/           # Cloudinary configuration and utilities
-│   ├── db/                   # Database connection and utilities (e.g., audit logs)
-│   ├── email/                # Email sending utilities
-│   ├── hooks/                # Custom React hooks (e.g., API hooks)
-│   ├── config.js             # Application-wide configurations
-│   └── utils.js              # General utility functions
-├── models/                   # Mongoose schemas for MongoDB collections
-│   ├── Audit.js
-│   ├── Comment.js
-│   ├── Department.js
-│   ├── Issue.js
-│   ├── Notification.js
-│   └── User.js
-├── public/                   # Static assets (images, fonts)
-├── .vscode/                  # VS Code specific configurations (launch, tasks)
-├── next.config.mjs           # Next.js configuration
-├── package.json              # Project dependencies and scripts
-├── postcss.config.mjs        # PostCSS configuration (for Tailwind CSS)
-├── tailwind.config.js        # Tailwind CSS configuration
-└── ...                       # Other configuration files (.gitignore, eslint, etc.)
+├── app/                    # Next.js App Router
+│   ├── api/               # Backend API endpoints
+│   ├── auth/              # Authentication pages
+│   ├── admin/             # Admin dashboard
+│   ├── citizen/           # Citizen features
+│   ├── issues/            # Issue management
+│   └── profile/           # User profiles
+├── components/            # React components
+│   ├── ui/               # Shadcn UI components
+│   ├── forms/            # Form components
+│   ├── maps/             # Map components
+│   └── dashboard/        # Dashboard components
+├── lib/                  # Utilities and services
+├── models/               # MongoDB schemas
+└── public/               # Static assets
 ```
 
-## Getting Started
+## 🔧 Environment Setup
 
-Follow these steps to set up and run the project locally.
+Create `.env.local` with:
 
-### Prerequisites
+```env
+# Database
+MONGODB_URI=your_mongodb_connection_string
 
-*   Node.js (v18 or higher recommended)
-*   npm or Yarn
-*   MongoDB instance (local or cloud-hosted)
-*   Cloudinary account (for image uploads)
-*   Email service provider (e.g., Gmail, SendGrid) for sending emails
+# Authentication
+NEXTAUTH_SECRET=your_secret_key
+NEXTAUTH_URL=http://localhost:3000
 
-### Installation
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/your-username/nayabato.git
-    cd nayabato
-    ```
+# Email (Gmail)
+EMAIL_SERVER_HOST=smtp.gmail.com
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=your_email@gmail.com
+EMAIL_SERVER_PASSWORD=your_app_password
+EMAIL_FROM=your_email@gmail.com
+```
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    # or
-    yarn install
-    ```
-
-3.  **Set up Environment Variables:**
-    Create a `.env.local` file in the root of the project and add the following environment variables:
-
-    ```env
-    # MongoDB Connection
-    MONGODB_URI=your_mongodb_connection_string
-
-    # NextAuth.js
-    NEXTAUTH_SECRET=your_nextauth_secret_string # Generate a strong random string
-    NEXTAUTH_URL=http://localhost:3000
-
-    # Cloudinary
-    CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
-    CLOUDINARY_API_KEY=your_cloudinary_api_key
-    CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-    # Email Service (Example for Gmail)
-    EMAIL_SERVER_HOST=smtp.gmail.com
-    EMAIL_SERVER_PORT=587
-    EMAIL_SERVER_USER=your_email@gmail.com
-    EMAIL_SERVER_PASSWORD=your_email_app_password # Use app password for Gmail
-    EMAIL_FROM=your_email@gmail.com
-    ```
-    *   You can generate a strong `NEXTAUTH_SECRET` using `openssl rand -base64 32`.
-    *   For Gmail, you'll need to generate an App Password if you have 2-Step Verification enabled.
-
-### Running the Development Server
+## 🐳 Docker Deployment
 
 ```bash
-npm run dev
-# or
-yarn dev
+# Build and run with Docker Compose
+docker-compose up --build
+
+# Or use the provided script
+./docker-build-run.sh
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+## 📊 Database Models
 
-## Documentation
+- **User**: Citizens, admins, and officials
+- **Issue**: Community problem reports
+- **Comment**: Issue discussions
+- **Department**: Government departments
+- **Ward**: Administrative divisions
+- **Notification**: System notifications
+- **Audit**: Activity logging
 
-For detailed information about recent updates and configuration:
+## 🔐 Authentication & Authorization
 
-*   **[Recent Updates & Enhancements](RECENT_UPDATES.md)** - Comprehensive overview of latest features and improvements
-*   **[Email Configuration Guide](EMAIL_CONFIG.md)** - Step-by-step Gmail setup for Nodemailer
-*   **[Migration Summary](NODEMAILER_MIGRATION_COMPLETE.md)** - Details about the Resend to Nodemailer migration
-*   **[Docker Setup](DOCKER.md)** - Container deployment instructions
-*   **[Docker Summary](DOCKER_SUMMARY.md)** - Docker configuration overview
+- **Role-based access**: Citizen, Admin, Official
+- **Session management**: Secure JWT tokens
+- **Password security**: bcrypt hashing
+- **OTP verification**: Email-based verification
 
-## Contributing
+## 📱 Responsive Design
 
-We welcome contributions to Nayabato! If you'd like to contribute, please follow these steps:
+- Mobile-first approach
+- Optimized for all screen sizes
+- Progressive Web App features
+- Accessible UI components
 
-1.  **Fork the repository.**
-2.  **Create a new branch** for your feature or bug fix:
-    ```bash
-    git checkout -b feature/your-feature-name
-    # or
-    git checkout -b bugfix/issue-description
-    ```
-3.  **Make your changes** and ensure they adhere to the project's coding style.
-4.  **Write clear, concise commit messages.**
-5.  **Push your branch** to your forked repository.
-6.  **Open a Pull Request** to the `main` branch of the original repository, describing your changes in detail.
+## 🚀 Performance Features
 
-Please ensure your code passes linting and tests (if any are implemented).
+- **Server-side rendering** with Next.js
+- **Image optimization** with Cloudinary
+- **Caching strategies** for better performance
+- **Code splitting** and lazy loading
 
-## License
+## 📈 Analytics & Monitoring
 
-This project is licensed under the MIT License - see the `LICENSE` file for details.
+- Issue resolution metrics
+- User activity tracking
+- Department performance analytics
+- System health monitoring
+
+## 🔄 Development Workflow
+
+```bash
+# Development
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Linting
+npm run lint
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🆘 Support
+
+For support and questions:
+- Create an issue on GitHub
+- Contact the development team
+- Check the documentation
+
+---
+
+**Version**: 2.1.0 | **Node.js**: v22.16.0 | **Next.js**: v15.3.5
