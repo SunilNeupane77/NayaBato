@@ -8,8 +8,8 @@ A modern full-stack web application that bridges the gap between citizens and lo
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/nayabato.git
-cd nayabato
+git clone https://github.com/SunilNeupane77/NayaBato.git
+cd NayaBato
 
 # Install dependencies
 npm install
@@ -26,14 +26,16 @@ Open [http://localhost:3000](http://localhost:3000) to view the application.
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 15, React 19, Tailwind CSS, Framer Motion
-- **Backend**: Next.js API Routes, MongoDB, Mongoose
-- **Authentication**: NextAuth.js
-- **UI Components**: Radix UI, Shadcn/ui
-- **Maps**: React Leaflet
-- **Email**: Nodemailer
-- **Media**: Cloudinary
-- **Charts**: Recharts
+| Category | Technology |
+|----------|------------|
+| **Frontend** | Next.js 15, React 19, Tailwind CSS, Framer Motion |
+| **Backend** | Next.js API Routes, MongoDB, Mongoose |
+| **Authentication** | NextAuth.js |
+| **UI Components** | Radix UI, Shadcn/ui |
+| **Maps** | React Leaflet |
+| **Email** | Nodemailer |
+| **Media** | Cloudinary |
+| **Charts** | Recharts |
 
 ## ✨ Key Features
 
