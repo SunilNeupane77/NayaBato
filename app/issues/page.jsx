@@ -292,8 +292,8 @@ export default function IssuesPage() {
               <IssueCard 
                 key={issue._id} 
                 issue={issue} 
-                onDelete={(deletedId) => {
-                  setIssues(prevIssues => prevIssues.filter(issue => issue._id !== deletedId));
+                onDelete={() => {
+                  refetch();
                 }}
               />
             ))}
