@@ -130,6 +130,7 @@ export const authOptions = {
             token.role = dbUser.role;
             token.department = dbUser.department;
             token.verified = dbUser.verified;
+            token.createdAt = dbUser.createdAt;
             
             // Create session for Google login
             try {
@@ -145,6 +146,18 @@ export const authOptions = {
           token.department = user.department;
           token.verified = user.verified;
           token.sessionId = user.sessionId;
+          // For credentials login, fetch createdAt from database
+          if (user.id) {
+            try {
+              await connectDB();
+              const dbUser = await User.findById(user.id).select('createdAt');
+              if (dbUser) {
+                token.createdAt = dbUser.createdAt;
+              }
+            } catch (error) {
+              console.error('Error fetching user createdAt:', error);
+            }
+          }
         }
       }
       return token;
@@ -156,17 +169,22 @@ export const authOptions = {
         session.user.department = token.department;
         session.user.verified = token.verified;
         session.user.sessionId = token.sessionId;
+        session.user.createdAt = token.createdAt;
         
-        // Fetch user avatar from database for Google users
+        // Fetch user data from database
         if (token.id) {
           try {
             await connectDB();
-            const dbUser = await User.findById(token.id).select('avatar');
-            if (dbUser?.avatar) {
-              session.user.image = dbUser.avatar;
+            const dbUser = await User.findById(token.id).select('avatar createdAt');
+            if (dbUser) {
+              // Use database avatar if available, otherwise keep the original session image (for Google users)
+              if (dbUser.avatar) {
+                session.user.image = dbUser.avatar;
+              }
+              session.user.createdAt = dbUser.createdAt;
             }
           } catch (error) {
-            console.error('Error fetching user avatar:', error);
+            console.error('Error fetching user data:', error);
           }
         }
       }
