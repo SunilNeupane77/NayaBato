@@ -72,6 +72,10 @@ const UserSchema = new mongoose.Schema({
     weeklyDigest: {
       type: Boolean,
       default: false
+    },
+    locationSharing: {
+      type: Boolean,
+      default: true
     }
   },
   isNewsletterOnly: {
