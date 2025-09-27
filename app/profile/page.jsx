@@ -45,10 +45,11 @@ export default function ProfilePage() {
       
       try {
         setLoading(true);
-        const [issuesRes, statsRes, notificationsRes] = await Promise.all([
+        const [issuesRes, statsRes, notificationsRes, preferencesRes] = await Promise.all([
           fetch(`/api/issues?reporter=${session.user.id}&limit=5`),
           fetch(`/api/users/stats`),
-          fetch(`/api/notifications?limit=5`)
+          fetch(`/api/notifications?limit=5`),
+          fetch(`/api/users/preferences`)
         ]);
         
         if (issuesRes.ok) {
@@ -64,6 +65,11 @@ export default function ProfilePage() {
         if (notificationsRes.ok) {
           const notificationsData = await notificationsRes.json();
           setNotifications(notificationsData.notifications || []);
+        }
+
+        if (preferencesRes.ok) {
+          const preferencesData = await preferencesRes.json();
+          setUserPreferences(preferencesData.preferences);
         }
       } catch (err) {
         console.error('Error fetching user data:', err);
@@ -87,10 +93,18 @@ export default function ProfilePage() {
       });
       
       if (response.ok) {
-        setUserPreferences(prev => ({ ...prev, [key]: value }));
+        const data = await response.json();
+        setUserPreferences(data.preferences);
+      } else {
+        const errorData = await response.json();
+        console.error('Failed to update preferences:', errorData);
+        // Revert the change
+        setUserPreferences(prev => ({ ...prev, [key]: !value }));
       }
     } catch (error) {
       console.error('Failed to update preferences:', error);
+      // Revert the change
+      setUserPreferences(prev => ({ ...prev, [key]: !value }));
     }
   };
 
@@ -153,7 +167,9 @@ export default function ProfilePage() {
               
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2 text-gray-500" />
-                <span className="text-sm">Joined {formatDate(session?.user?.createdAt || new Date())}</span>
+                <span className="text-sm">
+                  Joined {session?.user?.createdAt ? formatDate(session.user.createdAt) : 'Recently'}
+                </span>
               </div>
               
               {session?.user?.role !== 'citizen' && (
