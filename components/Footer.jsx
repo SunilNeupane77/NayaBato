@@ -1,15 +1,22 @@
 "use client";
 
 import { useLanguage } from '@/lib/i18n/language-context';
-import { Facebook, Instagram, Linkedin, Mail, Phone, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Linkedin, Mail, Phone } from 'lucide-react';
 import Link from 'next/link';
+
+// X (Twitter) Logo Component
+const XIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+  </svg>
+);
 
 export default function Footer() {
   const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
   
   return (
-    <footer className="bg-gray-900 text-gray-400 pt-8 sm:pt-12 mt-auto safe-area-bottom">
+    <footer className="bg-gray-900/80 backdrop-blur-md border-t border-white/10 text-gray-400 pt-8 sm:pt-12 mt-auto safe-area-bottom">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
           {/* About Section */}
@@ -52,16 +59,16 @@ export default function Footer() {
               <span className="text-xs sm:text-sm">9860137848</span>
             </div>
             <div className="flex space-x-3 sm:space-x-4 mt-3 sm:mt-4">
-              <a href="#" className="hover:text-white transition-colors duration-300 touch-target p-1"><Facebook size={20} /></a>
-              <a href="#" className="hover:text-white transition-colors duration-300 touch-target p-1"><Twitter size={20} /></a>
-              <a href="#" className="hover:text-white transition-colors duration-300 touch-target p-1"><Instagram size={20} /></a>
-              <a href="#" className="hover:text-white transition-colors duration-300 touch-target p-1"><Linkedin size={20} /></a>
+              <a href="https://www.facebook.com/sunil.neupane.5264" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-300 touch-target p-1"><Facebook size={20} /></a>
+              <a href="https://x.com/sunilneupane778" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-300 touch-target p-1"><XIcon size={20} /></a>
+              <a href="https://www.instagram.com/sunil_neupane77/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-300 touch-target p-1"><Instagram size={20} /></a>
+              <a href="https://www.linkedin.com/in/sunilneupane77/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors duration-300 touch-target p-1"><Linkedin size={20} /></a>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-gray-800 mt-6 sm:mt-10 pt-4 sm:pt-6 pb-6 sm:pb-8 flex flex-col sm:flex-row justify-between items-center text-xs sm:text-sm text-gray-500 gap-2 sm:gap-0">
-          <p className="text-center sm:text-left">&copy; {currentYear} {t('common.appName')}. {t('footer.rights')}</p>
+        <div className="border-t border-white/10 mt-6 sm:mt-10 pt-4 sm:pt-6 pb-6 sm:pb-8">
+          <p className="text-center text-xs sm:text-sm text-gray-400">&copy; 2025 Nayabato. All Rights Reserved.</p>
         </div>
       </div>
     </footer>
