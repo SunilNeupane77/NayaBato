@@ -240,7 +240,7 @@ export default function WardMapPage({ params }) {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Ward Information</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Ward Information</h3>
               <div className="space-y-1 text-sm">
                 <div><span className="font-medium">Ward Number:</span> {ward.number}</div>
                 <div><span className="font-medium">Ward Name:</span> {ward.name}</div>
@@ -256,7 +256,7 @@ export default function WardMapPage({ params }) {
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Geographic Data</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Geographic Data</h3>
               <div className="space-y-1 text-sm">
                 <div><span className="font-medium">Population:</span> {ward.population?.toLocaleString() || 'N/A'}</div>
                 <div><span className="font-medium">Area:</span> {ward.area || 'N/A'} km²</div>
@@ -275,7 +275,7 @@ export default function WardMapPage({ params }) {
             </div>
 
             <div>
-              <h3 className="font-medium text-gray-900 mb-2">Address & Contact</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-2">Address & Contact</h3>
               <div className="space-y-1 text-sm">
                 {ward.address && (
                   <>
@@ -301,7 +301,7 @@ export default function WardMapPage({ params }) {
           {/* Issue Summary */}
           {issues.length > 0 && (
             <div className="mt-6 pt-6 border-t">
-              <h3 className="font-medium text-gray-900 mb-3">Issue Summary</h3>
+              <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-3">Issue Summary</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gray-600">{issues.length}</div>
@@ -414,7 +414,7 @@ export default function WardMapPage({ params }) {
               {issues.map((issue) => (
                 <div 
                   key={issue._id} 
-                  className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                  className="p-3 border rounded-lg hover:bg-gray-50 dark:bg-gray-900 cursor-pointer"
                   onClick={() => router.push(`/issues/${issue._id}`)}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -430,7 +430,7 @@ export default function WardMapPage({ params }) {
                       {issue.status}
                     </Badge>
                   </div>
-                  <p className="text-xs text-gray-600 mb-2">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                     {issue.description?.substring(0, 100) || 'No description'}
                     {issue.description?.length > 100 && '...'}
                   </p>

@@ -57,7 +57,7 @@ export default function MobileBottomNav() {
   ].filter(item => item.show);
 
   return (
-    <nav className="mobile:block tablet:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 safe-area-bottom z-50">
+    <nav className="mobile:block tablet:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 safe-area-bottom z-50">
       <div className="flex items-center justify-around px-2 py-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -70,7 +70,7 @@ export default function MobileBottomNav() {
               className={`flex flex-col items-center justify-center min-w-0 flex-1 py-2 px-1 rounded-lg transition-all duration-200 touch-target ${
                 active
                   ? 'text-primary bg-primary/10'
-                  : 'text-gray-600 hover:text-primary hover:bg-gray-50 active:bg-gray-100'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-primary hover:bg-gray-50 dark:bg-gray-900 active:bg-gray-100'
               }`}
             >
               <Icon className={`w-5 h-5 mb-1 ${active ? 'text-primary' : 'text-gray-600'}`} />

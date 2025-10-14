@@ -47,7 +47,7 @@ export default function AnalyticsDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Status Distribution */}
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Status Distribution</h3>
           <PieChart width={300} height={200}>
             <Pie
@@ -68,7 +68,7 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Category Breakdown */}
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Issues by Category</h3>
           <BarChart width={300} height={200} data={analytics.categoryStats}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -80,7 +80,7 @@ export default function AnalyticsDashboard() {
         </div>
 
         {/* Resolution Times */}
-        <div className="bg-white p-4 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Resolution Times</h3>
           {analytics.resolutionTimes[0] && (
             <div className="space-y-2">
@@ -93,7 +93,7 @@ export default function AnalyticsDashboard() {
       </div>
 
       {/* Trend Chart */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
         <h3 className="text-lg font-semibold mb-4">Issue Trends</h3>
         <LineChart width={800} height={300} data={analytics.trendData}>
           <CartesianGrid strokeDasharray="3 3" />

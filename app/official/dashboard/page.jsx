@@ -19,7 +19,7 @@ export default function OfficialDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow">
+      <div className="bg-white dark:bg-gray-800 shadow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
@@ -36,7 +36,7 @@ export default function OfficialDashboard() {
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'wards'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                 }`}
               >
                 <MapPin className="inline-block w-4 h-4 mr-2" />
@@ -47,7 +47,7 @@ export default function OfficialDashboard() {
                 className={`py-2 px-1 border-b-2 font-medium text-sm ${
                   activeTab === 'departments'
                     ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:text-gray-300 hover:border-gray-300'
                 }`}
               >
                 <Building className="inline-block w-4 h-4 mr-2" />

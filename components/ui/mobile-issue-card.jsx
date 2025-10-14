@@ -89,7 +89,7 @@ export default function MobileIssueCard({ issue, showActions = true }) {
           </h3>
 
           {/* Description */}
-          <p className="mobile-text text-gray-600 line-clamp-3">
+          <p className="mobile-text text-gray-600 dark:text-gray-400 line-clamp-3">
             {truncateText(issue.description, 120)}
           </p>
 

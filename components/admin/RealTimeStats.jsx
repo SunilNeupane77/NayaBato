@@ -62,7 +62,7 @@ export default function RealTimeStats() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div className="flex items-center">
           <Users className="h-8 w-8 text-blue-500" />
           <div className="ml-4">
@@ -72,7 +72,7 @@ export default function RealTimeStats() {
         </div>
       </div>
       
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div className="flex items-center">
           <Monitor className="h-8 w-8 text-green-500" />
           <div className="ml-4">
@@ -82,7 +82,7 @@ export default function RealTimeStats() {
         </div>
       </div>
       
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div className="flex items-center">
           <Activity className="h-8 w-8 text-purple-500" />
           <div className="ml-4">
@@ -92,7 +92,7 @@ export default function RealTimeStats() {
         </div>
       </div>
       
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <div className="flex items-center">
           <TrendingUp className="h-8 w-8 text-orange-500" />
           <div className="ml-4">

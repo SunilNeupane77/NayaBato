@@ -415,16 +415,16 @@ export default function WardsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={`skeleton-${i}`} className="animate-pulse">
-              <CardHeader className="bg-gray-100 h-20" />
+              <CardHeader className="bg-gray-100 dark:bg-gray-800 h-20" />
               <CardContent className="p-4">
-                <div className="bg-gray-100 h-4 mb-2" />
-                <div className="bg-gray-100 h-4 w-2/3" />
+                <div className="bg-gray-100 dark:bg-gray-800 h-4 mb-2" />
+                <div className="bg-gray-100 dark:bg-gray-800 h-4 w-2/3" />
               </CardContent>
             </Card>
           ))}
         </div>
       ) : wards.length === 0 ? (
-        <Card className="bg-gray-50 border-dashed">
+        <Card className="bg-gray-50 dark:bg-gray-900 border-dashed">
           <CardContent className="pt-6 text-center">
             <Building2 className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No wards found</h3>
@@ -544,7 +544,7 @@ export default function WardsPage() {
 
                 {/* Officer Info */}
                 {ward.officerInCharge && (
-                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
                     <Users className="h-4 w-4 mr-2" />
                     {ward.officerInCharge.name}
                   </div>
@@ -552,7 +552,7 @@ export default function WardsPage() {
 
                 {/* Contact Info */}
                 {ward.contactInfo?.phone && (
-                  <div className="flex items-center text-sm text-gray-600 mb-1">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-1">
                     <Phone className="h-4 w-4 mr-2" />
                     {ward.contactInfo.phone}
                   </div>

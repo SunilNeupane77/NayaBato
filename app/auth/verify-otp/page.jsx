@@ -158,7 +158,7 @@ function VerifyOTPContent() {
             )}
             
             <div className="text-center">
-              <p className="text-sm text-gray-600 mb-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
                 Didn't receive the code?
               </p>
               <Button

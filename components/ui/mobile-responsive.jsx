@@ -36,7 +36,7 @@ export function MobileCard({ children, className, ...props }) {
   return (
     <div 
       className={cn(
-        "bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6",
+        "bg-white dark:bg-gray-800 rounded-lg shadow-sm dark:shadow-gray-900/20 border border-gray-200 dark:border-gray-700 p-4 sm:p-6",
         className
       )}
       {...props}
@@ -149,7 +149,7 @@ export function MobileModal({ children, className, ...props }) {
       )}
       {...props}
     >
-      <div className="bg-white w-full sm:w-auto sm:max-w-lg sm:rounded-lg max-h-[90vh] overflow-y-auto safe-area-bottom">
+      <div className="bg-white dark:bg-gray-800 w-full sm:w-auto sm:max-w-lg sm:rounded-lg max-h-[90vh] overflow-y-auto safe-area-bottom">
         {children}
       </div>
     </div>

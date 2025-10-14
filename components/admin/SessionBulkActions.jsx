@@ -74,7 +74,7 @@ export default function SessionBulkActions({ selectedSessions, onBulkAction, onC
           </button>
           <button
             onClick={onClearSelection}
-            className="px-3 py-1 text-gray-600 border border-gray-300 rounded hover:bg-gray-50"
+            className="px-3 py-1 text-gray-600 dark:text-gray-400 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50"
           >
             Clear
           </button>

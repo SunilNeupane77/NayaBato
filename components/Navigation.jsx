@@ -2,6 +2,7 @@
 
 import { UserAvatar } from '@/components/ui/user-avatar';
 import LanguageSwitcher from '@/components/ui/language-switcher';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useLanguage } from '@/lib/i18n/language-context';
 import { AlertTriangle, Bell, LogOut, Menu, Settings, User, Users, X } from 'lucide-react';
 import { signOut, useSession } from 'next-auth/react';
@@ -49,7 +50,7 @@ export default function Navigation() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 safe-area-top">
+    <header className="bg-background border-b border-border sticky top-0 z-50 safe-area-top">
       <div className="container mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-16 xs:h-16 sm:h-16">
           <div className="flex items-center min-w-0">
@@ -70,7 +71,7 @@ export default function Navigation() {
               className={`${
                 isActive('/') 
                   ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
               } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
             >
               <Link href="/">{t('navigation.home')}</Link>
@@ -82,7 +83,7 @@ export default function Navigation() {
               className={`${
                 isActive('/issues') 
                   ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
               } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
             >
               <Link href="/issues">{t('navigation.issues')}</Link>
@@ -95,7 +96,7 @@ export default function Navigation() {
                 className={`${
                   isActive('/about') 
                     ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                 } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
               >
                 <Link href="/about">{t('navigation.about')}</Link>
@@ -111,7 +112,7 @@ export default function Navigation() {
                   className={`${
                     isActive('/admin/dashboard') 
                       ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                   } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
                   <Link href="/admin/dashboard">{t('admin.dashboard')}</Link>
@@ -123,7 +124,7 @@ export default function Navigation() {
                   className={`${
                     isActive('/admin/users') 
                       ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                   } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
                   <Link href="/admin/users">{t('admin.users')}</Link>
@@ -135,7 +136,7 @@ export default function Navigation() {
                   className={`${
                     isActive('/admin/departments') 
                       ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                   } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
                   <Link href="/admin/departments">{t('admin.departments')}</Link>
@@ -150,7 +151,7 @@ export default function Navigation() {
                 className={`${
                   isActive('/admin/dashboard') 
                     ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                 } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
               >
                 <Link href="/admin/dashboard">{t('navigation.dashboard')}</Link>
@@ -166,7 +167,7 @@ export default function Navigation() {
                   className={`${
                     isActive('/citizen/dashboard') 
                       ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                   } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
                   <Link href="/citizen/dashboard">{t('navigation.dashboard')}</Link>
@@ -178,7 +179,7 @@ export default function Navigation() {
                   className={`${
                     isActive('/citizen/my-reports') 
                       ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                      : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                   } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
                 >
                   <Link href="/citizen/my-reports">{t('citizen.myReports')}</Link>
@@ -193,7 +194,7 @@ export default function Navigation() {
                 className={`${
                   isActive('/notifications') 
                     ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
                 } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
               >
                 <Link href="/notifications">{t('navigation.notifications')}</Link>
@@ -205,11 +206,12 @@ export default function Navigation() {
             <div className="hidden sm:block">
               <LanguageSwitcher />
             </div>
+            <ThemeToggle />
             {status === 'authenticated' ? (
               <div className="flex items-center space-x-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10 hover:bg-gray-100 transition-colors duration-200" aria-label="User menu">
+                    <Button variant="ghost" className="relative rounded-full p-0 h-10 w-10 hover:bg-gray-100 dark:bg-gray-800 transition-colors duration-200" aria-label="User menu">
                       <UserAvatar 
                         user={session?.user} 
                         size="lg"
@@ -233,7 +235,7 @@ export default function Navigation() {
                       />
                       <div className="flex flex-col space-y-1">
                         <p className="text-base font-semibold leading-none">{session?.user?.name}</p>
-                        <p className="text-sm leading-none text-gray-500">{session?.user?.email}</p>
+                        <p className="text-sm leading-none text-gray-500 dark:text-gray-400">{session?.user?.email}</p>
                         <Badge variant="outline" className="w-fit mt-2 text-xs">
                           {session?.user?.role || 'citizen'}
                         </Badge>
@@ -241,9 +243,9 @@ export default function Navigation() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="my-2" />
-                  <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                  <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                     <Link href="/profile" className="flex w-full items-center">
-                      <User className="mr-3 h-5 w-5 text-gray-500" />
+                      <User className="mr-3 h-5 w-5 text-gray-500 dark:text-gray-400" />
                       <span className="text-sm font-medium">{t('navigation.profile')}</span>
                     </Link>
                   </DropdownMenuItem>
@@ -251,19 +253,19 @@ export default function Navigation() {
                   {/* Admin-specific links */}
                   {session?.user?.role === 'admin' && (
                     <>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/admin/dashboard" className="flex w-full items-center">
                           <Settings className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('admin.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/admin/users" className="flex w-full items-center">
                           <User className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('admin.users')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/admin/departments" className="flex w-full items-center">
                           <Settings className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('admin.departments')}</span>
@@ -275,13 +277,13 @@ export default function Navigation() {
                   {/* Official-specific links */}
                   {session?.user?.role === 'official' && (
                     <>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/admin/dashboard" className="flex w-full items-center">
                           <Settings className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('navigation.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/issues" className="flex w-full items-center">
                           <AlertTriangle className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('navigation.reviewIssues')}</span>
@@ -293,19 +295,19 @@ export default function Navigation() {
                   {/* Citizen-specific links */}
                   {session?.user?.role === 'citizen' && (
                     <>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/citizen/dashboard" className="flex w-full items-center">
                           <Settings className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('navigation.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/citizen/my-reports" className="flex w-full items-center">
                           <User className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('citizen.myReports')}</span>
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                         <Link href="/citizen/community" className="flex w-full items-center">
                           <Users className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('citizen.community')}</span>
@@ -315,7 +317,7 @@ export default function Navigation() {
                   )}
                   
                   {status === 'authenticated' && (
-                    <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 rounded-md">
+                    <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
                       <Link href="/notifications" className="flex w-full items-center">
                         <Bell className="mr-3 h-5 w-5 text-gray-500" />
                         <span className="text-sm font-medium">{t('navigation.notifications')}</span>
@@ -336,14 +338,14 @@ export default function Navigation() {
                   asChild 
                   variant="ghost" 
                   size="sm" 
-                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium px-4 py-2 rounded-lg transition-all duration-200"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:bg-gray-800 font-medium px-4 py-2 rounded-lg transition-all duration-200"
                 >
                   <Link href="/auth/signin">{t('navigation.signIn')}</Link>
                 </Button>
                 <Button 
                   asChild 
                   size="sm" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg shadow-sm dark:shadow-gray-900/20 hover:shadow-md transition-all duration-200 transform hover:scale-105"
                 >
                   <Link href="/auth/register">{t('navigation.register')}</Link>
                 </Button>
@@ -368,18 +370,19 @@ export default function Navigation() {
 
       {/* Mobile navigation menu */}
       {isMenuOpen && (
-        <div className="lg:hidden animate-slide-down bg-white border-t border-gray-200 safe-area-bottom absolute top-full left-0 right-0 z-40">
+        <div className="lg:hidden animate-slide-down bg-background border-t border-border safe-area-bottom absolute top-full left-0 right-0 z-40">
           <div className="px-3 sm:px-4 py-4">
-            {/* Language switcher for mobile */}
-            <div className="sm:hidden mb-4 pb-4 border-b border-gray-200">
+            {/* Language switcher and theme toggle for mobile */}
+            <div className="sm:hidden mb-4 pb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <LanguageSwitcher />
+              <ThemeToggle />
             </div>
             
             <nav className="space-y-1">
               <Link
                 href="/"
                 className={`mobile-nav-item block ${
-                  isActive('/') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                  isActive('/') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -388,7 +391,7 @@ export default function Navigation() {
               <Link
                 href="/issues"
                 className={`mobile-nav-item block ${
-                  isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                  isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -398,7 +401,7 @@ export default function Navigation() {
                 <Link
                   href="/about"
                   className={`mobile-nav-item block ${
-                    isActive('/about') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    isActive('/about') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -411,7 +414,7 @@ export default function Navigation() {
                 <Link
                   href="/admin/dashboard"
                   className={`mobile-nav-item block ${
-                    isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    isActive('/admin/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -424,7 +427,7 @@ export default function Navigation() {
                   <Link
                     href="/admin/users"
                     className={`mobile-nav-item block ${
-                      isActive('/admin/users') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                      isActive('/admin/users') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -433,7 +436,7 @@ export default function Navigation() {
                   <Link
                     href="/admin/departments"
                     className={`mobile-nav-item block ${
-                      isActive('/admin/departments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                      isActive('/admin/departments') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -447,7 +450,7 @@ export default function Navigation() {
                   <Link
                     href="/citizen/dashboard"
                     className={`mobile-nav-item block ${
-                      isActive('/citizen/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                      isActive('/citizen/dashboard') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -456,7 +459,7 @@ export default function Navigation() {
                   <Link
                     href="/citizen/my-reports"
                     className={`mobile-nav-item block ${
-                      isActive('/citizen/my-reports') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                      isActive('/citizen/my-reports') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                     }`}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -469,7 +472,7 @@ export default function Navigation() {
                 <Link
                   href="/issues"
                   className={`mobile-nav-item block ${
-                    isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -481,7 +484,7 @@ export default function Navigation() {
                 <Link
                   href="/notifications"
                   className={`mobile-nav-item block ${
-                    isActive('/notifications') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 hover:bg-gray-50'
+                    isActive('/notifications') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -490,11 +493,11 @@ export default function Navigation() {
               )}
               
               {status !== 'authenticated' && (
-                <div className="pt-6 border-t border-gray-200 mt-6 space-y-4">
+                <div className="pt-6 border-t border-gray-200 dark:border-gray-700 mt-6 space-y-4">
                   <Button
                     asChild
                     variant="outline"
-                    className="w-full h-12 text-gray-700 border-gray-300 hover:bg-gray-50 font-medium rounded-lg transition-all duration-200"
+                    className="w-full h-12 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:bg-gray-900 font-medium rounded-lg transition-all duration-200"
                   >
                     <Link
                       href="/auth/signin"
@@ -505,7 +508,7 @@ export default function Navigation() {
                   </Button>
                   <Button
                     asChild
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm hover:shadow-md transition-all duration-200"
+                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-sm dark:shadow-gray-900/20 hover:shadow-md transition-all duration-200"
                   >
                     <Link
                       href="/auth/register"

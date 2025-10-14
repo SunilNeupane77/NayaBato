@@ -147,30 +147,30 @@ export default function OfficialIssueManager() {
       
       {/* Statistics cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-gray-500">
-          <p className="text-sm text-gray-500 mb-1">{t('issues.totalIssues')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('issues.totalIssues')}</p>
           <p className="text-2xl font-bold">{stats.total}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-amber-500">
-          <p className="text-sm text-gray-500 mb-1">{t('issues.statuses.reported')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-amber-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('issues.statuses.reported')}</p>
           <p className="text-2xl font-bold text-amber-500">{stats.reported}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-blue-500">
-          <p className="text-sm text-gray-500 mb-1">{t('issues.statuses.inProgress')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-blue-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('issues.statuses.inProgress')}</p>
           <p className="text-2xl font-bold text-blue-500">{stats.inProgress}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-green-500">
-          <p className="text-sm text-gray-500 mb-1">{t('issues.statuses.resolved')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-green-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('issues.statuses.resolved')}</p>
           <p className="text-2xl font-bold text-green-500">{stats.resolved}</p>
         </div>
-        <div className="bg-white rounded-lg shadow p-4 border-l-4 border-red-500">
-          <p className="text-sm text-gray-500 mb-1">{t('issues.statuses.rejected')}</p>
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border-l-4 border-red-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('issues.statuses.rejected')}</p>
           <p className="text-2xl font-bold text-red-500">{stats.rejected}</p>
         </div>
       </div>
       
       {/* Issues management section */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h2 className="text-2xl font-bold mb-4">{t('issues.manageDepartmentIssues')}</h2>
         <DataTable 
           columns={columns(handleStatusChange, handleDelete)} 

@@ -174,9 +174,9 @@ export default function IssueDetailPage() {
             defaultValue="details" 
             value={activeTab} 
             onValueChange={setActiveTab} 
-            className="bg-white rounded-lg shadow-sm"
+            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm"
           >
-            <TabsList className="mb-6 grid grid-cols-4 p-1.5 bg-gray-50 rounded-t-lg border-b gap-1">
+            <TabsList className="mb-6 grid grid-cols-4 p-1.5 bg-gray-50 dark:bg-gray-900 rounded-t-lg border-b gap-1">
               {[
                 { id: 'details', icon: '📄' },
                 { id: 'images', icon: '🖼️' },
@@ -186,7 +186,7 @@ export default function IssueDetailPage() {
                 <TabsTrigger 
                   key={tab.id} 
                   value={tab.id}
-                  className="data-[state=active]:bg-white data-[state=active]:shadow-md data-[state=active]:text-blue-600 font-medium transition-all duration-200"
+                  className="data-[state=active]:bg-white dark:bg-gray-800 data-[state=active]:shadow-md data-[state=active]:text-blue-600 font-medium transition-all duration-200"
                 >
                   <span className="mr-1.5">{tab.icon}</span>
                   {tab.id.charAt(0).toUpperCase() + tab.id.slice(1)}
@@ -197,56 +197,56 @@ export default function IssueDetailPage() {
             <TabsContent value="details" className="p-6">
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200 flex items-center">
                     <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
                       <span className="text-sm font-medium">1</span>
                     </span>
                     Description
                   </h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border">
-                    <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">{issue.description}</p>
+                  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
+                    <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">{issue.description}</p>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200 flex items-center">
                     <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
                       <span className="text-sm font-medium">2</span>
                     </span>
                     Category & Details
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 p-4 rounded-lg border">
-                      <p className="text-sm text-gray-500 mb-1">Category</p>
-                      <p className="font-medium text-gray-800 capitalize">{issue.category}</p>
+                    <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Category</p>
+                      <p className="font-medium text-gray-800 dark:text-gray-200 capitalize">{issue.category}</p>
                     </div>
-                    <div className="bg-gray-50 p-4 rounded-lg border">
-                      <p className="text-sm text-gray-500 mb-1">Priority</p>
-                      <p className="font-medium text-gray-800 capitalize">{issue.priority || 'Normal'}</p>
+                    <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Priority</p>
+                      <p className="font-medium text-gray-800 dark:text-gray-200 capitalize">{issue.priority || 'Normal'}</p>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800 flex items-center">
+                  <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200 flex items-center">
                     <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
                       <span className="text-sm font-medium">3</span>
                     </span>
                     Location
                   </h3>
-                  <div className="bg-gray-50 p-4 rounded-lg border">
+                  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
                     {issue.location?.address ? (
                       <div className="mb-4 flex items-start">
                         <MapPin className="inline-block mr-2 text-blue-500 shrink-0 mt-1" />
                         <span className="text-gray-700">{issue.location.address}</span>
                       </div>
-                    ) : <div className="text-gray-500 mb-4">No address provided</div>}
+                    ) : <div className="text-gray-500 dark:text-gray-400 mb-4">No address provided</div>}
                     {issue.location?.coordinates ? (
                       <div className="h-80 rounded-lg overflow-hidden border">
                         <IssueLocationMap location={issue.location} />
                       </div>
                     ) : (
-                      <div className="h-60 rounded-lg flex items-center justify-center text-gray-500 bg-gray-100">
+                      <div className="h-60 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100">
                         Map unavailable
                       </div>
                     )}
@@ -256,7 +256,7 @@ export default function IssueDetailPage() {
             </TabsContent>
 
             <TabsContent value="images" className="p-6">
-              <div className="bg-gray-50 p-4 rounded-lg border">
+              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
                 <h3 className="text-lg font-semibold mb-4 flex items-center justify-between">
                   <span>Issue Images</span>
                   <Badge variant="outline" className="font-normal">
@@ -265,7 +265,7 @@ export default function IssueDetailPage() {
                 </h3>
                 {Array.isArray(issue.images) && issue.images.length ? (
                   <>
-                    <div className="relative w-full aspect-video border rounded-lg mb-4 bg-white shadow-sm overflow-hidden">
+                    <div className="relative w-full aspect-video border rounded-lg mb-4 bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-900/20 overflow-hidden">
                       <Image 
                         src={issue.images[activeImageIndex]?.url || ''} 
                         alt={`Image ${activeImageIndex+1}`} 
@@ -292,7 +292,7 @@ export default function IssueDetailPage() {
                       {issue.images.map((img, idx) => (
                         <div 
                           key={idx} 
-                          className={`aspect-video border-2 rounded-md cursor-pointer overflow-hidden shadow-sm transition-transform hover:scale-105 ${idx === activeImageIndex ? 'border-blue-500 ring-2 ring-blue-200' : 'border-transparent'}`} 
+                          className={`aspect-video border-2 rounded-md cursor-pointer overflow-hidden shadow-sm dark:shadow-gray-900/20 transition-transform hover:scale-105 ${idx === activeImageIndex ? 'border-blue-500 ring-2 ring-blue-200' : 'border-transparent'}`} 
                           onClick={() => setActiveImageIndex(idx)}
                         >
                           <div className="relative w-full h-full">
@@ -319,7 +319,7 @@ export default function IssueDetailPage() {
             </TabsContent>
 
             <TabsContent value="activity" className="p-6">
-              <div className="bg-gray-50 p-4 rounded-lg border">
+              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
                 <h3 className="text-lg font-semibold mb-4">Issue Timeline</h3>
                 
                 {(Array.isArray(issue.statusHistory) && issue.statusHistory.length > 0) ? (
@@ -337,18 +337,18 @@ export default function IssueDetailPage() {
                           <span className="text-white text-xs font-bold">{i+1}</span>
                         </span>
                         
-                        <div className={`bg-white p-5 rounded-lg shadow-md border border-l-4 ${h.status === 'resolved' ? 'border-l-green-500' : h.status === 'rejected' ? 'border-l-red-500' : h.status === 'in-progress' ? 'border-l-yellow-500' : 'border-l-blue-500'}`}>
+                        <div className={`bg-white dark:bg-gray-800 p-5 rounded-lg shadow-md border border-l-4 ${h.status === 'resolved' ? 'border-l-green-500' : h.status === 'rejected' ? 'border-l-red-500' : h.status === 'in-progress' ? 'border-l-yellow-500' : 'border-l-blue-500'}`}>
                           <div className="flex flex-wrap items-center justify-between mb-3">
                             <Badge className={`${STATUS_COLORS[h.status]} text-white px-3 py-1 rounded-full`}>
                               {formatStatus(h.status)}
                             </Badge>
-                            <span className="text-sm text-gray-500 bg-gray-50 px-2 py-1 rounded-full font-mono">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 px-2 py-1 rounded-full font-mono">
                               {formatDate(h.updatedAt)}
                             </span>
                           </div>
                           
                           <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100">
-                            <div className="bg-gray-100 rounded-full p-1">
+                            <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-1">
                               <User className="h-4 w-4 text-gray-700" />
                             </div>
                             <span className="font-medium">{h.updatedBy?.name || 'System'}</span>
@@ -360,8 +360,8 @@ export default function IssueDetailPage() {
                           </div>
                           
                           {h.notes ? (
-                            <div className="text-gray-700 bg-gray-50 p-3 rounded-md border border-gray-100 text-sm">
-                              <p className="italic text-xs text-gray-500 mb-1">Notes:</p>
+                            <div className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 text-sm">
+                              <p className="italic text-xs text-gray-500 dark:text-gray-400 mb-1">Notes:</p>
                               {h.notes}
                             </div>
                           ) : (
@@ -402,7 +402,7 @@ export default function IssueDetailPage() {
                 </div>
                 <span className="font-medium">{issue.reporter?.name || 'Unknown'}</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600 ml-1">
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 ml-1">
                 <Calendar className="h-4 w-4 text-gray-500" /> {formatDate(issue.createdAt)}
               </div>
             </CardContent>
@@ -426,7 +426,7 @@ export default function IssueDetailPage() {
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-1">New Status</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">New Status</label>
                         <Select value={newStatus} onValueChange={setNewStatus}>
                           <SelectTrigger className="border-gray-300">
                             <SelectValue placeholder="Select status" />
@@ -439,7 +439,7 @@ export default function IssueDetailPage() {
                         </Select>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-1">Priority</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Priority</label>
                         <Select value={newPriority} onValueChange={setNewPriority}>
                           <SelectTrigger className="border-gray-300">
                             <SelectValue placeholder="Select priority" />
@@ -453,13 +453,13 @@ export default function IssueDetailPage() {
                         </Select>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-1">Notes (optional)</label>
+                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Notes (optional)</label>
                         <Textarea 
                           placeholder="Add details about this update..." 
                           value={notes} 
                           onChange={e => setNotes(e.target.value)} 
                           rows={3}
-                          className="border-gray-300 resize-none" 
+                          className="border-gray-300 dark:border-gray-600 resize-none" 
                         />
                       </div>
                     </div>
@@ -497,7 +497,7 @@ export default function IssueDetailPage() {
                   <span className="font-medium">{issue.assignedTo?.name || 'Unknown'}</span>
                 </div>
                 {issue.assignedTo?.department && (
-                  <div className="ml-10 text-sm text-gray-600 mt-1 flex items-center gap-1">
+                  <div className="ml-10 text-sm text-gray-600 dark:text-gray-400 mt-1 flex items-center gap-1">
                     <span className="w-1.5 h-1.5 bg-green-500 rounded-full inline-block"></span>
                     <span>{issue.assignedTo.department}</span>
                   </div>

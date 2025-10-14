@@ -304,7 +304,7 @@ export default function ProfilePage() {
                       {userIssues.map((issue) => (
                         <div 
                           key={issue._id} 
-                          className="p-4 border rounded-lg hover:bg-gray-50 transition cursor-pointer"
+                          className="p-4 border rounded-lg hover:bg-gray-50 dark:bg-gray-900 transition cursor-pointer"
                           onClick={() => router.push(`/issues/${issue._id}`)}
                         >
                           <div className="flex justify-between items-start mb-2">
@@ -317,7 +317,7 @@ export default function ProfilePage() {
                               {issue.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center text-sm text-gray-500 mb-2">
+                          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
                             <MapPin className="h-4 w-4 mr-1" />
                             {issue.location?.address}
                           </div>
@@ -377,12 +377,12 @@ export default function ProfilePage() {
                   {notifications.length > 0 ? (
                     <div className="space-y-4">
                       {notifications.map((notification) => (
-                        <div key={notification._id} className="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div key={notification._id} className="flex items-start space-x-3 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                           <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                           <div className="flex-1">
                             <p className="text-sm font-medium">{notification.title}</p>
                             <p className="text-sm text-gray-600">{notification.message}</p>
-                            <p className="text-xs text-gray-500 mt-1">{formatDate(notification.createdAt)}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{formatDate(notification.createdAt)}</p>
                           </div>
                         </div>
                       ))}

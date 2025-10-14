@@ -65,7 +65,7 @@ export default function CitizenDashboard() {
       case 'resolved': return 'bg-green-100 text-green-800';
       case 'in-progress': return 'bg-yellow-100 text-yellow-800';
       case 'under-review': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      default: return 'bg-gray-100 dark:bg-gray-800 text-gray-800';
     }
   };
 
@@ -109,7 +109,7 @@ export default function CitizenDashboard() {
                 </div>
               </div>
             </div>
-            <Button asChild className="bg-white text-teal-600 hover:bg-gray-50 font-semibold shadow-lg w-full sm:w-auto">
+            <Button asChild className="bg-white dark:bg-gray-800 text-teal-600 hover:bg-gray-50 dark:bg-gray-900 font-semibold shadow-lg w-full sm:w-auto">
               <Link href="/issues/report">
                 <Plus className="w-4 h-4 mr-2" />
                 {t('citizen.dashboard.reportNewIssue')}
@@ -249,14 +249,14 @@ export default function CitizenDashboard() {
               {stats.recentIssues?.length > 0 ? (
                 <div className="space-y-3 sm:space-y-4">
                   {stats.recentIssues.slice(0, 5).map((issue) => (
-                    <div key={issue._id} className="group p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-teal-50 hover:to-cyan-50 transition-all duration-300 border border-gray-200 hover:border-teal-200">
+                    <div key={issue._id} className="group p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-teal-50 hover:to-cyan-50 transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:border-teal-200">
                       <div className="flex items-center justify-between mb-2">
-                        <h4 className="font-semibold text-gray-900 truncate text-sm sm:text-base group-hover:text-teal-700 transition-colors">{issue.title}</h4>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate text-sm sm:text-base group-hover:text-teal-700 transition-colors">{issue.title}</h4>
                         <Badge className={`${getStatusColor(issue.status)} ml-2 text-xs shadow-sm`}>
                           {issue.status.replace('-', ' ')}
                         </Badge>
                       </div>
-                      <div className="flex items-center text-xs sm:text-sm text-gray-600 group-hover:text-teal-600 transition-colors">
+                      <div className="flex items-center text-xs sm:text-sm text-gray-600 dark:text-gray-400 group-hover:text-teal-600 transition-colors">
                         <MapPin className="w-3 h-3 mr-1 flex-shrink-0" />
                         <span className="truncate">{issue.location?.address || t('citizen.dashboard.unknownLocation')}</span>
                       </div>
@@ -275,8 +275,8 @@ export default function CitizenDashboard() {
                   <div className="w-16 h-16 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Camera className="w-8 h-8 text-teal-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{t('citizen.dashboard.noReportsYet')}</h3>
-                  <p className="text-gray-600 text-sm sm:text-base mb-6">{t('citizen.dashboard.startMakingDifference')}</p>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t('citizen.dashboard.noReportsYet')}</h3>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base mb-6">{t('citizen.dashboard.startMakingDifference')}</p>
                   <Button asChild className="bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600">
                     <Link href="/issues/report" className="flex items-center gap-2">
                       <Plus className="w-4 h-4" />
@@ -358,15 +358,15 @@ export default function CitizenDashboard() {
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {stats.achievements.map((achievement, index) => (
-                  <div key={index} className="group relative overflow-hidden bg-white rounded-xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-yellow-200 hover:border-yellow-300">
+                  <div key={index} className="group relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-yellow-200 hover:border-yellow-300">
                     <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full -translate-y-8 translate-x-8"></div>
                     <div className="relative flex items-start gap-4">
                       <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-lg flex-shrink-0 group-hover:scale-110 transition-transform">
                         <Star className="w-6 h-6 text-white" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-gray-900 text-sm sm:text-base mb-1">{achievement.title}</h4>
-                        <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{achievement.description}</p>
+                        <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm sm:text-base mb-1">{achievement.title}</h4>
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 leading-relaxed">{achievement.description}</p>
                       </div>
                     </div>
                   </div>

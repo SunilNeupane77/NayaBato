@@ -12,7 +12,7 @@ const DynamicMap = dynamic(() => import('./MapComponent'), {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const { t } = useLanguage();
     return (
-      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
         <div className="text-gray-500">{t('common.loadingMap')}</div>
       </div>
     );
@@ -62,7 +62,7 @@ export default function LocationPicker({
 
   if (!isClient) {
     return (
-      <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center">
+      <div className="w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
         <div className="text-gray-500">{t('common.loadingMap')}</div>
       </div>
     );
@@ -93,7 +93,7 @@ export default function LocationPicker({
       />
       
       {address && position && (
-        <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg space-y-1">
+        <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg space-y-1">
           <div><strong>{t('maps.selectedLocation')}:</strong> {address}</div>
           <div className="text-xs text-gray-500">
             <strong>{t('maps.coordinates')}:</strong> {position[0].toFixed(6)}, {position[1].toFixed(6)}

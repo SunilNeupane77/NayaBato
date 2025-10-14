@@ -544,13 +544,13 @@ export default function DepartmentsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <Card key={i} className="overflow-hidden">
-              <CardHeader className="animate-pulse bg-gray-100 h-20" />
+              <CardHeader className="animate-pulse bg-gray-100 dark:bg-gray-800 h-20" />
               <CardContent className="mt-4">
-                <div className="animate-pulse bg-gray-100 h-4 mb-2" />
-                <div className="animate-pulse bg-gray-100 h-4 w-2/3 mb-4" />
+                <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-4 mb-2" />
+                <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-4 w-2/3 mb-4" />
                 <div className="flex justify-between">
-                  <div className="animate-pulse bg-gray-100 h-6 w-16 rounded-full" />
-                  <div className="animate-pulse bg-gray-100 h-6 w-12" />
+                  <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-6 w-16 rounded-full" />
+                  <div className="animate-pulse bg-gray-100 dark:bg-gray-800 h-6 w-12" />
                 </div>
               </CardContent>
             </Card>
@@ -569,7 +569,7 @@ export default function DepartmentsPage() {
       
       {/* Empty State */}
       {!loading && !error && filteredDepartments.length === 0 && (
-        <Card className="bg-gray-50 border-dashed">
+        <Card className="bg-gray-50 dark:bg-gray-900 border-dashed">
           <CardContent className="pt-6 text-center">
             <Building className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No departments found</h3>
@@ -601,7 +601,7 @@ export default function DepartmentsPage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDepartments.map((department) => (
-              <Card key={department._id} className={`overflow-hidden transition-all hover:shadow-lg ${!department.isActive && 'bg-gray-50 opacity-80'}`}>
+              <Card key={department._id} className={`overflow-hidden transition-all hover:shadow-lg ${!department.isActive && 'bg-gray-50 dark:bg-gray-900 opacity-80'}`}>
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start">
                     <div className="flex items-center space-x-3 flex-1">
@@ -675,7 +675,7 @@ export default function DepartmentsPage() {
 
                 {/* Head Officer */}
                 {department.headOfficer && (
-                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
                     <Users className="h-4 w-4 mr-2" />
                     {department.headOfficer.name}
                   </div>
@@ -683,14 +683,14 @@ export default function DepartmentsPage() {
 
                 {/* Budget Info */}
                 {department.budget && department.budget.allocated > 0 && (
-                  <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
                     <DollarSign className="h-4 w-4 mr-2" />
                     ${department.budget.allocated.toLocaleString()} allocated
                   </div>
                 )}
               </CardContent>
               
-              <CardFooter className="border-t bg-gray-50 flex justify-between items-center">
+              <CardFooter className="border-t bg-gray-50 dark:bg-gray-900 flex justify-between items-center">
                 <Badge variant={department.isActive ? "default" : "outline"}>
                   {department.isActive ? 'Active' : 'Inactive'}
                 </Badge>
@@ -922,7 +922,7 @@ export default function DepartmentsPage() {
                         }}
                       ></div>
                     </div>
-                    <p className="text-sm text-gray-600 mt-1">
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                       {((formData.budget.spent / formData.budget.allocated) * 100).toFixed(1)}% utilized
                     </p>
                   </div>

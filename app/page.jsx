@@ -40,13 +40,13 @@ const staggerContainer = {
 const FeatureCard = ({ icon, title, children }) => (
   <motion.div
     variants={fadeIn}
-    className="flex flex-col items-center text-center p-8 rounded-2xl bg-white/70 backdrop-blur-xl border border-gray-100 shadow-sm hover:shadow-lg hover:shadow-teal-500/20 transition-all"
+    className="flex flex-col items-center text-center p-8 rounded-2xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-lg hover:shadow-teal-500/20 dark:hover:shadow-teal-400/20 transition-all"
   >
     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-400 to-cyan-500 flex items-center justify-center mb-5 shadow-md">
       {icon}
     </div>
-    <h3 className="text-lg font-semibold mb-2 text-gray-800">{title}</h3>
-    <p className="text-gray-600 text-sm">{children}</p>
+    <h3 className="text-lg font-semibold mb-2 text-gray-800 dark:text-gray-200">{title}</h3>
+    <p className="text-gray-600 dark:text-gray-400 text-sm">{children}</p>
   </motion.div>
 );
 
@@ -54,15 +54,15 @@ const FeatureCard = ({ icon, title, children }) => (
 const StatCard = ({ number, label, icon }) => (
   <motion.div
     variants={fadeIn}
-    className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100"
+    className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700"
   >
     <div className="flex items-center gap-3 sm:gap-4">
-      <div className="p-2 sm:p-3 rounded-lg bg-teal-50 text-teal-600 flex-shrink-0">
+      <div className="p-2 sm:p-3 rounded-lg bg-teal-50 dark:bg-teal-900/30 text-teal-600 dark:text-teal-400 flex-shrink-0">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-2xl sm:text-3xl font-bold text-gray-800 truncate">{number}</p>
-        <p className="text-xs sm:text-sm text-gray-500 truncate">{label}</p>
+        <p className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200 truncate">{number}</p>
+        <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">{label}</p>
       </div>
     </div>
   </motion.div>
@@ -85,7 +85,7 @@ export default function HomePage() {
   const { t } = useLanguage();
   
   return (
-    <div className="flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100">
+    <div className="flex flex-col bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* Hero Section with Abstract Shapes */}
       <motion.section
         className="relative overflow-hidden bg-gradient-to-br from-teal-600 via-cyan-600 to-indigo-600 text-white py-16 sm:py-20 lg:py-28"
@@ -221,10 +221,10 @@ export default function HomePage() {
               <Zap size={16} className="mr-2" />
               {t('home.process.sectionHeading')}
             </div>
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               {t('home.process.sectionTitle')}
             </h2>
-            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            <p className="text-gray-600 dark:text-gray-400 text-lg max-w-2xl mx-auto">
               {t('home.process.sectionDescription')}
             </p>
           </div>

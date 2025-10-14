@@ -98,7 +98,7 @@ export default function MyReportsPage() {
       case 'in-progress': return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'under-review': return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      default: return 'bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200';
     }
   };
 
@@ -144,7 +144,7 @@ export default function MyReportsPage() {
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                     {t('citizen.myReports')}
                   </h1>
-                  <p className="text-gray-600 flex items-center gap-2">
+                  <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
                     <Activity className="w-4 h-4" />
                     Track and manage your civic contributions
                   </p>
@@ -170,7 +170,7 @@ export default function MyReportsPage() {
                 </div>
               </div>
               <div className="text-2xl font-bold text-gray-900">{issues.length}</div>
-              <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
+              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
                 <Target className="w-3 h-3" />
                 Total Reports
               </div>
@@ -187,7 +187,7 @@ export default function MyReportsPage() {
               <div className="text-2xl font-bold text-emerald-600">
                 {issues.filter(i => i.status === 'resolved').length}
               </div>
-              <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
+              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
                 <Award className="w-3 h-3" />
                 Resolved
               </div>
@@ -204,7 +204,7 @@ export default function MyReportsPage() {
               <div className="text-2xl font-bold text-amber-600">
                 {issues.filter(i => i.status === 'in-progress').length}
               </div>
-              <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
+              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
                 <Zap className="w-3 h-3" />
                 In Progress
               </div>
@@ -221,7 +221,7 @@ export default function MyReportsPage() {
               <div className="text-2xl font-bold text-blue-600">
                 {issues.filter(i => i.status === 'under-review').length}
               </div>
-              <div className="text-sm text-gray-600 flex items-center justify-center gap-1">
+              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
                 <Shield className="w-3 h-3" />
                 Under Review
               </div>
@@ -240,7 +240,7 @@ export default function MyReportsPage() {
                     placeholder="Search your reports by title or description..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-12 h-12 bg-white/50 border-gray-200 focus:bg-white transition-colors"
+                    className="pl-12 h-12 bg-white/50 border-gray-200 dark:border-gray-700 focus:bg-white dark:bg-gray-800 transition-colors"
                   />
                 </div>
               </div>
@@ -301,7 +301,7 @@ export default function MyReportsPage() {
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900 truncate flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate flex items-center gap-2">
                           <div className="p-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-md">
                             <FileText className="w-4 h-4 text-white" />
                           </div>
@@ -313,19 +313,19 @@ export default function MyReportsPage() {
                         </Badge>
                       </div>
                       
-                      <p className="text-gray-600 mb-4 text-sm leading-relaxed line-clamp-2">{issue.description}</p>
+                      <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm leading-relaxed line-clamp-2">{issue.description}</p>
                       
                       <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-gray-500">
-                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
+                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
                           <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
                           <span className="truncate">{issue.location?.address || 'Unknown location'}</span>
                         </div>
-                        <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
+                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
                           <Calendar className="w-4 h-4 text-green-500 flex-shrink-0" />
                           <span>{formatDate(issue.createdAt)}</span>
                         </div>
                         {issue.comments?.length > 0 && (
-                          <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full">
+                          <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
                             <MessageSquare className="w-4 h-4 text-purple-500 flex-shrink-0" />
                             <span>{issue.comments.length} comments</span>
                           </div>
@@ -333,7 +333,7 @@ export default function MyReportsPage() {
                       </div>
                     </div>
                     
-                    <Button variant="outline" size="sm" asChild className="w-full sm:w-auto bg-white/50 hover:bg-white border-gray-200 hover:border-blue-300 transition-colors">
+                    <Button variant="outline" size="sm" asChild className="w-full sm:w-auto bg-white/50 hover:bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 transition-colors">
                       <Link href={`/issues/${issue._id}`}>
                         <Eye className="w-4 h-4 mr-2" />
                         View Details
@@ -351,11 +351,11 @@ export default function MyReportsPage() {
                     <Search className="w-10 h-10" />
                   </div>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2 flex items-center justify-center gap-2">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center justify-center gap-2">
                   <Users className="w-5 h-5" />
                   No reports found
                 </h3>
-                <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
                   {searchTerm || statusFilter !== 'all' 
                     ? 'Try adjusting your search criteria or filters to find what you\'re looking for'
                     : 'Start making a difference in your community by submitting your first report'

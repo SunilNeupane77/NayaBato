@@ -33,14 +33,14 @@ function SignInContent() {
   };
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex">
       {/* Left Side - Form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <Button
             variant="ghost"
             size="sm"
-            className="mb-6 text-gray-600 hover:text-gray-900"
+            className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900"
             onClick={() => router.back()}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -59,7 +59,7 @@ function SignInContent() {
                 <div className="w-16 h-16 bg-gradient-to-r from-teal-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-8 h-8 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   {t('auth.signInTitle')}
                 </h1>
                 <p className="text-gray-600">
@@ -126,7 +126,7 @@ function SignInContent() {
 export default function SignInPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-teal-50 via-white to-cyan-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <Card className="border-0 shadow-xl">
           <CardContent className="flex items-center justify-center p-8">
             <Loader2 className="h-8 w-8 animate-spin" />

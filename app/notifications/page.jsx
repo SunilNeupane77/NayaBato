@@ -142,7 +142,7 @@ export default function NotificationsPage() {
           ) : (
             <div className="space-y-4">
               {notifications.map((notification) => (
-                <div key={notification._id} className={`p-4 rounded-md ${notification.read ? 'bg-gray-100 text-gray-600' : 'bg-blue-50 text-blue-800 font-medium'}`}>
+                <div key={notification._id} className={`p-4 rounded-md ${notification.read ? 'bg-gray-100 dark:bg-gray-800 text-gray-600' : 'bg-blue-50 text-blue-800 font-medium'}`}>
                   <div className="flex justify-between items-center">
                     <p>{notification.message}</p>
                     <span className="text-sm text-gray-500">

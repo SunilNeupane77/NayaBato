@@ -76,7 +76,7 @@ export default function AnalyticsPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <div className="flex items-center">
             <Users className="h-8 w-8 text-blue-500" />
             <div className="ml-4">
@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <div className="flex items-center">
             <Activity className="h-8 w-8 text-green-500" />
             <div className="ml-4">
@@ -94,7 +94,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <div className="flex items-center">
             <Users className="h-8 w-8 text-purple-500" />
             <div className="ml-4">
@@ -103,7 +103,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <div className="flex items-center">
             <Globe className="h-8 w-8 text-orange-500" />
             <div className="ml-4">
@@ -115,7 +115,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* User Registration Trends */}
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-4">User Registration Trends</h2>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={userTrendsData}>
@@ -132,12 +132,12 @@ export default function AnalyticsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Activity Breakdown */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Activity Breakdown</h2>
           <div className="space-y-3">
             {analytics.activityBreakdown.slice(0, 8).map((activity, index) => (
               <div key={activity._id} className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 capitalize">
+                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
                   {activity.action.replace('_', ' ')}
                 </span>
                 <div className="flex items-center space-x-2">
@@ -157,7 +157,7 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Device/Browser Distribution */}
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-4">Device Distribution</h2>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
@@ -182,11 +182,11 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Geographic Distribution */}
-      <div className="bg-white p-6 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <h2 className="text-lg font-semibold mb-4">Geographic Distribution</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {analytics.geoDistribution.map((location, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded">
               <div className="flex items-center">
                 <Globe className="h-5 w-5 text-gray-400 mr-2" />
                 <div>

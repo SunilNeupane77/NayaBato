@@ -32,11 +32,11 @@ function AuthErrorContent() {
             <AlertCircle className="w-8 h-8 text-red-600" />
           </div>
           
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Authentication Error
           </h1>
           
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             {getErrorMessage(error)}
           </p>
           

@@ -167,7 +167,7 @@ export default function AdminDashboard() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Total Issues</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Total Issues</p>
                 <p className="text-2xl sm:text-3xl font-bold text-blue-600">{stats.totalIssues}</p>
               </div>
               <AlertTriangle className="h-6 w-6 sm:h-8 sm:w-8 text-blue-500 flex-shrink-0" />
@@ -179,7 +179,7 @@ export default function AdminDashboard() {
           <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0">
-                <p className="text-xs sm:text-sm font-medium text-gray-600 truncate">Resolved</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 truncate">Resolved</p>
                 <p className="text-2xl sm:text-3xl font-bold text-green-600">{stats.resolvedIssues}</p>
               </div>
               <CheckCircle className="h-8 w-8 text-green-500" />
@@ -275,7 +275,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-3">
               {stats.statusData.map((status, index) => (
-                <div key={status.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={status.name} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div 
                       className="w-4 h-4 rounded-full" 
@@ -298,7 +298,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-3">
               {stats.categoryData.map((category, index) => (
-                <div key={category.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div key={category.name} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                   <div className="flex items-center gap-3">
                     <div 
                       className="w-4 h-4 rounded-full" 

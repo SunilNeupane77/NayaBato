@@ -166,13 +166,13 @@ export default function DepartmentDetailsPage({ params }) {
                 <div>
                   <h4 className="font-medium">Contact Information</h4>
                   {department.contactEmail && (
-                    <div className="flex items-center text-sm text-gray-600 mt-1">
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1">
                       <Mail className="h-4 w-4 mr-2" />
                       {department.contactEmail}
                     </div>
                   )}
                   {department.contactPhone && (
-                    <div className="flex items-center text-sm text-gray-600 mt-1">
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mt-1">
                       <Phone className="h-4 w-4 mr-2" />
                       {department.contactPhone}
                     </div>
@@ -248,7 +248,7 @@ export default function DepartmentDetailsPage({ params }) {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No staff members assigned</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No staff members assigned</p>
               )}
             </CardContent>
           </Card>
@@ -303,7 +303,7 @@ export default function DepartmentDetailsPage({ params }) {
                   </div>
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No budget information available</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No budget information available</p>
               )}
             </CardContent>
           </Card>
@@ -324,7 +324,7 @@ export default function DepartmentDetailsPage({ params }) {
                         <p className="text-sm text-gray-600">
                           Reported by {issue.reporter.name}
                         </p>
-                        <div className="flex items-center text-sm text-gray-500 mt-1">
+                        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mt-1">
                           <MapPin className="h-4 w-4 mr-1" />
                           {issue.assignedWard?.name || 'Unassigned'}
                         </div>
@@ -337,7 +337,7 @@ export default function DepartmentDetailsPage({ params }) {
                         }>
                           {issue.status}
                         </Badge>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                           {new Date(issue.createdAt).toLocaleDateString()}
                         </p>
                       </div>
@@ -345,7 +345,7 @@ export default function DepartmentDetailsPage({ params }) {
                   ))}
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-8">No recent issues</p>
+                <p className="text-gray-500 dark:text-gray-400 text-center py-8">No recent issues</p>
               )}
             </CardContent>
           </Card>

@@ -101,7 +101,7 @@ export default function CommentItem({
             <span className="text-xs text-gray-500">{formattedDate}</span>
           </div>
           
-          <div className="text-gray-700 whitespace-pre-wrap mb-2">{comment.content}</div>
+          <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-2">{comment.content}</div>
           
           {(canEdit || canDelete) && (
             <div className="flex justify-end gap-2 mt-2">

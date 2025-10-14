@@ -89,7 +89,7 @@ export default function ActivitiesPage() {
       {/* Activity Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.slice(0, 4).map((stat) => (
-          <div key={stat._id} className="bg-white p-4 rounded-lg shadow">
+          <div key={stat._id} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
             <div className="flex items-center">
               {getActionIcon(stat._id)}
               <div className="ml-3">
@@ -102,14 +102,14 @@ export default function ActivitiesPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow">
+      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Action</label>
             <select
               value={filters.action}
               onChange={(e) => setFilters({...filters, action: e.target.value})}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md"
             >
               <option value="">All Actions</option>
               {stats.map((stat) => (
@@ -125,7 +125,7 @@ export default function ActivitiesPage() {
               type="date"
               value={filters.dateFrom}
               onChange={(e) => setFilters({...filters, dateFrom: e.target.value})}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md"
             />
           </div>
           <div>
@@ -134,7 +134,7 @@ export default function ActivitiesPage() {
               type="date"
               value={filters.dateTo}
               onChange={(e) => setFilters({...filters, dateTo: e.target.value})}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md"
             />
           </div>
           <div className="flex items-end">
@@ -149,31 +149,31 @@ export default function ActivitiesPage() {
       </div>
 
       {/* Activities Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 User
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Action
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Resource
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Page
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Time
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 IP Address
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200">
             {activities.map((activity) => (
               <tr key={activity._id}>
                 <td className="px-6 py-4 whitespace-nowrap">
@@ -235,7 +235,7 @@ export default function ActivitiesPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <h4 className="font-semibold mb-2">Session Statistics</h4>
-                <div className="bg-gray-50 p-3 rounded">
+                <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded">
                   <p>Total Sessions: {userAnalytics.sessionStats.totalSessions || 0}</p>
                   <p>Avg Duration: {Math.round(userAnalytics.sessionStats.avgDuration || 0)} min</p>
                   <p>Last Login: {userAnalytics.sessionStats.lastLogin ? 
@@ -245,7 +245,7 @@ export default function ActivitiesPage() {
               
               <div>
                 <h4 className="font-semibold mb-2">Activity Summary</h4>
-                <div className="bg-gray-50 p-3 rounded max-h-32 overflow-y-auto">
+                <div className="bg-gray-50 dark:bg-gray-900 p-3 rounded max-h-32 overflow-y-auto">
                   {userAnalytics.activitySummary.map((activity) => (
                     <div key={activity._id} className="flex justify-between">
                       <span className="capitalize">{activity._id.replace('_', ' ')}</span>

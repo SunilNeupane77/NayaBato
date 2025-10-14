@@ -54,7 +54,7 @@ export default function WardDashboard() {
         <>
           {/* Ward Overview Cards */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
               <div className="flex items-center">
                 <Users className="h-8 w-8 text-blue-600" />
                 <div className="ml-3">
@@ -64,7 +64,7 @@ export default function WardDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
               <div className="flex items-center">
                 <MapPin className="h-8 w-8 text-green-600" />
                 <div className="ml-3">
@@ -74,7 +74,7 @@ export default function WardDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
               <div className="flex items-center">
                 <Calendar className="h-8 w-8 text-orange-600" />
                 <div className="ml-3">
@@ -84,7 +84,7 @@ export default function WardDashboard() {
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
               <div className="flex items-center">
                 <TrendingUp className="h-8 w-8 text-purple-600" />
                 <div className="ml-3">
@@ -98,7 +98,7 @@ export default function WardDashboard() {
           {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Issue Status Distribution */}
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-4">Issue Status Distribution</h3>
               <PieChart width={350} height={250}>
                 <Pie
@@ -119,7 +119,7 @@ export default function WardDashboard() {
             </div>
 
             {/* Category Breakdown */}
-            <div className="bg-white p-4 rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
               <h3 className="text-lg font-semibold mb-4">Issues by Category</h3>
               <BarChart width={350} height={250} data={selectedWard.issueStats.categoryStats}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -132,7 +132,7 @@ export default function WardDashboard() {
           </div>
 
           {/* Recent Issues */}
-          <div className="bg-white rounded-lg shadow">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
             <div className="p-4 border-b">
               <h3 className="text-lg font-semibold">Recent Issues</h3>
             </div>
@@ -140,7 +140,7 @@ export default function WardDashboard() {
               {selectedWard.recentIssues.length > 0 ? (
                 <div className="space-y-3">
                   {selectedWard.recentIssues.map((issue) => (
-                    <div key={issue._id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
+                    <div key={issue._id} className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-900 rounded">
                       <div>
                         <h4 className="font-medium">{issue.title}</h4>
                         <p className="text-sm text-gray-600">
@@ -151,7 +151,7 @@ export default function WardDashboard() {
                         issue.status === 'resolved' ? 'bg-green-100 text-green-800' :
                         issue.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
                         issue.status === 'under-review' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
+                        'bg-gray-100 dark:bg-gray-800 text-gray-800'
                       }`}>
                         {issue.status}
                       </span>
@@ -166,18 +166,18 @@ export default function WardDashboard() {
 
           {/* Ward Facilities */}
           {selectedWard.ward.facilities.length > 0 && (
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
               <div className="p-4 border-b">
                 <h3 className="text-lg font-semibold">Ward Facilities</h3>
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {selectedWard.ward.facilities.map((facility, index) => (
-                    <div key={index} className="flex items-center p-2 bg-gray-50 rounded">
+                    <div key={index} className="flex items-center p-2 bg-gray-50 dark:bg-gray-900 rounded">
                       <div className="w-2 h-2 bg-blue-600 rounded-full mr-3"></div>
                       <div>
                         <p className="font-medium">{facility.name}</p>
-                        <p className="text-sm text-gray-600 capitalize">{facility.type.replace('_', ' ')}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 capitalize">{facility.type.replace('_', ' ')}</p>
                       </div>
                     </div>
                   ))}

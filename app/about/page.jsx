@@ -11,7 +11,7 @@ export default function AboutPage() {
   const { t } = useLanguage();
   
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-20">
         <div className="container mx-auto px-4 text-center max-w-4xl">

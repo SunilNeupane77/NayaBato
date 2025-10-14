@@ -58,7 +58,7 @@ export default function MapComponent({ position, setPosition, address, setAddres
   }, []);
 
   return (
-    <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-300 relative">
+    <div className="w-full h-64 rounded-lg overflow-hidden border border-gray-300 dark:border-gray-600 relative">
       <MapContainer
         center={position || defaultPosition}
         zoom={13}

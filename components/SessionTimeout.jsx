@@ -49,7 +49,7 @@ export default function SessionTimeout() {
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in-0 zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6 animate-in fade-in-0 zoom-in-95 duration-200">
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 bg-amber-100 rounded-full">
             <AlertTriangle className="h-6 w-6 text-amber-600" />
@@ -57,7 +57,7 @@ export default function SessionTimeout() {
           <h2 className="text-xl font-semibold text-gray-900">{t('common.sessionExpired')}</h2>
         </div>
         
-        <p className="text-gray-600 mb-6">
+        <p className="text-gray-600 dark:text-gray-400 mb-6">
           {t('common.sessionExpiredMessage')}
         </p>
         

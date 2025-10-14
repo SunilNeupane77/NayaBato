@@ -48,7 +48,7 @@ export default function ExportDataPage() {
           <CardTitle>Export Your Data</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             Download all your data including reported issues, comments, and profile information in JSON format.
           </p>
           

@@ -117,9 +117,9 @@ export default function WardDetailsPage({ params }) {
                 {ward.isActive ? 'Active' : 'Inactive'}
               </Badge>
             </div>
-            <p className="text-xl text-gray-600 mt-1">{ward.name}</p>
+            <p className="text-xl text-gray-600 dark:text-gray-400 mt-1">{ward.name}</p>
             {ward.description && (
-              <p className="text-gray-500 mt-1">{ward.description}</p>
+              <p className="text-gray-500 dark:text-gray-400 mt-1">{ward.description}</p>
             )}
           </div>
         </div>
@@ -347,7 +347,7 @@ export default function WardDetailsPage({ params }) {
               {issues.length > 0 ? (
                 <div className="space-y-4">
                   {issues.map((issue) => (
-                    <div key={issue._id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                    <div key={issue._id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:bg-gray-900 cursor-pointer"
                          onClick={() => router.push(`/issues/${issue._id}`)}>
                       <div className="flex items-center space-x-4">
                         <div className={`w-3 h-3 rounded-full ${getStatusColor(issue.status)}`}></div>

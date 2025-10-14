@@ -271,7 +271,7 @@ export default function StaffManagement({ departmentId }) {
                 </div>
                 
                 <div className="mt-3">
-                  <p className="text-xs text-gray-500 mb-1">Permissions:</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Permissions:</p>
                   <div className="flex flex-wrap gap-1">
                     {member.permissions?.slice(0, 2).map(permission => (
                       <Badge key={permission} variant="secondary" className="text-xs">

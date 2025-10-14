@@ -9,7 +9,7 @@ export const MobileInput = forwardRef(({ className, type, ...props }, ref) => {
     <input
       type={type}
       className={cn(
-        "mobile-input w-full bg-white border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50",
+        "mobile-input w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       ref={ref}
@@ -24,7 +24,7 @@ export const MobileTextarea = forwardRef(({ className, ...props }, ref) => {
   return (
     <textarea
       className={cn(
-        "mobile-input w-full min-h-[120px] resize-y bg-white border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50",
+        "mobile-input w-full min-h-[120px] resize-y bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       ref={ref}
@@ -39,7 +39,7 @@ export const MobileSelect = forwardRef(({ className, children, ...props }, ref) 
   return (
     <select
       className={cn(
-        "mobile-input w-full bg-white border border-gray-300 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xIDFMNiA2TDExIDEiIHN0cm9rZT0iIzZCNzI4MCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==')] bg-no-repeat bg-right-3 bg-center pr-10",
+        "mobile-input w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-50 appearance-none bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIiIGhlaWdodD0iOCIgdmlld0JveD0iMCAwIDEyIDgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0xIDFMNiA2TDExIDEiIHN0cm9rZT0iIzZCNzI4MCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+Cg==')] bg-no-repeat bg-right-3 bg-center pr-10",
         className
       )}
       ref={ref}
@@ -110,7 +110,7 @@ export const MobileCheckbox = forwardRef(({ className, ...props }, ref) => {
     <input
       type="checkbox"
       className={cn(
-        "h-5 w-5 rounded border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary touch-target",
+        "h-5 w-5 rounded border-2 border-gray-300 dark:border-gray-600 text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary touch-target",
         className
       )}
       ref={ref}
@@ -126,7 +126,7 @@ export const MobileRadio = forwardRef(({ className, ...props }, ref) => {
     <input
       type="radio"
       className={cn(
-        "h-5 w-5 border-2 border-gray-300 text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary touch-target",
+        "h-5 w-5 border-2 border-gray-300 dark:border-gray-600 text-primary focus:ring-2 focus:ring-primary/20 focus:border-primary touch-target",
         className
       )}
       ref={ref}
@@ -152,7 +152,7 @@ export const MobileHelpText = ({ children, className, ...props }) => {
   if (!children) return null;
   
   return (
-    <p className={cn("text-xs text-gray-500 mt-1", className)} {...props}>
+    <p className={cn("text-xs text-gray-500 dark:text-gray-400 mt-1", className)} {...props}>
       {children}
     </p>
   );

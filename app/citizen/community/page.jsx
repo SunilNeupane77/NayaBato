@@ -102,7 +102,7 @@ export default function CommunityPage() {
       case 'in-progress': return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'under-review': return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'rejected': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-gray-50 text-gray-700 border-gray-200';
+      default: return 'bg-gray-50 dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-200';
     }
   };
 
@@ -170,7 +170,7 @@ export default function CommunityPage() {
                   <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                     Community Hub
                   </h1>
-                  <p className="text-gray-600 flex items-center gap-2">
+                  <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
                     <Heart className="w-4 h-4 text-red-500" />
                     Building stronger communities together
                   </p>
@@ -179,7 +179,7 @@ export default function CommunityPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="bg-white/50 hover:bg-white border-gray-200">
+            <Button variant="outline" className="bg-white/50 hover:bg-white dark:bg-gray-800 border-gray-200">
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
@@ -196,7 +196,7 @@ export default function CommunityPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Community Members</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Community Members</p>
                   <p className="text-3xl font-bold text-gray-900">{stats.totalMembers}</p>
                   <div className="flex items-center gap-1 mt-2">
                     <TrendingUp className="w-3 h-3 text-green-500" />
@@ -214,7 +214,7 @@ export default function CommunityPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Active This Week</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Active This Week</p>
                   <p className="text-3xl font-bold text-gray-900">{stats.activeThisWeek}</p>
                   <div className="flex items-center gap-1 mt-2">
                     <Flame className="w-3 h-3 text-orange-500" />
@@ -232,7 +232,7 @@ export default function CommunityPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Total Reports</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Reports</p>
                   <p className="text-3xl font-bold text-gray-900">{stats.totalReports}</p>
                   <div className="flex items-center gap-1 mt-2">
                     <Rocket className="w-3 h-3 text-purple-500" />
@@ -250,7 +250,7 @@ export default function CommunityPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 mb-1">Issues Resolved</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Issues Resolved</p>
                   <p className="text-3xl font-bold text-gray-900">{stats.resolvedIssues}</p>
                   <div className="flex items-center gap-1 mt-2">
                     <Sparkles className="w-3 h-3 text-teal-500" />
@@ -267,7 +267,7 @@ export default function CommunityPage() {
 
         {/* Enhanced Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur-sm border border-gray-200 shadow-lg p-1">
+          <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg p-1">
             <TabsTrigger 
               value="overview" 
               className={`flex items-center gap-2 transition-all duration-300 ${
@@ -389,7 +389,7 @@ export default function CommunityPage() {
                               {member.name}
                               {index < 3 && <Star className="w-4 h-4 text-yellow-500" />}
                             </div>
-                            <div className="text-sm text-gray-600 flex items-center gap-1">
+                            <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
                               <UserCheck className="w-3 h-3" />
                               {member.reportCount} reports
                             </div>
@@ -438,7 +438,7 @@ export default function CommunityPage() {
                             {member.name}
                             {index < 3 && <Star className="w-5 h-5 text-yellow-500" />}
                           </div>
-                          <div className="text-sm text-gray-600 flex items-center gap-2">
+                          <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                             <UserCheck className="w-4 h-4" />
                             {member.reportCount} reports • Member since {new Date(member.createdAt).getFullYear()}
                           </div>
@@ -544,7 +544,7 @@ export default function CommunityPage() {
                         placeholder="Search community activity..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-12 h-12 bg-white/50 border-gray-200 focus:bg-white transition-colors"
+                        className="pl-12 h-12 bg-white/50 border-gray-200 dark:border-gray-700 focus:bg-white dark:bg-gray-800 transition-colors"
                       />
                     </div>
                   </div>
@@ -581,7 +581,7 @@ export default function CommunityPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                          <h4 className="font-semibold text-gray-900 truncate flex items-center gap-2">
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 truncate flex items-center gap-2">
                             {activity.title}
                             <Bookmark className="w-4 h-4 text-gray-400" />
                           </h4>
@@ -590,7 +590,7 @@ export default function CommunityPage() {
                             {activity.status.replace('-', ' ')}
                           </Badge>
                         </div>
-                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{activity.description}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{activity.description}</p>
                         <div className="flex flex-wrap gap-3 text-xs text-gray-500">
                           <span className="flex items-center gap-1 bg-blue-50 px-2 py-1 rounded-full">
                             <Users className="w-3 h-3" />

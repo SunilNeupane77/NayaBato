@@ -68,7 +68,7 @@ export default function RegisterPage() {
           <Button
             variant="ghost"
             size="sm"
-            className="mb-6 text-gray-600 hover:text-gray-900"
+            className="mb-6 text-gray-600 dark:text-gray-400 hover:text-gray-900"
             onClick={() => router.back()}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -87,7 +87,7 @@ export default function RegisterPage() {
                 <div className="w-16 h-16 bg-gradient-to-r from-cyan-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <UserPlus className="w-8 h-8 text-white" />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                   {t('auth.createAccountTitle')}
                 </h1>
                 <p className="text-gray-600">

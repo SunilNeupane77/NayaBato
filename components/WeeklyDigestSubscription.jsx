@@ -62,7 +62,7 @@ export default function WeeklyDigestSubscription() {
             </div>
             <h3 className="text-xl font-semibold text-gray-900">Weekly Digest</h3>
           </div>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             Stay updated with weekly summaries of community issues and resolutions in your area.
           </p>
           <form onSubmit={handleSubmit} className="flex gap-3">

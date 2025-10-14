@@ -177,7 +177,7 @@ export default function CommentSection({ issueId }) {
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 italic">No comments yet. Be the first to comment!</p>
+        <p className="text-gray-500 dark:text-gray-400 italic">No comments yet. Be the first to comment!</p>
       )}
     </div>
   );
