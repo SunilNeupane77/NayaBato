@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { useIssue, useUpdateIssue } from '@/lib/hooks/api';
 import { useLanguage } from '@/lib/i18n/language-context';
-import { AlertCircle, Calendar, Loader2, MapPin, User } from 'lucide-react';
+import { AlertCircle, Calendar, Loader2, MapPin, User, FileText, Image as ImageIcon, Activity, MessageSquare } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
@@ -27,10 +27,38 @@ const formatDate = (date, locale ) => new Date(date).toLocaleString(locale === '
 
 // Use translation function for status and category
 const formatStatus = (status, t) => {
-  if (typeof t === 'function') {
-    return t(`issues.statuses.${status}`) || status;
+  const statusKeyMap = {
+    'reported': 'reported',
+    'under-review': 'underReview', 
+    'in-progress': 'inProgress',
+    'resolved': 'resolved',
+    'rejected': 'rejected'
+  };
+  
+  const fallbackMap = {
+    'reported': 'Reported',
+    'under-review': 'Under Review',
+    'in-progress': 'In Progress', 
+    'resolved': 'Resolved',
+    'rejected': 'Rejected'
+  };
+  
+  if (t && typeof t === 'function') {
+    const key = statusKeyMap[status];
+    if (key) {
+      try {
+        const translation = t(`issues.statuses.${key}`);
+        // Check if translation actually returned a value and not the key itself
+        if (translation && !translation.startsWith('issues.statuses.')) {
+          return translation;
+        }
+      } catch (error) {
+        console.error('Translation error:', error);
+      }
+    }
   }
-  return status;
+  
+  return fallbackMap[status] || status;
 };
 
 const formatCategory = (category, t) => {
@@ -66,8 +94,8 @@ export default function IssueDetailPage() {
   if (isError || !issue) return (
     <div className="flex h-[60vh] flex-col items-center justify-center">
       <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
-      <h2 className="text-xl font-semibold mb-2">{isError ? error?.message : 'Issue not found'}</h2>
-      <Button variant="outline" onClick={() => router.back()}>Go Back</Button>
+      <h2 className="text-xl font-semibold mb-2">{isError ? error?.message : t('issues.issueNotFound') || 'Issue not found'}</h2>
+      <Button variant="outline" onClick={() => router.back()}>{t('common.goBack') || 'Go Back'}</Button>
     </div>
   );
 
@@ -79,8 +107,8 @@ export default function IssueDetailPage() {
     if (!newStatus && !newPriority) {
       toast({
         variant: 'destructive',
-        title: 'Missing update',
-        description: 'Please select a status or priority to update'
+        title: t('issues.missingUpdate') || 'Missing update',
+        description: t('issues.selectStatusOrPriority') || 'Please select a status or priority to update'
       });
       return;
     }
@@ -94,8 +122,8 @@ export default function IssueDetailPage() {
       await updateIssue.mutateAsync({ id: issue._id, data: updateData });
       
       toast({
-        title: t('common.success'),
-        description: 'Issue updated successfully'
+        title: t('common.success') || 'Success',
+        description: t('issues.issueUpdateSuccess') || 'Issue updated successfully'
       });
       
       setNewStatus('');
@@ -105,8 +133,8 @@ export default function IssueDetailPage() {
       console.error(e);
       toast({
         variant: 'destructive',
-        title: 'Update Failed',
-        description: (e).message || 'Failed to update issue'
+        title: t('issues.updateFailed') || 'Update Failed',
+        description: (e).message || t('issues.failedToUpdate') || 'Failed to update issue'
       });
     } finally {
       setLoadingUpdate(false);
@@ -137,11 +165,11 @@ export default function IssueDetailPage() {
               onClick={() => router.back()} 
               className="text-white hover:bg-white/20 hover:text-white"
             >
-              &larr; Back to Issues
+              &larr; {t('common.back') || 'Back to Issues'}
             </Button>
             <div className="flex items-center gap-2">
               <Badge className={`${STATUS_COLORS[issue.status]} px-3 py-1.5 text-white font-medium rounded-full shadow-sm`}>
-                {formatStatus(issue.status)}
+                {formatStatus(issue.status, t)}
               </Badge>
               <span className="text-sm bg-white/20 px-2 py-1 rounded-full font-mono">
                 #{issue?._id ? issue._id.slice(-6).toUpperCase() : '------'}
@@ -154,15 +182,15 @@ export default function IssueDetailPage() {
           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-blue-100">
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
               <Calendar className="h-4 w-4" /> 
-              {formatDate(issue.createdAt)}
+              {formatDate(issue.createdAt, locale)}
             </div>
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
               <User className="h-4 w-4" /> 
-              {issue.reporter?.name || 'Unknown'}
+              {issue.reporter?.name || t('common.unknown') || 'Unknown'}
             </div>
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
               <MapPin className="h-4 w-4" /> 
-              {issue.location?.address ? issue.location.address.substring(0, 60) + (issue.location.address.length > 60 ? '...' : '') : 'No address provided'}
+              {issue.location?.address ? issue.location.address.substring(0, 60) + (issue.location.address.length > 60 ? '...' : '') : t('issues.noAddressProvided') || 'No address provided'}
             </div>
           </div>
         </div>
@@ -174,80 +202,81 @@ export default function IssueDetailPage() {
             defaultValue="details" 
             value={activeTab} 
             onValueChange={setActiveTab} 
-            className="bg-white dark:bg-gray-800 rounded-lg shadow-sm"
+            className="bg-card rounded-lg shadow-sm border"
           >
-            <TabsList className="mb-6 grid grid-cols-4 p-1.5 bg-gray-50 dark:bg-gray-900 rounded-t-lg border-b gap-1">
-              {[
-                { id: 'details', icon: '📄' },
-                { id: 'images', icon: '🖼️' },
-                { id: 'activity', icon: '📊' },
-                { id: 'comments', icon: '💬' }
-              ].map(tab => (
-                <TabsTrigger 
-                  key={tab.id} 
-                  value={tab.id}
-                  className="data-[state=active]:bg-white dark:bg-gray-800 data-[state=active]:shadow-md data-[state=active]:text-blue-600 font-medium transition-all duration-200"
-                >
-                  <span className="mr-1.5">{tab.icon}</span>
-                  {tab.id.charAt(0).toUpperCase() + tab.id.slice(1)}
-                </TabsTrigger>
-              ))}
+            <TabsList className="mb-6 grid grid-cols-4 p-1 bg-muted rounded-lg">
+              <TabsTrigger value="details" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                {t('issues.details') || 'Details'}
+              </TabsTrigger>
+              <TabsTrigger value="images" className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                {t('common.images') || 'Images'}
+              </TabsTrigger>
+              <TabsTrigger value="activity" className="flex items-center gap-2">
+                <Activity className="h-4 w-4" />
+                {t('issues.activity') || 'Activity'}
+              </TabsTrigger>
+              <TabsTrigger value="comments" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                {t('issues.comments') || 'Comments'}
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="details" className="p-6">
               <div className="space-y-8">
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200 flex items-center">
-                    <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                  <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center">
+                    <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
                       <span className="text-sm font-medium">1</span>
                     </span>
                     Description
                   </h3>
-                  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
-                    <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300 leading-relaxed">{issue.description}</p>
+                  <div className="bg-muted/50 p-4 rounded-lg border">
+                    <p className="whitespace-pre-wrap text-foreground leading-relaxed">{issue.description}</p>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200 flex items-center">
-                    <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                  <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center">
+                    <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
                       <span className="text-sm font-medium">2</span>
                     </span>
-                    Category & Details
+                    {t('issues.categoryAndDetails') || 'Category & Details'}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Category</p>
-                      <p className="font-medium text-gray-800 dark:text-gray-200 capitalize">{issue.category}</p>
+                    <div className="bg-muted/50 p-4 rounded-lg border">
+                      <p className="text-sm text-muted-foreground mb-1">{t('issues.category') || 'Category'}</p>
+                      <p className="font-medium text-foreground capitalize">{formatCategory(issue.category, t)}</p>
                     </div>
-                    <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
-                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Priority</p>
-                      <p className="font-medium text-gray-800 dark:text-gray-200 capitalize">{issue.priority || 'Normal'}</p>
+                    <div className="bg-muted/50 p-4 rounded-lg border">
+                      <p className="text-sm text-muted-foreground mb-1">{t('issues.priority') || 'Priority'}</p>
+                      <p className="font-medium text-foreground capitalize">{issue.priority || t('common.normal') || 'Normal'}</p>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200 flex items-center">
-                    <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600">
+                  <h3 className="text-lg font-semibold mb-3 text-foreground flex items-center">
+                    <span className="mr-2 inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary">
                       <span className="text-sm font-medium">3</span>
                     </span>
-                    Location
+                    {t('issues.location') || 'Location'}
                   </h3>
-                  <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
+                  <div className="bg-muted/50 p-4 rounded-lg border">
                     {issue.location?.address ? (
                       <div className="mb-4 flex items-start">
-                        <MapPin className="inline-block mr-2 text-blue-500 shrink-0 mt-1" />
-                        <span className="text-gray-700">{issue.location.address}</span>
+                        <MapPin className="inline-block mr-2 text-primary shrink-0 mt-1" />
+                        <span className="text-foreground">{issue.location.address}</span>
                       </div>
-                    ) : <div className="text-gray-500 dark:text-gray-400 mb-4">No address provided</div>}
+                    ) : <div className="text-muted-foreground mb-4">{t('issues.noAddressProvided') || 'No address provided'}</div>}
                     {issue.location?.coordinates ? (
                       <div className="h-80 rounded-lg overflow-hidden border">
                         <IssueLocationMap location={issue.location} />
                       </div>
                     ) : (
-                      <div className="h-60 rounded-lg flex items-center justify-center text-gray-500 dark:text-gray-400 bg-gray-100">
-                        Map unavailable
+                      <div className="h-60 rounded-lg flex items-center justify-center text-muted-foreground bg-muted">
+                        {t('issues.mapUnavailable') || 'Map unavailable'}
                       </div>
                     )}
                   </div>
@@ -256,16 +285,16 @@ export default function IssueDetailPage() {
             </TabsContent>
 
             <TabsContent value="images" className="p-6">
-              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
+              <div className="bg-muted/50 p-4 rounded-lg border">
                 <h3 className="text-lg font-semibold mb-4 flex items-center justify-between">
-                  <span>Issue Images</span>
+                  <span>{t('issues.issueImages') || 'Issue Images'}</span>
                   <Badge variant="outline" className="font-normal">
-                    {Array.isArray(issue.images) ? issue.images.length : 0} images
+                    {Array.isArray(issue.images) ? issue.images.length : 0} {t('common.images') || 'images'}
                   </Badge>
                 </h3>
                 {Array.isArray(issue.images) && issue.images.length ? (
                   <>
-                    <div className="relative w-full aspect-video border rounded-lg mb-4 bg-white dark:bg-gray-800 shadow-sm dark:shadow-gray-900/20 overflow-hidden">
+                    <div className="relative w-full aspect-video border rounded-lg mb-4 bg-card shadow-sm overflow-hidden">
                       <Image 
                         src={issue.images[activeImageIndex]?.url || ''} 
                         alt={`Image ${activeImageIndex+1}`} 
@@ -285,14 +314,14 @@ export default function IssueDetailPage() {
                           setShowImageModal(true);
                         }}
                       >
-                        View Full Size
+                        {t('issues.viewFullSize') || 'View Full Size'}
                       </Button>
                     </div>
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
                       {issue.images.map((img, idx) => (
                         <div 
                           key={idx} 
-                          className={`aspect-video border-2 rounded-md cursor-pointer overflow-hidden shadow-sm dark:shadow-gray-900/20 transition-transform hover:scale-105 ${idx === activeImageIndex ? 'border-blue-500 ring-2 ring-blue-200' : 'border-transparent'}`} 
+                          className={`aspect-video border-2 rounded-md cursor-pointer overflow-hidden shadow-sm transition-transform hover:scale-105 ${idx === activeImageIndex ? 'border-primary ring-2 ring-primary/20' : 'border-transparent'}`} 
                           onClick={() => setActiveImageIndex(idx)}
                         >
                           <div className="relative w-full h-full">
@@ -308,19 +337,17 @@ export default function IssueDetailPage() {
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <p>No images were attached to this issue</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <ImageIcon className="h-12 w-12 mb-4" />
+                    <p>{t('issues.noImagesAttached') || 'No images were attached to this issue'}</p>
                   </div>
                 )}
               </div>
             </TabsContent>
 
             <TabsContent value="activity" className="p-6">
-              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border">
-                <h3 className="text-lg font-semibold mb-4">Issue Timeline</h3>
+              <div className="bg-muted/50 p-4 rounded-lg border">
+                <h3 className="text-lg font-semibold mb-4">{t('issues.issueTimeline') || 'Issue Timeline'}</h3>
                 
                 {(Array.isArray(issue.statusHistory) && issue.statusHistory.length > 0) ? (
                   <div className="relative py-4">
@@ -331,27 +358,27 @@ export default function IssueDetailPage() {
                       <div key={i} className="pl-12 pb-8 relative">
                         {/* Timeline dot with appropriate status color */}
                         <span 
-                          className={`absolute left-2 top-1 w-6 h-6 rounded-full border-4 border-white shadow-md z-10 ${STATUS_COLORS[h.status]} flex items-center justify-center`}
+                          className={`absolute left-2 top-1 w-6 h-6 rounded-full border-4 border-background shadow-md z-10 ${STATUS_COLORS[h.status]} flex items-center justify-center`}
                           style={{ transform: 'translateX(-50%)' }}
                         >
                           <span className="text-white text-xs font-bold">{i+1}</span>
                         </span>
                         
-                        <div className={`bg-white dark:bg-gray-800 p-5 rounded-lg shadow-md border border-l-4 ${h.status === 'resolved' ? 'border-l-green-500' : h.status === 'rejected' ? 'border-l-red-500' : h.status === 'in-progress' ? 'border-l-yellow-500' : 'border-l-blue-500'}`}>
+                        <div className={`bg-card p-5 rounded-lg shadow-md border border-l-4 ${h.status === 'resolved' ? 'border-l-green-500' : h.status === 'rejected' ? 'border-l-red-500' : h.status === 'in-progress' ? 'border-l-yellow-500' : 'border-l-blue-500'}`}>
                           <div className="flex flex-wrap items-center justify-between mb-3">
                             <Badge className={`${STATUS_COLORS[h.status]} text-white px-3 py-1 rounded-full`}>
-                              {formatStatus(h.status)}
+                              {formatStatus(h.status, t)}
                             </Badge>
-                            <span className="text-sm text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-900 px-2 py-1 rounded-full font-mono">
-                              {formatDate(h.updatedAt)}
+                            <span className="text-sm text-muted-foreground bg-muted px-2 py-1 rounded-full font-mono">
+                              {formatDate(h.updatedAt, locale)}
                             </span>
                           </div>
                           
-                          <div className="flex items-center gap-2 mb-3 pb-3 border-b border-gray-100">
-                            <div className="bg-gray-100 dark:bg-gray-800 rounded-full p-1">
-                              <User className="h-4 w-4 text-gray-700" />
+                          <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border">
+                            <div className="bg-muted rounded-full p-1">
+                              <User className="h-4 w-4 text-foreground" />
                             </div>
-                            <span className="font-medium">{h.updatedBy?.name || 'System'}</span>
+                            <span className="font-medium">{h.updatedBy?.name || t('common.system') || 'System'}</span>
                             {h.updatedBy?.role && 
                               <Badge variant="outline" className="font-normal ml-1 text-xs">
                                 {h.updatedBy.role}
@@ -360,23 +387,21 @@ export default function IssueDetailPage() {
                           </div>
                           
                           {h.notes ? (
-                            <div className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 p-3 rounded-md border border-gray-100 text-sm">
-                              <p className="italic text-xs text-gray-500 dark:text-gray-400 mb-1">Notes:</p>
+                            <div className="text-foreground bg-muted p-3 rounded-md border text-sm">
+                              <p className="italic text-xs text-muted-foreground mb-1">{t('issues.notes') || 'Notes'}:</p>
                               {h.notes}
                             </div>
                           ) : (
-                            <div className="text-xs text-gray-400 italic">No additional notes provided</div>
+                            <div className="text-xs text-muted-foreground italic">{t('issues.noAdditionalNotes') || 'No additional notes provided'}</div>
                           )}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-gray-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p>No activity history available</p>
+                  <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <Activity className="h-12 w-12 mb-4" />
+                    <p>{t('issues.noActivityHistory') || 'No activity history available'}</p>
                   </div>
                 )}
               </div>
@@ -392,7 +417,7 @@ export default function IssueDetailPage() {
           <Card className="border-t-4 border-t-blue-500 shadow-md overflow-hidden">
             <CardHeader className="bg-blue-50/50 pb-3">
               <CardTitle className="text-blue-800 flex items-center gap-2">
-                <User className="h-5 w-5" /> Reported By
+                <User className="h-5 w-5" /> {t('issues.reportedBy') || 'Reported By'}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4">
@@ -400,10 +425,10 @@ export default function IssueDetailPage() {
                 <div className="bg-blue-100 rounded-full p-1.5">
                   <User className="h-5 w-5 text-blue-700" />
                 </div>
-                <span className="font-medium">{issue.reporter?.name || 'Unknown'}</span>
+                <span className="font-medium">{issue.reporter?.name || t('common.unknown') || 'Unknown'}</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 ml-1">
-                <Calendar className="h-4 w-4 text-gray-500" /> {formatDate(issue.createdAt)}
+                <Calendar className="h-4 w-4 text-gray-500" /> {formatDate(issue.createdAt, locale)}
               </div>
             </CardContent>
           </Card>
@@ -411,69 +436,68 @@ export default function IssueDetailPage() {
           {isAdmin && (
             <Card className="border-t-4 border-t-amber-500 shadow-md overflow-hidden">
               <CardHeader className="bg-amber-50/50 pb-3">
-                <CardTitle className="text-amber-800">Update Status</CardTitle>
+                <CardTitle className="text-amber-800">{t('issues.updateStatus') || 'Update Status'}</CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button className="w-full bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 shadow-md">
-                      Update Status
+                      {t('issues.updateStatus') || 'Update Status'}
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-md">
                     <DialogHeader>
-                      <DialogTitle className="text-xl">Update Issue Status</DialogTitle>
+                      <DialogTitle className="text-xl">{t('issues.updateIssueStatus') || 'Update Issue Status'}</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-4">
                       <div>
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">New Status</label>
+                        <label className="text-sm font-medium text-foreground block mb-1">{t('issues.newStatus') || 'New Status'}</label>
                         <Select value={newStatus} onValueChange={setNewStatus}>
-                          <SelectTrigger className="border-gray-300">
-                            <SelectValue placeholder="Select status" />
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('issues.selectStatus') || 'Select status'} />
                           </SelectTrigger>
                           <SelectContent>
                             {["under-review","in-progress","resolved","rejected"].map(v =>
-                              <SelectItem key={v} value={v}>{formatStatus(v)}</SelectItem>
+                              <SelectItem key={v} value={v}>{formatStatus(v, t)}</SelectItem>
                             )}
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Priority</label>
+                        <label className="text-sm font-medium text-foreground block mb-1">{t('issues.priority') || 'Priority'}</label>
                         <Select value={newPriority} onValueChange={setNewPriority}>
-                          <SelectTrigger className="border-gray-300">
-                            <SelectValue placeholder="Select priority" />
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('issues.selectPriority') || 'Select priority'} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="low">Low</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="high">High</SelectItem>
-                            <SelectItem value="critical">Critical</SelectItem>
+                            <SelectItem value="low">{t('issues.priorities.low') || 'Low'}</SelectItem>
+                            <SelectItem value="medium">{t('issues.priorities.medium') || 'Medium'}</SelectItem>
+                            <SelectItem value="high">{t('issues.priorities.high') || 'High'}</SelectItem>
+                            <SelectItem value="critical">{t('issues.priorities.critical') || 'Critical'}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
-                        <label className="text-sm font-medium text-gray-700 dark:text-gray-300 block mb-1">Notes (optional)</label>
+                        <label className="text-sm font-medium text-foreground block mb-1">{t('issues.notesOptional') || 'Notes (optional)'}</label>
                         <Textarea 
-                          placeholder="Add details about this update..." 
+                          placeholder={t('issues.addDetailsPlaceholder') || 'Add details about this update...'} 
                           value={notes} 
                           onChange={e => setNotes(e.target.value)} 
                           rows={3}
-                          className="border-gray-300 dark:border-gray-600 resize-none" 
+                          className="resize-none" 
                         />
                       </div>
                     </div>
                     <DialogFooter>
                       <DialogClose asChild>
-                        <Button variant="outline" className="border-gray-300">Cancel</Button>
+                        <Button variant="outline">{t('common.cancel') || 'Cancel'}</Button>
                       </DialogClose>
                       <Button 
                         onClick={onUpdateStatus} 
                         disabled={(!newStatus && !newPriority) || loadingUpdate}
-                        className="bg-gradient-to-r from-blue-600 to-blue-700"
                       >
                         {loadingUpdate && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Update
+                        {t('common.update') || 'Update'}
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -486,7 +510,7 @@ export default function IssueDetailPage() {
             <Card className="border-t-4 border-t-green-500 shadow-md overflow-hidden">
               <CardHeader className="bg-green-50/50 pb-3">
                 <CardTitle className="text-green-800 flex items-center gap-2">
-                  <User className="h-5 w-5" /> Assigned To
+                  <User className="h-5 w-5" /> {t('issues.assignedTo') || 'Assigned To'}
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
@@ -494,7 +518,7 @@ export default function IssueDetailPage() {
                   <div className="bg-green-100 rounded-full p-1.5">
                     <User className="h-5 w-5 text-green-700" />
                   </div>
-                  <span className="font-medium">{issue.assignedTo?.name || 'Unknown'}</span>
+                  <span className="font-medium">{issue.assignedTo?.name || t('common.unknown') || 'Unknown'}</span>
                 </div>
                 {issue.assignedTo?.department && (
                   <div className="ml-10 text-sm text-gray-600 dark:text-gray-400 mt-1 flex items-center gap-1">
@@ -513,15 +537,15 @@ export default function IssueDetailPage() {
         {/* Modal for full image view */}
         {showImageModal && (
           <Dialog open={showImageModal} onOpenChange={setShowImageModal} className="z-50">
-            <DialogContent className="max-w-4xl bg-black/95 border-gray-800 text-white">
+            <DialogContent className="max-w-4xl bg-background/95 backdrop-blur border">
               <DialogHeader>
-                <DialogTitle className="text-gray-200">Image Preview</DialogTitle>
+                <DialogTitle className="text-foreground">{t('issues.imagePreview') || 'Image Preview'}</DialogTitle>
               </DialogHeader>
               <div className="flex justify-center items-center p-2">
                 <div className="relative w-full aspect-auto max-h-[75vh] flex items-center justify-center">
                   <Image
                     src={modalImageUrl}
-                    alt="Full Issue Image"
+                    alt={t('issues.fullIssueImage') || 'Full Issue Image'}
                     width={1200}
                     height={800}
                     className="rounded-lg object-contain max-h-[75vh]"
@@ -532,9 +556,8 @@ export default function IssueDetailPage() {
                 <Button 
                   variant="outline" 
                   onClick={() => setShowImageModal(false)}
-                  className="border-gray-700 hover:bg-gray-800 text-gray-200"
                 >
-                  Close
+                  {t('common.close') || 'Close'}
                 </Button>
               </DialogFooter>
             </DialogContent>
