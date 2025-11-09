@@ -4,14 +4,8 @@ import { getServerSession } from 'next-auth/next';
 import { NextResponse } from 'next/server';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-/**
- * Get all users - with pagination and filtering
- * Admin only endpoint
- * @route GET /api/admin/users
- */
 export async function GET(request) {
   try {
-    // Get session to check authentication and authorization
     const session = await getServerSession(authOptions);
     
     if (!session) {
@@ -21,36 +15,32 @@ export async function GET(request) {
       );
     }
     
-    // Admin authorization check
-    if (session.user.role !== 'admin' && session.user.role !== 'official') {
+    if (session.user.role !== 'official' && session.user.role !== 'admin') {
       return NextResponse.json(
-        { success: false, message: 'Admin or Official authorization required' },
+        { success: false, message: 'Official or Admin authorization required' },
         { status: 403 }
       );
     }
     
-    // Connect to database
     await connectDB();
     
-    // Get query parameters
     const url = new URL(request.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '20');
     const skip = (page - 1) * limit;
     
-    // Other filters
     const role = url.searchParams.get('role');
     const verified = url.searchParams.get('verified');
     const searchQuery = url.searchParams.get('search');
     
-    // Build query filters
+    // Build query filters (same as admin)
     const filter = {};
     
-    if (role) {
+    if (role && role !== 'all') {
       filter.role = role;
     }
     
-    if (verified !== null && verified !== undefined) {
+    if (verified !== null && verified !== undefined && verified !== 'all') {
       filter.verified = verified === 'true';
     }
     
@@ -61,17 +51,15 @@ export async function GET(request) {
       ];
     }
     
-    // Count total matching documents
     const total = await User.countDocuments(filter);
     
-    // Get users with pagination
     const users = await User.find(filter)
       .select('-password -resetPasswordToken -resetPasswordExpire')
+      .populate('ward', 'name number')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
     
-    // Return paginated results
     return NextResponse.json({
       success: true,
       count: users.length,

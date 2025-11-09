@@ -1,4 +1,4 @@
-// Schema for Ward
+// Enhanced Ward Schema with advanced geospatial features
 import mongoose from 'mongoose';
 
 const WardSchema = new mongoose.Schema({
@@ -34,21 +34,34 @@ const WardSchema = new mongoose.Schema({
       }
     }
   },
-  boundaries: {
-    type: {
-      type: String,
-      enum: ['Polygon'],
-      default: 'Polygon'
+  // Advanced geospatial metadata
+  geospatialMetadata: {
+    optimizationApplied: {
+      type: Boolean,
+      default: false
     },
-    coordinates: {
-      type: [[[Number]]], // [[[longitude, latitude], [longitude, latitude], ...]]
-      default: []
+    originalPosition: {
+      type: [Number], // [longitude, latitude]
+      default: null
+    },
+    optimizationReason: String,
+    coverageScore: {
+      type: Number,
+      default: 0
+    },
+    nearestWardDistance: {
+      type: Number,
+      default: 0
     }
   },
   officerInCharge: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  assignedOfficials: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   contactEmail: {
     type: String,
     match: [
@@ -85,6 +98,13 @@ const WardSchema = new mongoose.Schema({
       coordinates: [Number]
     }
   }],
+  // Performance metrics
+  metrics: {
+    totalIssues: { type: Number, default: 0 },
+    resolvedIssues: { type: Number, default: 0 },
+    avgResolutionTime: { type: Number, default: 0 }, // in days
+    lastUpdated: { type: Date, default: Date.now }
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -93,11 +113,22 @@ const WardSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Create a geospatial index for location queries
+// Enhanced geospatial indexes
 WardSchema.index({ "location.coordinates": "2dsphere" });
+WardSchema.index({ number: 1, isActive: 1 });
+WardSchema.index({ name: "text" });
 
-// Method to get issues assigned to this ward with statistics
-WardSchema.methods.getIssueStats = async function() {
+// Method to update geospatial metadata
+WardSchema.methods.updateGeospatialMetadata = function(metadata) {
+  this.geospatialMetadata = {
+    ...this.geospatialMetadata,
+    ...metadata
+  };
+  return this.save();
+};
+
+// Method to get enhanced issue stats with geospatial analysis
+WardSchema.methods.getEnhancedIssueStats = async function() {
   const stats = await this.model('Issue').aggregate([
     { $match: { assignedWard: this._id } },
     {
@@ -118,74 +149,101 @@ WardSchema.methods.getIssueStats = async function() {
     }
   ]);
 
-  return { statusStats: stats, categoryStats };
-};
-
-// Method to get recent issues
-WardSchema.methods.getRecentIssues = async function(limit = 10) {
-  return await this.model('Issue').find({ 
-    assignedWard: this._id 
-  })
-  .populate('reporter', 'name email')
-  .sort({ createdAt: -1 })
-  .limit(limit);
-};
-
-// Method to get ward performance metrics
-WardSchema.methods.getPerformanceMetrics = async function() {
-  const totalIssues = await this.model('Issue').countDocuments({ assignedWard: this._id });
-  const resolvedIssues = await this.model('Issue').countDocuments({ 
-    assignedWard: this._id, 
-    status: 'resolved' 
-  });
-  
-  const avgResolutionTime = await this.model('Issue').aggregate([
-    { 
-      $match: { 
-        assignedWard: this._id, 
-        status: 'resolved' 
-      } 
-    },
+  // Calculate average distance of issues from ward center
+  const distanceStats = await this.model('Issue').aggregate([
+    { $match: { assignedWard: this._id } },
     {
       $project: {
-        resolutionTime: {
-          $divide: [
-            { $subtract: ['$updatedAt', '$createdAt'] },
-            1000 * 60 * 60 * 24 // Convert to days
-          ]
+        distance: {
+          $sqrt: {
+            $add: [
+              { $pow: [{ $subtract: [{ $arrayElemAt: ['$location.coordinates.coordinates', 0] }, this.location.coordinates.coordinates[0]] }, 2] },
+              { $pow: [{ $subtract: [{ $arrayElemAt: ['$location.coordinates.coordinates', 1] }, this.location.coordinates.coordinates[1]] }, 2] }
+            ]
+          }
         }
       }
     },
     {
       $group: {
         _id: null,
-        avgTime: { $avg: '$resolutionTime' }
+        avgDistance: { $avg: '$distance' },
+        maxDistance: { $max: '$distance' },
+        minDistance: { $min: '$distance' }
       }
     }
   ]);
 
-  return {
-    totalIssues,
-    resolvedIssues,
-    resolutionRate: totalIssues > 0 ? (resolvedIssues / totalIssues * 100).toFixed(1) : 0,
-    avgResolutionTime: avgResolutionTime[0]?.avgTime?.toFixed(1) || 0
+  return { 
+    statusStats: stats, 
+    categoryStats,
+    distanceStats: distanceStats[0] || { avgDistance: 0, maxDistance: 0, minDistance: 0 }
   };
 };
 
-// Static method to find nearest ward
-WardSchema.statics.findNearest = async function(coordinates, maxDistance = 5000) {
-  return await this.find({
+// Static method to find nearest ward with enhanced metadata
+WardSchema.statics.findNearestEnhanced = async function(coordinates, maxDistance = 5000) {
+  const results = await this.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: coordinates
+        },
+        distanceField: 'distance',
+        maxDistance: maxDistance,
+        query: { isActive: true },
+        spherical: true
+      }
+    },
+    {
+      $project: {
+        name: 1,
+        number: 1,
+        location: 1,
+        distance: 1,
+        geospatialMetadata: 1,
+        metrics: 1
+      }
+    },
+    { $limit: 5 }
+  ]);
+
+  return results;
+};
+
+// Method to calculate coverage efficiency
+WardSchema.methods.calculateCoverageEfficiency = async function() {
+  const nearbyWards = await this.model('Ward').find({
+    _id: { $ne: this._id },
+    isActive: true,
     'location.coordinates': {
       $near: {
         $geometry: {
           type: 'Point',
-          coordinates: coordinates
+          coordinates: this.location.coordinates.coordinates
         },
-        $maxDistance: maxDistance
+        $maxDistance: 20000 // 20km radius
       }
-    },
-    isActive: true
-  }).limit(1);
+    }
+  }).limit(5);
+
+  let totalDistance = 0;
+  nearbyWards.forEach(ward => {
+    // Simple distance calculation for efficiency score
+    const dx = ward.location.coordinates.coordinates[0] - this.location.coordinates.coordinates[0];
+    const dy = ward.location.coordinates.coordinates[1] - this.location.coordinates.coordinates[1];
+    totalDistance += Math.sqrt(dx * dx + dy * dy);
+  });
+
+  const avgDistance = nearbyWards.length > 0 ? totalDistance / nearbyWards.length : 0;
+  const efficiency = Math.min(100, Math.max(0, (avgDistance - 0.01) * 1000)); // Normalized score
+
+  return {
+    nearbyWards: nearbyWards.length,
+    averageDistance: avgDistance,
+    efficiencyScore: Math.round(efficiency)
+  };
 };
 
 export default mongoose.models.Ward || mongoose.model('Ward', WardSchema);

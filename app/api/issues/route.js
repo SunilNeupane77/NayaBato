@@ -121,22 +121,49 @@ export async function POST(request) {
       console.log(`Successfully uploaded ${images.length} out of ${imageFiles.length} images`);
     }
     
-    // Find the nearest ward to assign this issue
+    // Assign ward using professional Haversine-based service
     let assignedWard = null;
+    let wardAssignmentInfo = null;
+    
     try {
-      // Make sure the location has the correct structure before querying
       if (location && location.coordinates && location.coordinates.coordinates) {
-        // Get nearest active ward using the MongoDB geospatial query
-        const nearestWards = await Ward.findNearest(location.coordinates.coordinates);
+        const { wardAssignmentService } = await import('@/lib/services/ward-assignment-service');
         
-        if (nearestWards && nearestWards.length > 0) {
-          assignedWard = nearestWards[0]._id;
+        const assignmentResult = await wardAssignmentService.assignWard(
+          location.coordinates.coordinates,
+          {
+            maxDistance: 10000, // 10km search radius
+            fallbackToNearest: true,
+            includeAlternatives: false
+          }
+        );
+        
+        if (assignmentResult.success) {
+          assignedWard = assignmentResult.ward._id;
+          wardAssignmentInfo = {
+            method: assignmentResult.method,
+            distance: assignmentResult.distance,
+            searchRadius: assignmentResult.searchRadius,
+            message: assignmentResult.message
+          };
+          console.log(`Professional ward assignment: ${assignmentResult.message}`);
+        } else {
+          console.log(`Ward assignment failed: ${assignmentResult.error}`);
+          wardAssignmentInfo = {
+            method: assignmentResult.method,
+            error: assignmentResult.error,
+            searchRadius: assignmentResult.searchRadius
+          };
         }
       } else {
-        console.log('Missing proper coordinates structure in location data:', location);
+        console.log('Invalid location coordinates structure:', location);
       }
     } catch (error) {
-      console.error('Error finding nearest ward:', error);
+      console.error('Error in professional ward assignment:', error);
+      wardAssignmentInfo = {
+        method: 'error',
+        error: error.message
+      };
       // Continue with issue creation even if ward assignment fails
     }
     

@@ -35,6 +35,10 @@ const UserSchema = new mongoose.Schema({
     enum: ['', 'water', 'roads', 'sanitation', 'electricity', 'general'],
     default: ''
   },
+  ward: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Ward'
+  },
   phoneNumber: {
     type: String
   },

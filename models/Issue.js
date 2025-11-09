@@ -47,8 +47,18 @@ const IssueSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['reported', 'under-review', 'in-progress', 'resolved', 'rejected'],
-    default: 'reported'
+    enum: ['pending', 'reported', 'under-review', 'in_progress', 'resolved', 'rejected'],
+    default: 'pending'
+  },
+  priority: {
+    type: String,
+    enum: ['low', 'medium', 'high', 'critical'],
+    default: 'medium'
+  },
+  citizen: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   reporter: {
     type: mongoose.Schema.Types.ObjectId,
@@ -59,15 +69,23 @@ const IssueSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
   },
+  ward: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Ward'
+  },
   assignedWard: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Ward'
+  },
+  department: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Department'
   },
   statusHistory: [{
     status: {
       type: String,
       required: true,
-      enum: ['reported', 'under-review', 'in-progress', 'resolved', 'rejected']
+      enum: ['pending', 'reported', 'under-review', 'in_progress', 'resolved', 'rejected']
     },
     updatedAt: {
       type: Date,
@@ -84,11 +102,6 @@ const IssueSchema = new mongoose.Schema({
   votes: {
     upvotes: { type: Number, default: 0 },
     urgent: { type: Number, default: 0 }
-  },
-  priority: {
-    type: String,
-    enum: ['low', 'medium', 'high', 'critical'],
-    default: 'medium'
   }
 }, {
   timestamps: true

@@ -76,18 +76,21 @@ export default function Navigation() {
             >
               <Link href="/">{t('navigation.home')}</Link>
             </Button>
-            <Button
-              asChild
-              variant={isActive('/issues') ? 'default' : 'ghost'}
-              size="sm"
-              className={`${
-                isActive('/issues') 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                  : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
-              } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
-            >
-              <Link href="/issues">{t('navigation.issues')}</Link>
-            </Button>
+            {/* Issues link - only for citizens */}
+            {session?.user?.role === 'citizen' && (
+              <Button
+                asChild
+                variant={isActive('/issues') ? 'default' : 'ghost'}
+                size="sm"
+                className={`${
+                  isActive('/issues') 
+                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+                } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
+              >
+                <Link href="/issues">{t('navigation.issues')}</Link>
+              </Button>
+            )}
             {!session && (
               <Button
                 asChild
@@ -144,18 +147,32 @@ export default function Navigation() {
               </>
             )}
             {session?.user?.role === 'official' && (
-              <Button
-                asChild
-                variant={isActive('/admin/dashboard') ? 'default' : 'ghost'}
-                size="sm"
-                className={`${
-                  isActive('/admin/dashboard') 
-                    ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
-                } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
-              >
-                <Link href="/admin/dashboard">{t('navigation.dashboard')}</Link>
-              </Button>
+              <>
+                <Button
+                  asChild
+                  variant={isActive('/official') ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`${
+                    isActive('/official') 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+                  } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
+                >
+                  <Link href="/official">{t('navigation.dashboard')}</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant={isActive('/official/issues') ? 'default' : 'ghost'}
+                  size="sm"
+                  className={`${
+                    isActive('/official/issues') 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-blue-50'
+                  } font-medium px-4 py-2 rounded-lg transition-all duration-200`}
+                >
+                  <Link href="/official/issues">Issues</Link>
+                </Button>
+              </>
             )}
             
             {session?.user?.role === 'citizen' && (
@@ -278,15 +295,21 @@ export default function Navigation() {
                   {session?.user?.role === 'official' && (
                     <>
                       <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
-                        <Link href="/admin/dashboard" className="flex w-full items-center">
+                        <Link href="/official" className="flex w-full items-center">
                           <Settings className="mr-3 h-5 w-5 text-gray-500" />
                           <span className="text-sm font-medium">{t('navigation.dashboard')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
-                        <Link href="/issues" className="flex w-full items-center">
+                        <Link href="/official/users" className="flex w-full items-center">
+                          <Users className="mr-3 h-5 w-5 text-gray-500" />
+                          <span className="text-sm font-medium">User Management</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="p-3 cursor-pointer hover:bg-gray-50 dark:bg-gray-900 rounded-md">
+                        <Link href="/official/issues" className="flex w-full items-center">
                           <AlertTriangle className="mr-3 h-5 w-5 text-gray-500" />
-                          <span className="text-sm font-medium">{t('navigation.reviewIssues')}</span>
+                          <span className="text-sm font-medium">Issues</span>
                         </Link>
                       </DropdownMenuItem>
                     </>
@@ -388,15 +411,18 @@ export default function Navigation() {
               >
                 {t('navigation.home')}
               </Link>
-              <Link
-                href="/issues"
-                className={`mobile-nav-item block ${
-                  isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
-                }`}
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {t('navigation.issues')}
-              </Link>
+              {/* Issues link - only for citizens */}
+              {session?.user?.role === 'citizen' && (
+                <Link
+                  href="/issues"
+                  className={`mobile-nav-item block ${
+                    isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {t('navigation.issues')}
+                </Link>
+              )}
               {!session && (
                 <Link
                   href="/about"
@@ -410,7 +436,7 @@ export default function Navigation() {
               )}
               
               {/* Role-specific mobile navigation */}
-              {(session?.user?.role === 'admin' || session?.user?.role === 'official') && (
+              {session?.user?.role === 'admin' && (
                 <Link
                   href="/admin/dashboard"
                   className={`mobile-nav-item block ${
@@ -418,7 +444,19 @@ export default function Navigation() {
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {session?.user?.role === 'admin' ? t('admin.dashboard') : t('navigation.dashboard')}
+                  {t('admin.dashboard')}
+                </Link>
+              )}
+              
+              {session?.user?.role === 'official' && (
+                <Link
+                  href="/official"
+                  className={`mobile-nav-item block ${
+                    isActive('/official') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
+                  }`}
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {t('navigation.dashboard')}
                 </Link>
               )}
               
@@ -466,18 +504,6 @@ export default function Navigation() {
                     {t('citizen.myReports')}
                   </Link>
                 </>
-              )}
-              
-              {session?.user?.role === 'official' && (
-                <Link
-                  href="/issues"
-                  className={`mobile-nav-item block ${
-                    isActive('/issues') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {t('navigation.reviewIssues')}
-                </Link>
               )}
               
               {status === 'authenticated' && (
