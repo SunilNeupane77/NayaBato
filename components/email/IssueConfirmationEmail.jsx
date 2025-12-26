@@ -15,7 +15,7 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
         textAlign: 'center',
         borderRadius: '12px 12px 0 0'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
+
         <h1 style={{
           color: '#ffffff',
           fontSize: '24px',
@@ -50,9 +50,9 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
             margin: '0 0 16px 0',
             fontWeight: '600'
           }}>
-            📋 Issue Details
+            Issue Details
           </h2>
-          
+
           <div style={{ marginBottom: '12px' }}>
             <strong style={{ color: '#1f2937', fontSize: '14px' }}>Issue ID:</strong>
             <span style={{
@@ -67,18 +67,18 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
               #{issueId}
             </span>
           </div>
-          
+
           <div style={{ marginBottom: '12px' }}>
             <strong style={{ color: '#1f2937', fontSize: '14px' }}>Title:</strong>
             <p style={{ margin: '4px 0 0 0', color: '#374151', fontSize: '16px' }}>
               {title}
             </p>
           </div>
-          
+
           <div style={{ marginBottom: '0' }}>
             <strong style={{ color: '#1f2937', fontSize: '14px' }}>Location:</strong>
             <p style={{ margin: '4px 0 0 0', color: '#374151', fontSize: '14px' }}>
-              📍 {location}
+              {location}
             </p>
           </div>
         </div>
@@ -92,7 +92,7 @@ export default function IssueConfirmationEmail({ issueId, title, location, issue
           }}>
             What happens next?
           </h3>
-          
+
           <div style={{ marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', marginBottom: '12px' }}>
               <span style={{

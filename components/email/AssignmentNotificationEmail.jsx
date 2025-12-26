@@ -1,13 +1,13 @@
 import {
-    Body,
-    Container,
-    Head,
-    Heading,
-    Html,
-    Link,
-    Preview,
-    Section,
-    Text,
+  Body,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Link,
+  Preview,
+  Section,
+  Text,
 } from '@react-email/components';
 
 const baseStyles = {
@@ -83,18 +83,18 @@ const footerStyles = {
   textAlign: 'center',
 };
 
-const AssignmentNotificationEmail = ({ 
-  officialName, 
-  issueTitle, 
-  issueId, 
-  category, 
+const AssignmentNotificationEmail = ({
+  officialName,
+  issueTitle,
+  issueId,
+  category,
   priority = 'medium',
-  location, 
+  location,
   description,
   reporterName,
   assignedBy,
   issueUrl,
-  dueDate 
+  dueDate
 }) => {
   const getPriorityStyle = (priority) => {
     return {
@@ -117,66 +117,66 @@ const AssignmentNotificationEmail = ({
           <Section style={headerStyles}>
             <Heading style={titleStyles}>New Issue Assignment</Heading>
           </Section>
-          
+
           <Section style={bodyStyles}>
             <Text>Hello {officialName},</Text>
-            
+
             <Section style={assignmentBoxStyles}>
               <Text style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#92400e' }}>
-                🎯 You have been assigned a new issue to handle:
+                You have been assigned a new issue to handle:
               </Text>
-              <Text style={{ 
-                margin: '0', 
-                fontSize: '18px', 
+              <Text style={{
+                margin: '0',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 color: '#1f2937'
               }}>
                 "{issueTitle}"
               </Text>
             </Section>
-            
+
             <Section style={issueDetailsStyles}>
               <Heading style={{ fontSize: '16px', margin: '0 0 15px 0' }}>
-                📋 Issue Details
+                Issue Details
               </Heading>
-              
+
               <Text style={{ margin: '8px 0' }}>
                 <strong>Issue ID:</strong> {issueId}
               </Text>
-              
+
               <Text style={{ margin: '8px 0' }}>
                 <strong>Category:</strong> {category}
               </Text>
-              
+
               <Text style={{ margin: '8px 0' }}>
                 <strong>Priority:</strong>{' '}
                 <span style={getPriorityStyle(priority)}>
                   {priority}
                 </span>
               </Text>
-              
+
               <Text style={{ margin: '8px 0' }}>
                 <strong>Location:</strong> {location}
               </Text>
-              
+
               <Text style={{ margin: '8px 0' }}>
                 <strong>Reported by:</strong> {reporterName}
               </Text>
-              
+
               <Text style={{ margin: '8px 0' }}>
                 <strong>Assigned by:</strong> {assignedBy}
               </Text>
-              
+
               {dueDate && (
                 <Text style={{ margin: '8px 0' }}>
                   <strong>Due Date:</strong> {new Date(dueDate).toLocaleDateString()}
                 </Text>
               )}
-              
+
               <Text style={{ margin: '15px 0 8px 0', fontWeight: 'bold' }}>
                 Description:
               </Text>
-              <Text style={{ 
+              <Text style={{
                 margin: '0',
                 backgroundColor: '#ffffff',
                 padding: '15px',
@@ -187,44 +187,44 @@ const AssignmentNotificationEmail = ({
                 {description}
               </Text>
             </Section>
-            
+
             <Text>
               As the assigned official, you are now responsible for:
             </Text>
-            
+
             <Text style={{ marginLeft: '20px' }}>
               • Reviewing the issue details thoroughly<br />
               • Updating the issue status as you work on it<br />
               • Communicating with the reporter if needed<br />
               • Resolving the issue in a timely manner
             </Text>
-            
+
             <Section style={buttonContainerStyles}>
               <Link href={issueUrl} style={buttonStyles}>
                 View & Manage Issue
               </Link>
             </Section>
-            
-            <Text style={{ 
-              backgroundColor: '#dbeafe', 
-              padding: '15px', 
+
+            <Text style={{
+              backgroundColor: '#dbeafe',
+              padding: '15px',
               borderRadius: '4px',
               border: '1px solid #93c5fd'
             }}>
-              💡 <strong>Tip:</strong> Keep the community informed by updating the issue status 
+              <strong>Tip:</strong> Keep the community informed by updating the issue status
               and adding comments about your progress. This builds trust and transparency.
             </Text>
-            
+
             <Text>
               Thank you for your service to the community!
             </Text>
-            
+
             <Text>
               Best regards,<br />
               Nayabato Platform
             </Text>
           </Section>
-          
+
           <Section style={footerStyles}>
             <Text>
               © {new Date().getFullYear()} Nayabato. All rights reserved.

@@ -5,7 +5,6 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
     switch (status) {
       case 'resolved':
         return {
-          emoji: '✅',
           color: '#059669',
           bgColor: '#f0fdf4',
           borderColor: '#059669',
@@ -14,7 +13,6 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
         };
       case 'in-progress':
         return {
-          emoji: '🔄',
           color: '#d97706',
           bgColor: '#fffbeb',
           borderColor: '#d97706',
@@ -23,7 +21,6 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
         };
       case 'under-review':
         return {
-          emoji: '👀',
           color: '#2563eb',
           bgColor: '#eff6ff',
           borderColor: '#2563eb',
@@ -32,7 +29,6 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
         };
       case 'rejected':
         return {
-          emoji: '❌',
           color: '#dc2626',
           bgColor: '#fef2f2',
           borderColor: '#dc2626',
@@ -41,7 +37,6 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
         };
       default:
         return {
-          emoji: '📋',
           color: '#6b7280',
           bgColor: '#f9fafb',
           borderColor: '#6b7280',
@@ -67,9 +62,6 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
         textAlign: 'center',
         borderRadius: '12px 12px 0 0'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>
-          {statusConfig.emoji}
-        </div>
         <h1 style={{
           color: '#ffffff',
           fontSize: '24px',
@@ -103,9 +95,9 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
             margin: '0 0 16px 0',
             fontWeight: '600'
           }}>
-            📋 Issue Details
+            Issue Details
           </h2>
-          
+
           <div style={{ marginBottom: '12px' }}>
             <strong style={{ color: '#1f2937', fontSize: '14px' }}>Issue ID:</strong>
             <span style={{
@@ -120,14 +112,14 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
               #{issueId}
             </span>
           </div>
-          
+
           <div style={{ marginBottom: '12px' }}>
             <strong style={{ color: '#1f2937', fontSize: '14px' }}>Title:</strong>
             <p style={{ margin: '4px 0 0 0', color: '#374151', fontSize: '16px' }}>
               {title}
             </p>
           </div>
-          
+
           <div style={{ marginBottom: '12px' }}>
             <strong style={{ color: '#1f2937', fontSize: '14px' }}>New Status:</strong>
             <span style={{
@@ -144,7 +136,7 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
               {status.replace('-', ' ')}
             </span>
           </div>
-          
+
           {notes && (
             <div style={{ marginBottom: '0' }}>
               <strong style={{ color: '#1f2937', fontSize: '14px' }}>Update Notes:</strong>
@@ -171,7 +163,6 @@ export default function StatusUpdateEmail({ issueId, title, status, notes, issue
             marginBottom: '30px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '32px', marginBottom: '12px' }}>🎉</div>
             <h3 style={{
               color: '#065f46',
               fontSize: '18px',

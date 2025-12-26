@@ -1,13 +1,13 @@
 import {
-    Body,
-    Container,
-    Head,
-    Heading,
-    Html,
-    Link,
-    Preview,
-    Section,
-    Text,
+  Body,
+  Container,
+  Head,
+  Heading,
+  Html,
+  Link,
+  Preview,
+  Section,
+  Text,
 } from '@react-email/components';
 
 const baseStyles = {
@@ -71,13 +71,13 @@ const footerStyles = {
   textAlign: 'center',
 };
 
-const CommentNotificationEmail = ({ 
-  recipientName, 
-  commenterName, 
-  issueTitle, 
-  issueId, 
-  comment, 
-  issueUrl 
+const CommentNotificationEmail = ({
+  recipientName,
+  commenterName,
+  issueTitle,
+  issueId,
+  comment,
+  issueUrl
 }) => {
   return (
     <Html>
@@ -88,23 +88,23 @@ const CommentNotificationEmail = ({
           <Section style={headerStyles}>
             <Heading style={titleStyles}>New Comment on Your Issue</Heading>
           </Section>
-          
+
           <Section style={bodyStyles}>
             <Text>Hello {recipientName},</Text>
-            
+
             <Text>
               <strong>{commenterName}</strong> has added a new comment to your issue:
             </Text>
-            
+
             <Text style={{ fontWeight: 'bold', fontSize: '18px', color: '#1f2937' }}>
               "{issueTitle}"
             </Text>
-            
+
             <Section style={commentBoxStyles}>
               <Text style={{ margin: '0 0 10px 0', fontWeight: 'bold', color: '#3b82f6' }}>
-                💬 New Comment:
+                New Comment:
               </Text>
-              <Text style={{ 
+              <Text style={{
                 margin: '0',
                 fontStyle: 'italic',
                 backgroundColor: '#ffffff',
@@ -114,45 +114,45 @@ const CommentNotificationEmail = ({
               }}>
                 "{comment}"
               </Text>
-              <Text style={{ 
-                margin: '10px 0 0 0', 
-                fontSize: '14px', 
-                color: '#6b7280' 
+              <Text style={{
+                margin: '10px 0 0 0',
+                fontSize: '14px',
+                color: '#6b7280'
               }}>
                 — {commenterName}
               </Text>
             </Section>
-            
+
             <Text>
               You can view the full conversation and respond by clicking the button below:
             </Text>
-            
+
             <Section style={buttonContainerStyles}>
               <Link href={issueUrl} style={buttonStyles}>
                 View Issue & Reply
               </Link>
             </Section>
-            
+
             <Text style={{ fontSize: '14px', color: '#6b7280' }}>
               Issue ID: {issueId}
             </Text>
-            
+
             <Text>
               Stay engaged with your community and help resolve local issues together!
             </Text>
-            
+
             <Text>
               Best regards,<br />
               Nayabato Platform
             </Text>
           </Section>
-          
+
           <Section style={footerStyles}>
             <Text>
               © {new Date().getFullYear()} Nayabato. All rights reserved.
             </Text>
             <Text>
-              You received this email because you reported this issue. 
+              You received this email because you reported this issue.
               You can manage your notification preferences in your account settings.
             </Text>
           </Section>

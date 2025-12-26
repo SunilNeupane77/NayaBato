@@ -99,10 +99,7 @@ const IssueSchema = new mongoose.Schema({
       type: String
     }
   }],
-  votes: {
-    upvotes: { type: Number, default: 0 },
-    urgent: { type: Number, default: 0 }
-  }
+
 }, {
   timestamps: true
 });

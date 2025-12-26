@@ -22,7 +22,7 @@ export default function NewsletterSubscriptionEmail({ email }) {
           margin: '0 0 10px 0',
           letterSpacing: '-0.5px'
         }}>
-          🎉 Welcome to Nayabato!
+          Welcome to Nayabato!
         </h1>
         <p style={{
           color: '#e6fffa',
@@ -49,7 +49,7 @@ export default function NewsletterSubscriptionEmail({ email }) {
             margin: '0 0 12px 0',
             fontWeight: '600'
           }}>
-            📧 You're all set!
+            You're all set!
           </h2>
           <p style={{
             color: '#134e4a',
@@ -70,7 +70,7 @@ export default function NewsletterSubscriptionEmail({ email }) {
           }}>
             What to expect:
           </h3>
-          
+
           <div style={{ marginBottom: '16px' }}>
             <div style={{
               display: 'flex',
@@ -90,7 +90,6 @@ export default function NewsletterSubscriptionEmail({ email }) {
                 marginRight: '12px',
                 flexShrink: '0'
               }}>
-                📊
               </span>
               <div>
                 <strong style={{ color: '#1f2937' }}>Weekly Statistics</strong>
@@ -120,7 +119,6 @@ export default function NewsletterSubscriptionEmail({ email }) {
                 marginRight: '12px',
                 flexShrink: '0'
               }}>
-                🏘️
               </span>
               <div>
                 <strong style={{ color: '#1f2937' }}>Local Updates</strong>
@@ -150,7 +148,6 @@ export default function NewsletterSubscriptionEmail({ email }) {
                 marginRight: '12px',
                 flexShrink: '0'
               }}>
-                ✅
               </span>
               <div>
                 <strong style={{ color: '#1f2937' }}>Success Stories</strong>

@@ -1,12 +1,12 @@
 import React from 'react';
 
-export default function WeeklyDigestEmail({ 
-  userName, 
-  weekStart, 
-  weekEnd, 
-  stats, 
-  recentIssues, 
-  dashboardUrl 
+export default function WeeklyDigestEmail({
+  userName,
+  weekStart,
+  weekEnd,
+  stats,
+  recentIssues,
+  dashboardUrl
 }) {
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -39,7 +39,7 @@ export default function WeeklyDigestEmail({
         textAlign: 'center',
         borderRadius: '12px 12px 0 0'
       }}>
-        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+
         <h1 style={{
           color: '#ffffff',
           fontSize: '28px',
@@ -69,7 +69,7 @@ export default function WeeklyDigestEmail({
             margin: '0 0 12px 0',
             fontWeight: '600'
           }}>
-            Hello {userName}! 👋
+            Hello {userName}!
           </h2>
           <p style={{
             color: '#6b7280',
@@ -95,9 +95,9 @@ export default function WeeklyDigestEmail({
             margin: '0 0 16px 0',
             fontWeight: '600'
           }}>
-            📈 Weekly Summary
+            Weekly Summary
           </h3>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{
@@ -123,16 +123,16 @@ export default function WeeklyDigestEmail({
             </div>
           </div>
 
-          <div style={{ 
-            marginTop: '20px', 
-            paddingTop: '16px', 
-            borderTop: '1px solid #d1fae5' 
+          <div style={{
+            marginTop: '20px',
+            paddingTop: '16px',
+            borderTop: '1px solid #d1fae5'
           }}>
             <div style={{ fontSize: '14px', color: '#047857', marginBottom: '8px' }}>
               <strong>Current Status:</strong>
             </div>
             <div style={{ fontSize: '14px', color: '#6b7280' }}>
-              • In Progress: {stats.inProgress} issues<br/>
+              • In Progress: {stats.inProgress} issues<br />
               • Under Review: {stats.underReview} issues
             </div>
           </div>
@@ -152,7 +152,7 @@ export default function WeeklyDigestEmail({
               margin: '0 0 12px 0',
               fontWeight: '600'
             }}>
-              📋 Top Categories This Week
+              Top Categories This Week
             </h3>
             {Object.entries(stats.categories).map(([category, count]) => (
               <div key={category} style={{
@@ -189,9 +189,9 @@ export default function WeeklyDigestEmail({
               margin: '0 0 16px 0',
               fontWeight: '600'
             }}>
-              🔥 Recent Activity
+              Recent Activity
             </h3>
-            
+
             {recentIssues.slice(0, 3).map((issue, index) => (
               <div key={issue.id} style={{
                 backgroundColor: '#ffffff',
@@ -229,7 +229,7 @@ export default function WeeklyDigestEmail({
                   </span>
                 </div>
                 <div style={{ fontSize: '12px', color: '#6b7280' }}>
-                  📍 {issue.location} • By {issue.reportedBy}
+                  {issue.location} • By {issue.reportedBy}
                 </div>
               </div>
             ))}

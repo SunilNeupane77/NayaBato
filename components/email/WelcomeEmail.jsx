@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function WelcomeEmail({ name, dashboardUrl, role }) {
   const isOfficial = role === 'official' || role === 'admin';
-  
+
   return (
     <div style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
@@ -21,7 +21,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
           fontSize: '48px',
           marginBottom: '16px'
         }}>
-          {isOfficial ? '🏛️' : '🏘️'}
+          {isOfficial ? '' : ''}
         </div>
         <h1 style={{
           color: '#ffffff',
@@ -57,7 +57,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
             margin: '0 0 12px 0',
             fontWeight: '600'
           }}>
-            🎉 Account Created Successfully!
+            Account Created Successfully!
           </h2>
           <p style={{
             color: '#134e4a',
@@ -65,7 +65,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
             lineHeight: '1.6',
             margin: '0'
           }}>
-            You're now part of a community working together to make positive changes. 
+            You're now part of a community working together to make positive changes.
             {isOfficial ? ' As an official, you can manage and resolve community issues.' : ' Start reporting issues and tracking their progress.'}
           </p>
         </div>
@@ -79,7 +79,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
           }}>
             {isOfficial ? 'Your responsibilities:' : 'What you can do:'}
           </h3>
-          
+
           {isOfficial ? (
             <>
               <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'flex-start' }}>
@@ -95,7 +95,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
                   fontSize: '12px',
                   marginRight: '12px',
                   flexShrink: '0'
-                }}>📋</span>
+                }}></span>
                 <div>
                   <strong style={{ color: '#1f2937' }}>Review Issues</strong>
                   <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
@@ -116,7 +116,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
                   fontSize: '12px',
                   marginRight: '12px',
                   flexShrink: '0'
-                }}>⚡</span>
+                }}></span>
                 <div>
                   <strong style={{ color: '#1f2937' }}>Take Action</strong>
                   <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
@@ -140,7 +140,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
                   fontSize: '12px',
                   marginRight: '12px',
                   flexShrink: '0'
-                }}>📸</span>
+                }}></span>
                 <div>
                   <strong style={{ color: '#1f2937' }}>Report Issues</strong>
                   <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
@@ -161,7 +161,7 @@ export default function WelcomeEmail({ name, dashboardUrl, role }) {
                   fontSize: '12px',
                   marginRight: '12px',
                   flexShrink: '0'
-                }}>👀</span>
+                }}></span>
                 <div>
                   <strong style={{ color: '#1f2937' }}>Track Progress</strong>
                   <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
