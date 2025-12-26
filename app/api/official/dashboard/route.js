@@ -9,58 +9,62 @@ import User from '@/models/User';
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || (session.user.role !== 'official' && session.user.role !== 'admin')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     await connectDB();
 
-    // Get all data first, then filter if needed
-    const [allIssues, allWards, allUsers] = await Promise.all([
-      Issue.find({})
-        .populate('reporter', 'name email')
-        .populate('assignedWard', 'name number')
-        .sort({ createdAt: -1 }),
-      Ward.find({}).select('name number assignedOfficials'),
-      User.find({ role: 'citizen' }).select('name email ward')
-    ]);
-
+    let issueQuery = {};
     let assignedWards = [];
-    let filteredIssues = allIssues;
-    let filteredUsers = allUsers;
 
     if (session.user.role === 'official') {
-      // Filter for official's assigned wards
-      assignedWards = allWards.filter(ward => 
-        ward.assignedOfficials && ward.assignedOfficials.includes(session.user.id)
-      );
-      
+      // Find wards assigned to this official
+      // Assuming 'assignedOfficials' in Ward model contains user IDs
+      assignedWards = await Ward.find({ assignedOfficials: session.user.id })
+        .select('name number assignedOfficials');
+
       if (assignedWards.length > 0) {
-        const wardIds = assignedWards.map(ward => ward._id.toString());
-        filteredIssues = allIssues.filter(issue => 
-          issue.assignedWard && wardIds.includes(issue.assignedWard._id.toString())
-        );
-        filteredUsers = allUsers.filter(user => 
-          user.ward && wardIds.includes(user.ward.toString())
-        );
+        const wardIds = assignedWards.map(ward => ward._id);
+        issueQuery = { assignedWard: { $in: wardIds } };
+      } else {
+        // If no wards assigned, maybe they shouldn't see any issues? 
+        // Or maybe they see unassigned ones? Let's assume they see none for now or all if that's the policy.
+        // But usually officials are tied to wards.
+        // For now, if no wards, let's keep query empty (all issues) OR strict (no issues).
+        // Based on previous code: "if (assignedWards.length > 0) ... filteredIssues = allIssues.filter..."
+        // implying if no wards, they might see all or none. 
+        // Let's assume strict: if official has no wards, they see nothing.
+        issueQuery = { _id: { $exists: false } }; // Return nothing
       }
     } else {
       // Admin sees all
-      assignedWards = allWards;
+      assignedWards = await Ward.find({}).select('name number assignedOfficials');
     }
 
-    // Calculate statistics
-    const totalIssues = filteredIssues.length;
-    const pendingIssues = filteredIssues.filter(i => i.status === 'pending' || i.status === 'reported').length;
-    const inProgressIssues = filteredIssues.filter(i => i.status === 'in_progress' || i.status === 'in-progress' || i.status === 'under-review').length;
-    const resolvedIssues = filteredIssues.filter(i => i.status === 'resolved').length;
-    
-    // Count all citizens (not filtered by ward since users aren't assigned to wards yet)
-    const citizensCount = await User.countDocuments({ role: 'citizen' });
+    // Run queries in parallel
+    const [
+      totalIssues,
+      pendingIssues,
+      inProgressIssues,
+      resolvedIssues,
+      citizensCount,
+      recentIssues
+    ] = await Promise.all([
+      Issue.countDocuments(issueQuery),
+      Issue.countDocuments({ ...issueQuery, status: { $in: ['pending', 'reported'] } }),
+      Issue.countDocuments({ ...issueQuery, status: { $in: ['in_progress', 'in-progress', 'under-review'] } }),
+      Issue.countDocuments({ ...issueQuery, status: 'resolved' }),
+      User.countDocuments({ role: 'citizen' }),
+      Issue.find(issueQuery)
+        .populate('reporter', 'name email')
+        .populate('assignedWard', 'name number')
+        .sort({ createdAt: -1 })
+        .limit(10)
+    ]);
 
-    // Get recent issues (last 10) and format them properly
-    const recentIssues = filteredIssues.slice(0, 10).map(issue => ({
+    const formattedRecentIssues = recentIssues.map(issue => ({
       _id: issue._id,
       title: issue.title,
       description: issue.description,
@@ -95,14 +99,12 @@ export async function GET() {
         name: ward.name,
         number: ward.number
       })),
-      recentIssues,
-      allIssues: filteredIssues,
-      allUsers: filteredUsers
+      recentIssues: formattedRecentIssues
     });
 
   } catch (error) {
     console.error('Official dashboard error:', error);
-    return NextResponse.json({ 
+    return NextResponse.json({
       error: 'Internal server error',
       stats: {
         totalIssues: 0,
@@ -113,9 +115,7 @@ export async function GET() {
         citizensCount: 0
       },
       assignedWards: [],
-      recentIssues: [],
-      allIssues: [],
-      allUsers: []
+      recentIssues: []
     }, { status: 500 });
   }
 }

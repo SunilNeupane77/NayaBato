@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  Users, 
-  TrendingUp, 
-  MapPin, 
+import {
+  ArrowLeft,
+  Users,
+  TrendingUp,
+  MapPin,
   Calendar,
   Award,
   Target,
@@ -179,8 +179,13 @@ export default function CommunityPage() {
             </div>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="bg-white/50 hover:bg-white dark:bg-gray-800 border-gray-200">
-              <RefreshCw className="w-4 h-4 mr-2" />
+            <Button
+              variant="outline"
+              className="bg-white/50 hover:bg-white dark:bg-gray-800 border-gray-200"
+              onClick={fetchCommunityStats}
+              disabled={loading}
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </Button>
             <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg" onClick={handleShareImpact}>
@@ -268,46 +273,42 @@ export default function CommunityPage() {
         {/* Enhanced Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 bg-white/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-lg p-1">
-            <TabsTrigger 
-              value="overview" 
-              className={`flex items-center gap-2 transition-all duration-300 ${
-                activeTab === 'overview' 
-                  ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg' 
+            <TabsTrigger
+              value="overview"
+              className={`flex items-center gap-2 transition-all duration-300 ${activeTab === 'overview'
+                  ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white shadow-lg'
                   : 'hover:bg-blue-50 text-gray-600'
-              }`}
+                }`}
             >
               <PieChart className="w-4 h-4" />
               Overview
             </TabsTrigger>
-            <TabsTrigger 
-              value="leaderboard" 
-              className={`flex items-center gap-2 transition-all duration-300 ${
-                activeTab === 'leaderboard' 
-                  ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-lg' 
+            <TabsTrigger
+              value="leaderboard"
+              className={`flex items-center gap-2 transition-all duration-300 ${activeTab === 'leaderboard'
+                  ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-lg'
                   : 'hover:bg-yellow-50 text-gray-600'
-              }`}
+                }`}
             >
               <Trophy className="w-4 h-4" />
               Leaderboard
             </TabsTrigger>
-            <TabsTrigger 
-              value="activity" 
-              className={`flex items-center gap-2 transition-all duration-300 ${
-                activeTab === 'activity' 
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg' 
+            <TabsTrigger
+              value="activity"
+              className={`flex items-center gap-2 transition-all duration-300 ${activeTab === 'activity'
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-lg'
                   : 'hover:bg-green-50 text-gray-600'
-              }`}
+                }`}
             >
               <Activity className="w-4 h-4" />
               Activity
             </TabsTrigger>
-            <TabsTrigger 
-              value="insights" 
-              className={`flex items-center gap-2 transition-all duration-300 ${
-                activeTab === 'insights' 
-                  ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg' 
+            <TabsTrigger
+              value="insights"
+              className={`flex items-center gap-2 transition-all duration-300 ${activeTab === 'insights'
+                  ? 'bg-gradient-to-r from-purple-500 to-violet-600 text-white shadow-lg'
                   : 'hover:bg-purple-50 text-gray-600'
-              }`}
+                }`}
             >
               <TrendingUp className="w-4 h-4" />
               Insights
@@ -329,12 +330,11 @@ export default function CommunityPage() {
                     {stats.topCategories?.map((category, index) => (
                       <div key={category.name} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-white rounded-lg border">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                            index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500' :
-                            index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
-                            'bg-gradient-to-r from-blue-400 to-purple-500'
-                          }`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                              index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500' :
+                                index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
+                                  'bg-gradient-to-r from-blue-400 to-purple-500'
+                            }`}>
                             {index < 3 ? (
                               <Crown className="w-5 h-5 text-white" />
                             ) : (
@@ -371,15 +371,14 @@ export default function CommunityPage() {
                     {stats.leaderboard?.map((member, index) => (
                       <div key={member._id} className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-white rounded-lg border">
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                            index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500' :
-                            index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
-                            'bg-gradient-to-r from-blue-400 to-purple-500'
-                          }`}>
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                              index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500' :
+                                index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
+                                  'bg-gradient-to-r from-blue-400 to-purple-500'
+                            }`}>
                             {index < 3 ? (
                               index === 0 ? <Crown className="w-5 h-5 text-white" /> :
-                              <Medal className="w-5 h-5 text-white" />
+                                <Medal className="w-5 h-5 text-white" />
                             ) : (
                               <span className="text-sm font-bold text-white">{index + 1}</span>
                             )}
@@ -420,15 +419,14 @@ export default function CommunityPage() {
                   {stats.leaderboard?.length > 0 ? stats.leaderboard.map((member, index) => (
                     <div key={member._id} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-white rounded-lg border hover:shadow-md transition-all">
                       <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                          index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
-                          index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500' :
-                          index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
-                          'bg-gradient-to-r from-blue-400 to-purple-500'
-                        }`}>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center ${index === 0 ? 'bg-gradient-to-r from-yellow-400 to-orange-500' :
+                            index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-500' :
+                              index === 2 ? 'bg-gradient-to-r from-orange-400 to-red-500' :
+                                'bg-gradient-to-r from-blue-400 to-purple-500'
+                          }`}>
                           {index < 3 ? (
                             index === 0 ? <Crown className="w-6 h-6 text-white" /> :
-                            <Medal className="w-6 h-6 text-white" />
+                              <Medal className="w-6 h-6 text-white" />
                           ) : (
                             <span className="text-lg font-bold text-white">{index + 1}</span>
                           )}
@@ -609,7 +607,7 @@ export default function CommunityPage() {
                     </div>
                   ))}
                 </div>
-                
+
                 <div className="mt-6 text-center">
                   <Button asChild className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
                     <Link href="/issues">

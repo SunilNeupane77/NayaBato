@@ -8,7 +8,7 @@ import User from '@/models/User';
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -32,23 +32,22 @@ export async function GET(request) {
       if (dateTo) query.createdAt.$lte = new Date(dateTo);
     }
 
-    const activities = await UserActivity.find(query)
-      .populate('userId', 'name email role')
-      .sort({ createdAt: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
-
-    const total = await UserActivity.countDocuments(query);
-
-    // Get activity statistics
-    const stats = await UserActivity.aggregate([
-      {
-        $group: {
-          _id: '$action',
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } }
+    const [activities, total, stats] = await Promise.all([
+      UserActivity.find(query)
+        .populate('userId', 'name email role')
+        .sort({ createdAt: -1 })
+        .limit(limit * 1)
+        .skip((page - 1) * limit),
+      UserActivity.countDocuments(query),
+      UserActivity.aggregate([
+        {
+          $group: {
+            _id: '$action',
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { count: -1 } }
+      ])
     ]);
 
     return NextResponse.json({
@@ -71,7 +70,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

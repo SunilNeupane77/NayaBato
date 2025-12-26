@@ -9,7 +9,7 @@ import UserActivity from '@/models/UserActivity';
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -36,114 +36,121 @@ export async function GET(request) {
         break;
     }
 
-    // User registration trends
-    const userTrends = await User.aggregate([
-      {
-        $match: { createdAt: dateFilter }
-      },
-      {
-        $group: {
-          _id: {
-            date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-            role: "$role"
-          },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { "_id.date": 1 } }
-    ]);
+    // Execute all aggregations in parallel
+    const [
+      userTrends,
+      activeUsersData,
+      activityBreakdown,
+      geoDistribution,
+      deviceStats,
+      totalUsers,
+      newUsers,
+      totalActiveSessions
+    ] = await Promise.all([
+      // User registration trends
+      User.aggregate([
+        { $match: { createdAt: dateFilter } },
+        {
+          $group: {
+            _id: {
+              date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+              role: "$role"
+            },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { "_id.date": 1 } }
+      ]),
 
-    // Active users
-    const activeUsers = await UserSession.aggregate([
-      {
-        $match: { lastActivity: dateFilter }
-      },
-      {
-        $group: {
-          _id: "$userId",
-          lastActivity: { $max: "$lastActivity" },
-          sessionCount: { $sum: 1 }
+      // Active users
+      UserSession.aggregate([
+        { $match: { lastActivity: dateFilter } },
+        {
+          $group: {
+            _id: "$userId",
+            lastActivity: { $max: "$lastActivity" },
+            sessionCount: { $sum: 1 }
+          }
         }
-      }
-    ]);
+      ]),
 
-    // User activity breakdown
-    const activityBreakdown = await UserActivity.aggregate([
-      {
-        $match: { createdAt: dateFilter }
-      },
-      {
-        $group: {
-          _id: "$action",
-          count: { $sum: 1 },
-          uniqueUsers: { $addToSet: "$userId" }
-        }
-      },
-      {
-        $project: {
-          action: "$_id",
-          count: 1,
-          uniqueUsers: { $size: "$uniqueUsers" }
-        }
-      },
-      { $sort: { count: -1 } }
-    ]);
+      // User activity breakdown
+      UserActivity.aggregate([
+        { $match: { createdAt: dateFilter } },
+        {
+          $group: {
+            _id: "$action",
+            count: { $sum: 1 },
+            uniqueUsers: { $addToSet: "$userId" }
+          }
+        },
+        {
+          $project: {
+            action: "$_id",
+            count: 1,
+            uniqueUsers: { $size: "$uniqueUsers" }
+          }
+        },
+        { $sort: { count: -1 } }
+      ]),
 
-    // Geographic distribution
-    const geoDistribution = await UserSession.aggregate([
-      {
-        $match: { loginTime: dateFilter }
-      },
-      {
-        $group: {
-          _id: {
-            country: "$location.country",
-            city: "$location.city"
-          },
-          users: { $addToSet: "$userId" },
-          sessions: { $sum: 1 }
-        }
-      },
-      {
-        $project: {
-          location: "$_id",
-          uniqueUsers: { $size: "$users" },
-          sessions: 1
-        }
-      },
-      { $sort: { uniqueUsers: -1 } },
-      { $limit: 10 }
-    ]);
+      // Geographic distribution
+      UserSession.aggregate([
+        { $match: { loginTime: dateFilter } },
+        {
+          $group: {
+            _id: {
+              country: "$location.country",
+              city: "$location.city"
+            },
+            users: { $addToSet: "$userId" },
+            sessions: { $sum: 1 }
+          }
+        },
+        {
+          $project: {
+            location: "$_id",
+            uniqueUsers: { $size: "$users" },
+            sessions: 1
+          }
+        },
+        { $sort: { uniqueUsers: -1 } },
+        { $limit: 10 }
+      ]),
 
-    // Device/Browser stats
-    const deviceStats = await UserSession.aggregate([
-      {
-        $match: { loginTime: dateFilter }
-      },
-      {
-        $group: {
-          _id: {
-            browser: "$device.browser",
-            os: "$device.os",
-            isMobile: "$device.isMobile"
-          },
-          count: { $sum: 1 }
-        }
-      },
-      { $sort: { count: -1 } }
+      // Device/Browser stats
+      UserSession.aggregate([
+        { $match: { loginTime: dateFilter } },
+        {
+          $group: {
+            _id: {
+              browser: "$device.browser",
+              os: "$device.os",
+              isMobile: "$device.isMobile"
+            },
+            count: { $sum: 1 }
+          }
+        },
+        { $sort: { count: -1 } }
+      ]),
+
+      // Summary counts
+      User.countDocuments(),
+      User.countDocuments({ createdAt: dateFilter }),
+      UserSession.countDocuments({ isActive: true })
     ]);
 
     return NextResponse.json({
       userTrends,
-      activeUsers: activeUsers.length,
+      activeUsers: activeUsersData.length,
       activityBreakdown,
       geoDistribution,
       deviceStats,
       summary: {
-        totalUsers: await User.countDocuments(),
-        activeUsers: activeUsers.length,
-        newUsers: await User.countDocuments({ createdAt: dateFilter }),
-        activeSessions: await UserSession.countDocuments({ isActive: true })
+        totalUsers,
+        activeUsers: activeUsersData.length,
+        newUsers,
+        activeSessions: totalActiveSessions
       }
     });
 

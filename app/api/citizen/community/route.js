@@ -11,76 +11,93 @@ export async function GET() {
     const weekStart = new Date();
     weekStart.setDate(weekStart.getDate() - 7);
 
-    // Total community members
-    const totalMembers = await User.countDocuments({ role: 'citizen' });
+    // Run independent queries in parallel
+    const [
+      totalMembers,
+      activeThisWeek,
+      totalReports,
+      resolvedIssues,
+      categoryAggregation,
+      leaderboardAggregation,
+      recentActivity
+    ] = await Promise.all([
+      // Total community members
+      User.countDocuments({ role: 'citizen' }),
 
-    // Active members this week (who reported or commented)
-    const activeThisWeek = await User.countDocuments({
-      role: 'citizen',
-      $or: [
-        { createdAt: { $gte: weekStart } },
-        { updatedAt: { $gte: weekStart } }
-      ]
-    });
+      // Active members this week
+      User.countDocuments({
+        role: 'citizen',
+        $or: [
+          { createdAt: { $gte: weekStart } },
+          { updatedAt: { $gte: weekStart } }
+        ]
+      }),
 
-    // Total reports and resolved issues
-    const totalReports = await Issue.countDocuments();
-    const resolvedIssues = await Issue.countDocuments({ status: 'resolved' });
+      // Total reports
+      Issue.countDocuments(),
 
-    // Top categories
-    const categoryAggregation = await Issue.aggregate([
-      { $group: { _id: '$category', count: { $sum: 1 } } },
-      { $sort: { count: -1 } },
-      { $limit: 5 },
-      { $project: { name: '$_id', count: 1, _id: 0 } }
-    ]);
+      // Resolved issues
+      Issue.countDocuments({ status: 'resolved' }),
 
-    // Community leaderboard (top reporters)
-    const leaderboardAggregation = await Issue.aggregate([
-      { $group: { 
-          _id: '$reporter', 
-          reportCount: { $sum: 1 },
-          resolvedCount: { 
-            $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] }
+      // Top categories
+      Issue.aggregate([
+        { $group: { _id: '$category', count: { $sum: 1 } } },
+        { $sort: { count: -1 } },
+        { $limit: 5 },
+        { $project: { name: '$_id', count: 1, _id: 0 } }
+      ]),
+
+      // Community leaderboard
+      Issue.aggregate([
+        {
+          $group: {
+            _id: '$reporter',
+            reportCount: { $sum: 1 },
+            resolvedCount: {
+              $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'user'
+          }
+        },
+        { $unwind: '$user' },
+        { $match: { 'user.role': 'citizen' } },
+        {
+          $addFields: {
+            impactScore: {
+              $add: [
+                { $multiply: ['$resolvedCount', 10] },
+                { $multiply: ['$reportCount', 2] }
+              ]
+            }
+          }
+        },
+        { $sort: { impactScore: -1 } },
+        { $limit: 10 },
+        {
+          $project: {
+            name: '$user.name',
+            reportCount: 1,
+            resolvedCount: 1,
+            impactScore: 1,
+            createdAt: '$user.createdAt'
           }
         }
-      },
-      { $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'user'
-        }
-      },
-      { $unwind: '$user' },
-      { $match: { 'user.role': 'citizen' } },
-      { $addFields: {
-          impactScore: { 
-            $add: [
-              { $multiply: ['$resolvedCount', 10] },
-              { $multiply: ['$reportCount', 2] }
-            ]
-          }
-        }
-      },
-      { $sort: { impactScore: -1 } },
-      { $limit: 10 },
-      { $project: {
-          name: '$user.name',
-          reportCount: 1,
-          resolvedCount: 1,
-          impactScore: 1,
-          createdAt: '$user.createdAt'
-        }
-      }
-    ]);
+      ]),
 
-    // Recent community activity
-    const recentActivity = await Issue.find()
-      .populate('reporter', 'name')
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .select('title description status location createdAt reporter');
+      // Recent community activity
+      Issue.find()
+        .populate('reporter', 'name')
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .select('title description status location createdAt reporter')
+    ]);
 
     return NextResponse.json({
       totalMembers,

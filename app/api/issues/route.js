@@ -176,6 +176,7 @@ export async function POST(request) {
         category,
         location,
         images,
+        citizen: user._id,
         reporter: user._id,
         status: 'reported',
         assignedWard, // Assign the nearest ward if found

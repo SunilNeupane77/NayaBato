@@ -4,7 +4,7 @@ import connectDB from "@/lib/db/connect";
 import Issue from "@/models/Issue";
 import User from "@/models/User";
 
-export async function GET() {
+export async function GET(request) {
   try {
     const session = await getServerSession();
     if (!session?.user?.email) {
@@ -19,13 +19,46 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get user's issues with populated data
-    const issues = await Issue.find({ reporter: user._id })
-      .populate('reporter', 'name email')
-      .populate('assignedTo', 'name')
-      .sort({ createdAt: -1 });
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 10;
+    const search = searchParams.get('search') || '';
+    const status = searchParams.get('status') || 'all';
 
-    return NextResponse.json({ issues });
+    const query = { reporter: user._id };
+
+    if (status !== 'all') {
+      query.status = status;
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [issues, total] = await Promise.all([
+      Issue.find(query)
+        .populate('reporter', 'name email')
+        .populate('assignedTo', 'name')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
+      Issue.countDocuments(query)
+    ]);
+
+    return NextResponse.json({
+      issues,
+      pagination: {
+        total,
+        pages: Math.ceil(total / limit),
+        page,
+        limit
+      }
+    });
 
   } catch (error) {
     console.error("My reports error:", error);

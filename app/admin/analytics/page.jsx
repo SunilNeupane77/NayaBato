@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Users, Activity, Globe, Smartphone } from 'lucide-react';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82ca9d', '#a4de6c', '#d0ed57'];
 
 export default function AnalyticsPage() {
   const { data: session } = useSession();
@@ -37,29 +37,41 @@ export default function AnalyticsPage() {
     return <div className="text-center text-red-500">Failed to load analytics data</div>;
   }
 
-  // Process user trends data for chart
-  const userTrendsData = analytics.userTrends.reduce((acc, item) => {
-    const existing = acc.find(d => d.date === item._id.date);
-    if (existing) {
-      existing[item._id.role] = item.count;
-    } else {
-      acc.push({
-        date: item._id.date,
-        [item._id.role]: item.count
-      });
-    }
-    return acc;
-  }, []);
+  // Process data for Charts
 
-  // Process device stats for pie chart
-  const deviceData = analytics.deviceStats.map(item => ({
-    name: `${item._id.browser} (${item._id.os})`,
-    value: item.count,
-    mobile: item._id.isMobile
+  // 1. Activity Distribution
+  const activityData = analytics.activityBreakdown.map(item => ({
+    name: item.action.replace('_', ' '),
+    value: item.count
   }));
 
+  // 2. Geographic Distribution (Top Cities)
+  const geoData = analytics.geoDistribution.map(item => ({
+    name: item.location.city || 'Unknown',
+    value: item.sessions
+  }));
+
+  // 3. Device Distribution
+  const deviceData = analytics.deviceStats.map(item => ({
+    name: `${item._id.browser} (${item._id.os})`,
+    value: item.count
+  }));
+
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text x={x} y={y} fill="white" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">User Analytics</h1>
         <select
@@ -114,93 +126,89 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* User Registration Trends */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 className="text-lg font-semibold mb-4">User Registration Trends</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={userTrendsData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Bar dataKey="citizen" fill="#8884d8" name="Citizens" />
-            <Bar dataKey="official" fill="#82ca9d" name="Officials" />
-            <Bar dataKey="admin" fill="#ffc658" name="Admins" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Activity Breakdown */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Activity Breakdown</h2>
-          <div className="space-y-3">
-            {analytics.activityBreakdown.slice(0, 8).map((activity, index) => (
-              <div key={activity._id} className="flex justify-between items-center">
-                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                  {activity.action.replace('_', ' ')}
-                </span>
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm font-medium">{activity.count}</span>
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-blue-500 h-2 rounded-full" 
-                      style={{ 
-                        width: `${(activity.count / Math.max(...analytics.activityBreakdown.map(a => a.count))) * 100}%` 
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <h2 className="text-lg font-semibold mb-4 text-center">Activity Distribution</h2>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={activityData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomizedLabel}
+                  outerRadius={80}
+                  fill="#82ca9d"
+                  dataKey="value"
+                >
+                  {activityData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Device/Browser Distribution */}
+        {/* Geographic Distribution */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Device Distribution</h2>
-          <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
-              <Pie
-                data={deviceData.slice(0, 5)}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {deviceData.slice(0, 5).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <h2 className="text-lg font-semibold mb-4 text-center">Sessions by City</h2>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={geoData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomizedLabel}
+                  outerRadius={80}
+                  fill="#ffc658"
+                  dataKey="value"
+                >
+                  {geoData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
 
-      {/* Geographic Distribution */}
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-        <h2 className="text-lg font-semibold mb-4">Geographic Distribution</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {analytics.geoDistribution.map((location, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded">
-              <div className="flex items-center">
-                <Globe className="h-5 w-5 text-gray-400 mr-2" />
-                <div>
-                  <p className="font-medium">{location.location.city || 'Unknown'}</p>
-                  <p className="text-sm text-gray-500">{location.location.country || 'Unknown'}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-medium">{location.uniqueUsers}</p>
-                <p className="text-sm text-gray-500">{location.sessions} sessions</p>
-              </div>
-            </div>
-          ))}
+        {/* Device Distribution */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+          <h2 className="text-lg font-semibold mb-4 text-center">Device Distribution</h2>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={deviceData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={renderCustomizedLabel}
+                  outerRadius={80}
+                  fill="#ff8042"
+                  dataKey="value"
+                >
+                  {deviceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
         </div>
+
       </div>
     </div>
   );

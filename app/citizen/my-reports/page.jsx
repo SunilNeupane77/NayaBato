@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLanguage } from '@/lib/i18n/language-context';
 import Link from 'next/link';
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Calendar, 
+import {
+  ArrowLeft,
+  MapPin,
+  Calendar,
   Filter,
   Search,
   Eye,
@@ -18,7 +18,6 @@ import {
   Clock,
   AlertCircle,
   XCircle,
-  TrendingUp,
   BarChart3,
   Activity,
   Zap,
@@ -27,7 +26,9 @@ import {
   Globe,
   Star,
   Award,
-  Shield
+  Shield,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -35,29 +36,52 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { debounce } from '@/lib/utils'; // Assuming utils exists, or I'll implement a simple debounce
 
 export default function MyReportsPage() {
   const { data: session } = useSession();
   const { t } = useLanguage();
   const [issues, setIssues] = useState([]);
-  const [filteredIssues, setFilteredIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalIssues, setTotalIssues] = useState(0);
+
+  // Debounce search to avoid too many API calls
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(1); // Reset to page 1 on search change
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchMyReports();
-  }, []);
-
-  useEffect(() => {
-    filterIssues();
-  }, [issues, searchTerm, statusFilter]);
+  }, [page, debouncedSearch, statusFilter]);
 
   const fetchMyReports = async () => {
+    setLoading(true);
     try {
-      const response = await fetch('/api/citizen/my-reports');
+      const params = new URLSearchParams({
+        page: page.toString(),
+        limit: '10',
+        search: debouncedSearch,
+        status: statusFilter
+      });
+
+      const response = await fetch(`/api/citizen/my-reports?${params}`);
       const data = await response.json();
-      setIssues(data.issues || []);
+
+      if (data.issues) {
+        setIssues(data.issues);
+        setTotalPages(data.pagination.pages);
+        setTotalIssues(data.pagination.total);
+      }
     } catch (error) {
       console.error('Error fetching reports:', error);
     } finally {
@@ -65,21 +89,9 @@ export default function MyReportsPage() {
     }
   };
 
-  const filterIssues = () => {
-    let filtered = issues;
-
-    if (searchTerm) {
-      filtered = filtered.filter(issue =>
-        issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        issue.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(issue => issue.status === statusFilter);
-    }
-
-    setFilteredIssues(filtered);
+  const handleStatusChange = (value) => {
+    setStatusFilter(value);
+    setPage(1); // Reset to page 1 on filter change
   };
 
   const getStatusIcon = (status) => {
@@ -109,19 +121,6 @@ export default function MyReportsPage() {
       day: 'numeric'
     });
   };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3"></div>
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -160,75 +159,6 @@ export default function MyReportsPage() {
           </Button>
         </div>
 
-        {/* Enhanced Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-gradient-to-br from-white to-blue-50 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6 text-center">
-              <div className="flex items-center justify-center mb-3">
-                <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full">
-                  <BarChart3 className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-gray-900">{issues.length}</div>
-              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
-                <Target className="w-3 h-3" />
-                Total Reports
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-white to-emerald-50 border-emerald-100 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6 text-center">
-              <div className="flex items-center justify-center mb-3">
-                <div className="p-3 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full">
-                  <CheckCircle className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-emerald-600">
-                {issues.filter(i => i.status === 'resolved').length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
-                <Award className="w-3 h-3" />
-                Resolved
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-white to-amber-50 border-amber-100 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6 text-center">
-              <div className="flex items-center justify-center mb-3">
-                <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full">
-                  <Clock className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-amber-600">
-                {issues.filter(i => i.status === 'in-progress').length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
-                <Zap className="w-3 h-3" />
-                In Progress
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-white to-blue-50 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6 text-center">
-              <div className="flex items-center justify-center mb-3">
-                <div className="p-3 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full">
-                  <AlertCircle className="w-6 h-6 text-white" />
-                </div>
-              </div>
-              <div className="text-2xl font-bold text-blue-600">
-                {issues.filter(i => i.status === 'under-review').length}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400 flex items-center justify-center gap-1">
-                <Shield className="w-3 h-3" />
-                Under Review
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
         {/* Enhanced Filters */}
         <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-xl">
           <CardContent className="p-6">
@@ -244,7 +174,7 @@ export default function MyReportsPage() {
                   />
                 </div>
               </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={handleStatusChange}>
                 <SelectTrigger className="w-full lg:w-56 h-12 bg-white/50 border-gray-200">
                   <Filter className="w-5 h-5 mr-2 text-gray-500" />
                   <SelectValue placeholder="Filter by status" />
@@ -294,55 +224,92 @@ export default function MyReportsPage() {
 
         {/* Enhanced Issues List */}
         <div className="space-y-4">
-          {filteredIssues.length > 0 ? (
-            filteredIssues.map((issue) => (
-              <Card key={issue._id} className="bg-white/80 backdrop-blur-sm border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate flex items-center gap-2">
-                          <div className="p-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-md">
-                            <FileText className="w-4 h-4 text-white" />
-                          </div>
-                          {issue.title}
-                        </h3>
-                        <Badge className={`${getStatusColor(issue.status)} border flex items-center gap-1.5 px-3 py-1`}>
-                          {getStatusIcon(issue.status)}
-                          {issue.status.replace('-', ' ')}
-                        </Badge>
-                      </div>
-                      
-                      <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm leading-relaxed line-clamp-2">{issue.description}</p>
-                      
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-gray-500">
-                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
-                          <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
-                          <span className="truncate">{issue.location?.address || 'Unknown location'}</span>
+          {loading ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-32 bg-gray-200 rounded-xl animate-pulse"></div>
+              ))}
+            </div>
+          ) : issues.length > 0 ? (
+            <>
+              {issues.map((issue) => (
+                <Card key={issue._id} className="bg-white/80 backdrop-blur-sm border-white/20 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01]">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-3">
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate flex items-center gap-2">
+                            <div className="p-1.5 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-md">
+                              <FileText className="w-4 h-4 text-white" />
+                            </div>
+                            {issue.title}
+                          </h3>
+                          <Badge className={`${getStatusColor(issue.status)} border flex items-center gap-1.5 px-3 py-1`}>
+                            {getStatusIcon(issue.status)}
+                            {issue.status.replace('-', ' ')}
+                          </Badge>
                         </div>
-                        <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
-                          <Calendar className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span>{formatDate(issue.createdAt)}</span>
-                        </div>
-                        {issue.comments?.length > 0 && (
+
+                        <p className="text-gray-600 dark:text-gray-400 mb-4 text-sm leading-relaxed line-clamp-2">{issue.description}</p>
+
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 text-sm text-gray-500">
                           <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
-                            <MessageSquare className="w-4 h-4 text-purple-500 flex-shrink-0" />
-                            <span>{issue.comments.length} comments</span>
+                            <MapPin className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                            <span className="truncate">{issue.location?.address || 'Unknown location'}</span>
                           </div>
-                        )}
+                          <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
+                            <Calendar className="w-4 h-4 text-green-500 flex-shrink-0" />
+                            <span>{formatDate(issue.createdAt)}</span>
+                          </div>
+                          {issue.comments?.length > 0 && (
+                            <div className="flex items-center gap-2 bg-gray-50 dark:bg-gray-900 px-3 py-1.5 rounded-full">
+                              <MessageSquare className="w-4 h-4 text-purple-500 flex-shrink-0" />
+                              <span>{issue.comments.length} comments</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
+
+                      <Button variant="outline" size="sm" asChild className="w-full sm:w-auto bg-white/50 hover:bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 transition-colors">
+                        <Link href={`/issues/${issue._id}`}>
+                          <Eye className="w-4 h-4 mr-2" />
+                          View Details
+                        </Link>
+                      </Button>
                     </div>
-                    
-                    <Button variant="outline" size="sm" asChild className="w-full sm:w-auto bg-white/50 hover:bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-300 transition-colors">
-                      <Link href={`/issues/${issue._id}`}>
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                  </CardContent>
+                </Card>
+              ))}
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-center items-center gap-4 mt-8">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    disabled={page === 1}
+                    className="w-24"
+                  >
+                    <ChevronLeft className="w-4 h-4 mr-2" />
+                    Previous
+                  </Button>
+                  <span className="text-sm font-medium text-gray-600">
+                    Page {page} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    disabled={page === totalPages}
+                    className="w-24"
+                  >
+                    Next
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              )}
+            </>
           ) : (
             <Card className="bg-white/80 backdrop-blur-sm border-white/20 shadow-xl">
               <CardContent className="p-12 text-center">
@@ -356,7 +323,7 @@ export default function MyReportsPage() {
                   No reports found
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                  {searchTerm || statusFilter !== 'all' 
+                  {searchTerm || statusFilter !== 'all'
                     ? 'Try adjusting your search criteria or filters to find what you\'re looking for'
                     : 'Start making a difference in your community by submitting your first report'
                   }

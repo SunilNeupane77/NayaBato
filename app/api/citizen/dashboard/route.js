@@ -19,55 +19,58 @@ export async function GET() {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Get user's issues
-    const myIssues = await Issue.find({ reporter: user._id })
-      .populate('reporter', 'name')
-      .sort({ createdAt: -1 });
-
-    // Calculate user stats
-    const resolved = myIssues.filter(issue => issue.status === 'resolved').length;
-    const pending = myIssues.filter(issue => !['resolved', 'rejected'].includes(issue.status)).length;
-
-    // Calculate impact score (resolved issues * 10 + total reports * 2)
-    const impactScore = (resolved * 10) + (myIssues.length * 2);
-
-    // Get recent issues (last 10)
-    const recentIssues = myIssues.slice(0, 10);
-
-    // Get community stats
     const weekStart = new Date();
     weekStart.setDate(weekStart.getDate() - 7);
 
+    // Run queries in parallel
+    const [
+      myIssuesCount,
+      resolvedCount,
+      pendingCount,
+      recentIssues,
+      weeklyResolvedCommunity,
+      activeMembersCommunity,
+      totalReportsCommunity
+    ] = await Promise.all([
+      Issue.countDocuments({ reporter: user._id }),
+      Issue.countDocuments({ reporter: user._id, status: 'resolved' }),
+      Issue.countDocuments({ reporter: user._id, status: { $nin: ['resolved', 'rejected'] } }),
+      Issue.find({ reporter: user._id })
+        .populate('reporter', 'name')
+        .sort({ createdAt: -1 })
+        .limit(10),
+      Issue.countDocuments({ status: 'resolved', updatedAt: { $gte: weekStart } }),
+      User.countDocuments({ role: 'citizen', createdAt: { $gte: weekStart } }),
+      Issue.countDocuments()
+    ]);
+
+    // Calculate impact score (resolved issues * 10 + total reports * 2)
+    const impactScore = (resolvedCount * 10) + (myIssuesCount * 2);
+
     const communityStats = {
-      weeklyResolved: await Issue.countDocuments({
-        status: 'resolved',
-        updatedAt: { $gte: weekStart }
-      }),
-      activeMembers: await User.countDocuments({
-        role: 'citizen',
-        createdAt: { $gte: weekStart }
-      }),
-      totalReports: await Issue.countDocuments()
+      weeklyResolved: weeklyResolvedCommunity,
+      activeMembers: activeMembersCommunity,
+      totalReports: totalReportsCommunity
     };
 
     // Generate achievements based on user activity
     const achievements = [];
-    
-    if (myIssues.length >= 1) {
+
+    if (myIssuesCount >= 1) {
       achievements.push({
         title: "First Reporter",
         description: "Submitted your first issue report"
       });
     }
-    
-    if (resolved >= 3) {
+
+    if (resolvedCount >= 3) {
       achievements.push({
         title: "Problem Solver",
         description: "Helped resolve 3+ community issues"
       });
     }
-    
-    if (myIssues.length >= 10) {
+
+    if (myIssuesCount >= 10) {
       achievements.push({
         title: "Community Champion",
         description: "Submitted 10+ issue reports"
@@ -82,9 +85,9 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      myIssues: myIssues.length,
-      resolved,
-      pending,
+      myIssues: myIssuesCount,
+      resolved: resolvedCount,
+      pending: pendingCount,
       impactScore,
       recentIssues,
       communityStats,

@@ -13,70 +13,148 @@ export async function GET(request) {
     }
 
     await connectDB();
-    
+
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page')) || 1;
     const limit = parseInt(searchParams.get('limit')) || 20;
     const search = searchParams.get('search') || '';
     const status = searchParams.get('status') || 'all';
     const category = searchParams.get('category') || '';
+    const sortBy = searchParams.get('sortBy') || 'name';
 
-    // Build query
-    const query = {};
+    // Build match stage for filtering
+    const matchStage = {};
     if (search) {
-      query.$or = [
+      matchStage.$or = [
         { name: { $regex: search, $options: 'i' } },
         { description: { $regex: search, $options: 'i' } }
       ];
     }
     if (status !== 'all') {
-      query.isActive = status === 'active';
+      matchStage.isActive = status === 'active';
     }
     if (category && category !== 'all-categories') {
-      query.categories = category;
+      matchStage.categories = category;
     }
 
-    const [departments, total] = await Promise.all([
-      Department.find(query)
-        .populate('headOfficer', 'name email')
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit),
-      Department.countDocuments(query)
-    ]);
+    // Build sort stage
+    let sortStage = {};
+    switch (sortBy) {
+      case 'issues':
+        sortStage = { issueCount: -1 };
+        break;
+      case 'resolution':
+        sortStage = { resolutionRate: -1 };
+        break;
+      default: // 'name'
+        sortStage = { name: 1 };
+    }
 
-    // Get issue counts for each department
-    const departmentsWithStats = await Promise.all(
-      departments.map(async (dept) => {
-        try {
-          const issueCount = await Issue.countDocuments({ 
-            category: { $in: dept.categories } 
-          });
-          const resolvedCount = await Issue.countDocuments({ 
-            category: { $in: dept.categories },
-            status: 'resolved'
-          });
-          
-          return {
-            ...dept.toObject(),
-            issueCount,
-            resolvedCount,
-            resolutionRate: issueCount > 0 ? ((resolvedCount / issueCount) * 100).toFixed(1) : 0
-          };
-        } catch (err) {
-          // If issue stats fail, return department without stats
-          return {
-            ...dept.toObject(),
-            issueCount: 0,
-            resolvedCount: 0,
-            resolutionRate: 0
-          };
+    const pipeline = [
+      { $match: matchStage },
+      // Lookup issues to count them
+      {
+        $lookup: {
+          from: 'issues',
+          let: { deptCategories: '$categories' },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ['$category', '$$deptCategories'] }
+              }
+            },
+            {
+              $group: {
+                _id: null,
+                total: { $sum: 1 },
+                resolved: {
+                  $sum: { $cond: [{ $eq: ['$status', 'resolved'] }, 1, 0] }
+                }
+              }
+            }
+          ],
+          as: 'issueStats'
         }
-      })
-    );
+      },
+      // Unwind stats (preserve null if no issues)
+      {
+        $unwind: {
+          path: '$issueStats',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Add calculated fields
+      {
+        $addFields: {
+          issueCount: { $ifNull: ['$issueStats.total', 0] },
+          resolvedCount: { $ifNull: ['$issueStats.resolved', 0] },
+          resolutionRate: {
+            $cond: [
+              { $gt: [{ $ifNull: ['$issueStats.total', 0] }, 0] },
+              {
+                $multiply: [
+                  { $divide: [{ $ifNull: ['$issueStats.resolved', 0] }, { $ifNull: ['$issueStats.total', 1] }] },
+                  100
+                ]
+              },
+              0
+            ]
+          }
+        }
+      },
+      // Lookup head officer details
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'headOfficer',
+          foreignField: '_id',
+          as: 'headOfficerDetails'
+        }
+      },
+      {
+        $unwind: {
+          path: '$headOfficerDetails',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Project final fields
+      {
+        $project: {
+          name: 1,
+          description: 1,
+          categories: 1,
+          workingHours: 1,
+          budget: 1,
+          contactEmail: 1,
+          contactPhone: 1,
+          isActive: 1,
+          createdAt: 1,
+          headOfficer: {
+            _id: '$headOfficerDetails._id',
+            name: '$headOfficerDetails.name',
+            email: '$headOfficerDetails.email'
+          },
+          issueCount: 1,
+          resolvedCount: 1,
+          resolutionRate: { $round: ['$resolutionRate', 1] }
+        }
+      },
+      { $sort: sortStage },
+      {
+        $facet: {
+          metadata: [{ $count: "total" }],
+          data: [{ $skip: (page - 1) * limit }, { $limit: limit }]
+        }
+      }
+    ];
+
+    const result = await Department.aggregate(pipeline);
+
+    const departments = result[0].data;
+    const total = result[0].metadata[0]?.total || 0;
 
     return NextResponse.json({
-      departments: departmentsWithStats,
+      departments,
       pagination: {
         page,
         limit,
@@ -99,19 +177,19 @@ export async function POST(request) {
 
     await connectDB();
     const data = await request.json();
-    
+
     // Validate required fields
     if (!data.name || !data.categories || data.categories.length === 0) {
-      return NextResponse.json({ 
-        error: 'Name and at least one category are required' 
+      return NextResponse.json({
+        error: 'Name and at least one category are required'
       }, { status: 400 });
     }
 
     // Check if department name already exists
     const existingDept = await Department.findOne({ name: data.name });
     if (existingDept) {
-      return NextResponse.json({ 
-        error: 'Department with this name already exists' 
+      return NextResponse.json({
+        error: 'Department with this name already exists'
       }, { status: 400 });
     }
 
@@ -125,7 +203,7 @@ export async function POST(request) {
     });
 
     await department.populate('headOfficer', 'name email');
-    
+
     return NextResponse.json({ department }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to create department' }, { status: 500 });

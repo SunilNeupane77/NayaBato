@@ -7,14 +7,14 @@ import { useEffect, useState } from 'react';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const departmentCategories = [
   'pothole',
-  'streetlight', 
+  'streetlight',
   'garbage',
   'water',
   'electricity',
@@ -130,26 +130,29 @@ export default function DepartmentsPage() {
       fetchDepartments();
       fetchUsers();
     }
-  }, [status, session, router]);
+  }, [status, session, router, searchQuery, statusFilter, categoryFilter, sortBy]);
 
   const fetchDepartments = async () => {
     setLoading(true);
     setError(null);
-    
+
     try {
       const params = new URLSearchParams({
         search: searchQuery,
         status: statusFilter,
-        category: categoryFilter
+        category: categoryFilter,
+        sortBy: sortBy,
+        page: 1, // Reset to page 1 on filter change, ideally manage page state better
+        limit: 100 // Fetch more for grid view, or implement proper pagination UI
       });
-      
+
       const response = await fetch(`/api/departments?${params}`);
-      
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = await response.json();
       setDepartments(data.departments || []);
     } catch (err) {
@@ -194,13 +197,13 @@ export default function DepartmentsPage() {
     setFormData(prev => {
       const categories = [...prev.categories];
       const index = categories.indexOf(category);
-      
+
       if (index > -1) {
         categories.splice(index, 1);
       } else {
         categories.push(category);
       }
-      
+
       return { ...prev, categories };
     });
   };
@@ -209,13 +212,13 @@ export default function DepartmentsPage() {
     setFormData(prev => {
       const workingDays = [...prev.workingHours.workingDays];
       const index = workingDays.indexOf(day);
-      
+
       if (index > -1) {
         workingDays.splice(index, 1);
       } else {
         workingDays.push(day);
       }
-      
+
       return {
         ...prev,
         workingHours: { ...prev.workingHours, workingDays }
@@ -225,7 +228,7 @@ export default function DepartmentsPage() {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.categories.length === 0) {
       toast({
         variant: 'destructive',
@@ -234,12 +237,12 @@ export default function DepartmentsPage() {
       });
       return;
     }
-    
+
     try {
-      const url = currentDepartment 
-        ? `/api/departments/${currentDepartment._id}` 
+      const url = currentDepartment
+        ? `/api/departments/${currentDepartment._id}`
         : '/api/departments';
-      
+
       const method = currentDepartment ? 'PUT' : 'POST';
       const submitData = {
         ...formData,
@@ -322,7 +325,7 @@ export default function DepartmentsPage() {
 
   const handleDeleteDepartment = async () => {
     if (!departmentToDelete) return;
-    
+
     try {
       const response = await fetch(`/api/departments/${departmentToDelete._id}`, {
         method: 'DELETE'
@@ -352,34 +355,8 @@ export default function DepartmentsPage() {
     }
   };
 
-  // Filter and sort departments
-  const filteredDepartments = departments
-    .filter(department => {
-      const matchesSearch = searchQuery === '' || 
-        department.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (department.description && department.description.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-      const matchesStatus = statusFilter === 'all' || 
-        (statusFilter === 'active' && department.isActive) || 
-        (statusFilter === 'inactive' && !department.isActive);
-      
-      const matchesCategory = categoryFilter === '' || categoryFilter === 'all-categories' || 
-        department.categories.includes(categoryFilter);
-      
-      return matchesSearch && matchesStatus && matchesCategory;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'name':
-          return a.name.localeCompare(b.name);
-        case 'issues':
-          return (b.issueCount || 0) - (a.issueCount || 0);
-        case 'resolution':
-          return (b.resolutionRate || 0) - (a.resolutionRate || 0);
-        default:
-          return 0;
-      }
-    });
+  // Use departments directly as they are now filtered server-side
+  const filteredDepartments = departments;
 
   return (
     <div className="space-y-6">
@@ -437,7 +414,7 @@ export default function DepartmentsPage() {
               <div className="ml-3">
                 <p className="text-sm text-gray-600">Avg Resolution</p>
                 <p className="text-2xl font-bold">
-                  {departments.length > 0 
+                  {departments.length > 0
                     ? (departments.reduce((sum, d) => sum + (parseFloat(d.resolutionRate) || 0), 0) / departments.length).toFixed(1)
                     : 0}%
                 </p>
@@ -446,7 +423,7 @@ export default function DepartmentsPage() {
           </CardContent>
         </Card>
       </div>
-      
+
       {/* Bulk Actions */}
       {selectedDepartments.length > 0 && (
         <Card className="bg-blue-50 border-blue-200">
@@ -473,7 +450,7 @@ export default function DepartmentsPage() {
           </CardContent>
         </Card>
       )}
-      
+
       {/* Filters and Controls */}
       <div className="flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
@@ -483,7 +460,7 @@ export default function DepartmentsPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-sm"
           />
-          
+
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
@@ -520,17 +497,17 @@ export default function DepartmentsPage() {
             </SelectContent>
           </Select>
         </div>
-        
+
         <div className="flex items-center space-x-2">
-          <Button 
-            variant={viewMode === 'grid' ? 'default' : 'outline'} 
+          <Button
+            variant={viewMode === 'grid' ? 'default' : 'outline'}
             size="icon"
             onClick={() => setViewMode('grid')}
           >
             <LayoutGrid className="h-4 w-4" />
           </Button>
-          <Button 
-            variant={viewMode === 'table' ? 'default' : 'outline'} 
+          <Button
+            variant={viewMode === 'table' ? 'default' : 'outline'}
             size="icon"
             onClick={() => setViewMode('table')}
           >
@@ -538,7 +515,7 @@ export default function DepartmentsPage() {
           </Button>
         </div>
       </div>
-      
+
       {/* Loading State */}
       {loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -557,7 +534,7 @@ export default function DepartmentsPage() {
           ))}
         </div>
       )}
-      
+
       {/* Error State */}
       {error && !loading && (
         <Alert variant="destructive">
@@ -566,7 +543,7 @@ export default function DepartmentsPage() {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-      
+
       {/* Empty State */}
       {!loading && !error && filteredDepartments.length === 0 && (
         <Card className="bg-gray-50 dark:bg-gray-900 border-dashed">
@@ -587,7 +564,7 @@ export default function DepartmentsPage() {
           </CardContent>
         </Card>
       )}
-      
+
       {/* Content - Grid View */}
       {!loading && !error && viewMode === 'grid' && filteredDepartments.length > 0 && (
         <div className="space-y-4">
@@ -598,7 +575,7 @@ export default function DepartmentsPage() {
             />
             <Label>Select All</Label>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredDepartments.map((department) => (
               <Card key={department._id} className={`overflow-hidden transition-all hover:shadow-lg ${!department.isActive && 'bg-gray-50 dark:bg-gray-900 opacity-80'}`}>
@@ -634,7 +611,7 @@ export default function DepartmentsPage() {
                           Edit
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => handleDeleteConfirm(department)}
                           className="text-red-600 focus:text-red-600"
                         >
@@ -645,69 +622,69 @@ export default function DepartmentsPage() {
                     </DropdownMenu>
                   </div>
                 </CardHeader>
-              
-              <CardContent className="pt-0">
-                {/* Categories */}
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {department.categories.slice(0, 3).map(category => (
-                    <Badge key={category} variant="secondary" className="text-xs">
-                      {category.charAt(0).toUpperCase() + category.slice(1)}
-                    </Badge>
-                  ))}
-                  {department.categories.length > 3 && (
-                    <Badge variant="outline" className="text-xs">
-                      +{department.categories.length - 3} more
-                    </Badge>
+
+                <CardContent className="pt-0">
+                  {/* Categories */}
+                  <div className="flex flex-wrap gap-1 mb-4">
+                    {department.categories.slice(0, 3).map(category => (
+                      <Badge key={category} variant="secondary" className="text-xs">
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </Badge>
+                    ))}
+                    {department.categories.length > 3 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{department.categories.length - 3} more
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-blue-600">{department.issueCount || 0}</div>
+                      <div className="text-xs text-gray-500">Total Issues</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-600">{department.resolutionRate || 0}%</div>
+                      <div className="text-xs text-gray-500">Resolution Rate</div>
+                    </div>
+                  </div>
+
+                  {/* Head Officer */}
+                  {department.headOfficer && (
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <Users className="h-4 w-4 mr-2" />
+                      {department.headOfficer.name}
+                    </div>
                   )}
-                </div>
 
-                {/* Stats */}
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-blue-600">{department.issueCount || 0}</div>
-                    <div className="text-xs text-gray-500">Total Issues</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-green-600">{department.resolutionRate || 0}%</div>
-                    <div className="text-xs text-gray-500">Resolution Rate</div>
-                  </div>
-                </div>
+                  {/* Budget Info */}
+                  {department.budget && department.budget.allocated > 0 && (
+                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <DollarSign className="h-4 w-4 mr-2" />
+                      ${department.budget.allocated.toLocaleString()} allocated
+                    </div>
+                  )}
+                </CardContent>
 
-                {/* Head Officer */}
-                {department.headOfficer && (
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <Users className="h-4 w-4 mr-2" />
-                    {department.headOfficer.name}
-                  </div>
-                )}
-
-                {/* Budget Info */}
-                {department.budget && department.budget.allocated > 0 && (
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
-                    <DollarSign className="h-4 w-4 mr-2" />
-                    ${department.budget.allocated.toLocaleString()} allocated
-                  </div>
-                )}
-              </CardContent>
-              
-              <CardFooter className="border-t bg-gray-50 dark:bg-gray-900 flex justify-between items-center">
-                <Badge variant={department.isActive ? "default" : "outline"}>
-                  {department.isActive ? 'Active' : 'Inactive'}
-                </Badge>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => router.push(`/admin/departments/${department._id}`)}
-                >
-                  View Details
-                </Button>
-              </CardFooter>
-            </Card>
-          ))}
+                <CardFooter className="border-t bg-gray-50 dark:bg-gray-900 flex justify-between items-center">
+                  <Badge variant={department.isActive ? "default" : "outline"}>
+                    {department.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push(`/admin/departments/${department._id}`)}
+                  >
+                    View Details
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         </div>
       )}
-      
+
       {/* Create/Edit Department Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -719,7 +696,7 @@ export default function DepartmentsPage() {
               {currentDepartment ? 'Update department information and settings' : 'Add a new department to manage civic issues'}
             </DialogDescription>
           </DialogHeader>
-          
+
           <form onSubmit={handleFormSubmit}>
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
@@ -728,7 +705,7 @@ export default function DepartmentsPage() {
                 <TabsTrigger value="operations">Operations</TabsTrigger>
                 <TabsTrigger value="budget">Budget</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="basic" className="space-y-4 mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -746,7 +723,7 @@ export default function DepartmentsPage() {
                     <Label htmlFor="headOfficer">Head Officer</Label>
                     <Select
                       value={formData.headOfficer}
-                      onValueChange={(value) => setFormData({...formData, headOfficer: value})}
+                      onValueChange={(value) => setFormData({ ...formData, headOfficer: value })}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select head officer" />
@@ -762,7 +739,7 @@ export default function DepartmentsPage() {
                     </Select>
                   </div>
                 </div>
-                
+
                 <div>
                   <Label htmlFor="description">Description</Label>
                   <Textarea
@@ -774,13 +751,13 @@ export default function DepartmentsPage() {
                     placeholder="Brief description of department responsibilities..."
                   />
                 </div>
-                
+
                 <div>
                   <Label>Issue Categories *</Label>
                   <div className="grid grid-cols-3 gap-3 mt-2">
                     {departmentCategories.map((category) => (
                       <div key={category} className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={`category-${category}`}
                           checked={formData.categories.includes(category)}
                           onCheckedChange={() => handleCategoryToggle(category)}
@@ -792,19 +769,19 @@ export default function DepartmentsPage() {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="isActive"
                     checked={formData.isActive}
-                    onCheckedChange={(checked) => setFormData({...formData, isActive: checked})}
+                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
                   />
                   <Label htmlFor="isActive">
                     {formData.isActive ? 'Active Department' : 'Inactive Department'}
                   </Label>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="contact" className="space-y-4 mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -830,7 +807,7 @@ export default function DepartmentsPage() {
                   </div>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="operations" className="space-y-4 mt-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -854,13 +831,13 @@ export default function DepartmentsPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div>
                   <Label>Working Days</Label>
                   <div className="grid grid-cols-4 gap-2 mt-2">
                     {['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].map((day) => (
                       <div key={day} className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={`day-${day}`}
                           checked={formData.workingHours.workingDays.includes(day)}
                           onCheckedChange={() => handleWorkingDayToggle(day)}
@@ -873,7 +850,7 @@ export default function DepartmentsPage() {
                   </div>
                 </div>
               </TabsContent>
-              
+
               <TabsContent value="budget" className="space-y-4 mt-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
@@ -910,15 +887,15 @@ export default function DepartmentsPage() {
                     />
                   </div>
                 </div>
-                
+
                 {formData.budget.allocated > 0 && (
                   <div className="mt-4">
                     <Label>Budget Utilization</Label>
                     <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full" 
-                        style={{ 
-                          width: `${Math.min((formData.budget.spent / formData.budget.allocated) * 100, 100)}%` 
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{
+                          width: `${Math.min((formData.budget.spent / formData.budget.allocated) * 100, 100)}%`
                         }}
                       ></div>
                     </div>
@@ -929,7 +906,7 @@ export default function DepartmentsPage() {
                 )}
               </TabsContent>
             </Tabs>
-            
+
             <DialogFooter className="mt-6">
               <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                 Cancel
@@ -941,7 +918,7 @@ export default function DepartmentsPage() {
           </form>
         </DialogContent>
       </Dialog>
-      
+
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <AlertDialogContent>

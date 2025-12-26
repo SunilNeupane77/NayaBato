@@ -8,7 +8,7 @@ import User from '@/models/User';
 export async function GET(request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -20,31 +20,61 @@ export async function GET(request) {
     const limit = parseInt(searchParams.get('limit')) || 20;
     const status = searchParams.get('status'); // 'active', 'inactive', 'all'
     const userId = searchParams.get('userId');
+    const search = searchParams.get('search') || '';
+    const sortBy = searchParams.get('sortBy') || 'lastActivity';
+    const sortOrder = searchParams.get('sortOrder') === 'asc' ? 1 : -1;
 
     let query = {};
     if (status === 'active') query.isActive = true;
     if (status === 'inactive') query.isActive = false;
     if (userId) query.userId = userId;
 
-    const sessions = await UserSession.find(query)
-      .populate('userId', 'name email role')
-      .sort({ lastActivity: -1 })
-      .limit(limit * 1)
-      .skip((page - 1) * limit);
+    // Add search functionality
+    if (search) {
+      const searchRegex = { $regex: search, $options: 'i' };
+      const users = await User.find({
+        $or: [{ name: searchRegex }, { email: searchRegex }]
+      }).select('_id');
 
-    const total = await UserSession.countDocuments(query);
+      const userIds = users.map(u => u._id);
 
-    // Get session statistics
-    const stats = await UserSession.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalSessions: { $sum: 1 },
-          activeSessions: { $sum: { $cond: ['$isActive', 1, 0] } },
-          avgSessionDuration: { $avg: '$sessionDuration' }
+      query.$or = [
+        { userId: { $in: userIds } },
+        { ipAddress: searchRegex },
+        { 'device.browser': searchRegex }
+      ];
+    }
+
+    // Determine sort object
+    let sort = {};
+    if (sortBy === 'user') {
+      // Sorting by user name requires aggregation or post-processing, 
+      // for simplicity in this refactor we'll default to lastActivity if user sort is requested without aggregation
+      sort = { lastActivity: sortOrder };
+    } else {
+      sort[sortBy] = sortOrder;
+    }
+
+    const [sessions, total, statsResult] = await Promise.all([
+      UserSession.find(query)
+        .populate('userId', 'name email role')
+        .sort(sort)
+        .limit(limit * 1)
+        .skip((page - 1) * limit),
+      UserSession.countDocuments(query),
+      UserSession.aggregate([
+        {
+          $group: {
+            _id: null,
+            totalSessions: { $sum: 1 },
+            activeSessions: { $sum: { $cond: ['$isActive', 1, 0] } },
+            avgSessionDuration: { $avg: '$sessionDuration' }
+          }
         }
-      }
+      ])
     ]);
+
+    const stats = statsResult[0] || { totalSessions: 0, activeSessions: 0, avgSessionDuration: 0 };
 
     return NextResponse.json({
       sessions,
@@ -54,7 +84,7 @@ export async function GET(request) {
         total,
         pages: Math.ceil(total / limit)
       },
-      stats: stats[0] || { totalSessions: 0, activeSessions: 0, avgSessionDuration: 0 }
+      stats
     });
 
   } catch (error) {
@@ -66,7 +96,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session || session.user.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
