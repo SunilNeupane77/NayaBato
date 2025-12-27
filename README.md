@@ -1,190 +1,375 @@
-# 🏙️ NayaBato
+# NayaBato
 
-**Empowering Communities Through Civic Engagement**
+**Civic Engagement Platform for Community Issue Management**
 
-A modern full-stack web application that bridges the gap between citizens and local authorities, providing a streamlined platform for reporting, tracking, and resolving community issues.
+A comprehensive full-stack web application that connects citizens with local authorities, enabling efficient reporting, tracking, and resolution of community issues through a modern digital platform.
 
-## 🚀 Quick Start
+## Overview
+
+NayaBato is built with Next.js 15 and provides role-based access for citizens, administrators, and officials. The platform features real-time issue tracking, interactive mapping, automated notifications, and comprehensive analytics for effective civic engagement.
+
+## Technology Stack
+
+**Frontend**
+- Next.js 15.5.9 with App Router
+- React 19
+- Tailwind CSS
+- Lucide React
+- Radix UI / Shadcn/ui
+- React Leaflet (Maps)
+- Recharts (Analytics)
+
+**Backend**
+- Next.js API Routes
+- MongoDB Atlas Database
+- NextAuth.js (Authentication)
+- Nodemailer (Email Service)
+- Cloudinary (Media Management)
+
+## Quick Start
 
 ```bash
-# Clone repository
 git clone https://github.com/SunilNeupane77/NayaBato.git
 cd NayaBato
-
-# Install dependencies
 npm install
-
-# Setup environment
 cp .env.example .env.local
-# Edit .env.local with your configuration
-
-# Run development server
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the application.
+Access the application at `http://localhost:3000`
 
-## 🛠️ Tech Stack
+## Environment Configuration
 
-| Category | Technology |
-|----------|------------|
-| **Frontend** | Next.js 15, React 19, Tailwind CSS, Framer Motion |
-| **Backend** | Next.js API Routes, MongoDB, Mongoose |
-| **Authentication** | NextAuth.js |
-| **UI Components** | Radix UI, Shadcn/ui |
-| **Maps** | React Leaflet |
-| **Email** | Nodemailer |
-| **Media** | Cloudinary |
-| **Charts** | Recharts |
+Create `.env.local` with the following variables:
 
-## ✨ Key Features
+```env
+# Database Configuration
+MONGODB_URI=mongodb://localhost:27017/nayabato
 
-### For Citizens
-- **Issue Reporting**: Submit detailed reports with photos and location
-- **Real-time Tracking**: Monitor issue status and progress
-- **Interactive Maps**: Visual location selection and issue browsing
-- **Notifications**: Email updates and in-app notifications
+# Authentication
+NEXTAUTH_SECRET=your-secret-key-here
+NEXTAUTH_URL=http://localhost:3000
 
-### For Administrators
-- **Dashboard Analytics**: Comprehensive issue statistics and trends
-- **User Management**: Manage citizens and department officials
-- **Department System**: Organize issues by responsible departments
-- **Audit Logs**: Track all system activities
+# Cloudinary Media Storage
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
 
-### Communication
-- **Email System**: Automated notifications and weekly digests
-- **Comment System**: Two-way communication on issues
-- **Status Updates**: Real-time progress tracking
+# Email Service (SMTP)
+EMAIL_SERVER_HOST=smtp.gmail.com
+EMAIL_SERVER_PORT=587
+EMAIL_SERVER_USER=your-email@gmail.com
+EMAIL_SERVER_PASSWORD=your-app-password
+EMAIL_FROM=noreply@nayabato.com
 
-## 📁 Project Structure
+# Optional: Additional Configuration
+NODE_ENV=development
+```
+
+## Project Structure
 
 ```
 nayabato/
-├── app/                    # Next.js App Router
-│   ├── api/               # Backend API endpoints
-│   ├── auth/              # Authentication pages
-│   ├── admin/             # Admin dashboard
-│   ├── citizen/           # Citizen features
-│   ├── issues/            # Issue management
-│   └── profile/           # User profiles
-├── components/            # React components
-│   ├── ui/               # Shadcn UI components
-│   ├── forms/            # Form components
-│   ├── maps/             # Map components
-│   └── dashboard/        # Dashboard components
-├── lib/                  # Utilities and services
-├── models/               # MongoDB schemas
-└── public/               # Static assets
+├── app/                          # Next.js App Router
+│   ├── api/                      # Backend API endpoints
+│   │   ├── admin/               # Admin management APIs
+│   │   ├── auth/                # Authentication APIs
+│   │   ├── citizen/             # Citizen-specific APIs
+│   │   ├── official/            # Official dashboard APIs
+│   │   ├── issues/              # Issue management APIs
+│   │   ├── departments/         # Department management
+│   │   ├── wards/               # Ward administration
+│   │   ├── users/               # User management
+│   │   ├── notifications/       # Notification system
+│   │   └── analytics/           # Analytics and reporting
+│   ├── admin/                   # Admin dashboard pages
+│   │   ├── dashboard/           # Main admin dashboard
+│   │   ├── users/               # User management
+│   │   ├── departments/         # Department administration
+│   │   ├── wards/               # Ward management
+│   │   ├── analytics/           # System analytics
+│   │   ├── audit/               # Audit logs
+│   │   └── sessions/            # Session management
+│   ├── auth/                    # Authentication pages
+│   │   ├── signin/              # Login page
+│   │   ├── register/            # Registration
+│   │   ├── forgot-password/     # Password recovery
+│   │   ├── reset-password/      # Password reset
+│   │   └── verify-otp/          # OTP verification
+│   ├── citizen/                 # Citizen portal
+│   │   ├── dashboard/           # Citizen dashboard
+│   │   ├── community/           # Community issues
+│   │   └── my-reports/          # Personal reports
+│   ├── official/                # Official dashboard
+│   │   ├── dashboard/           # Official overview
+│   │   ├── issues/              # Issue management
+│   │   ├── users/               # User oversight
+│   │   └── wards/               # Ward administration
+│   ├── issues/                  # Issue management
+│   │   ├── report/              # Issue reporting
+│   │   └── [id]/                # Individual issue pages
+│   ├── profile/                 # User profile management
+│   └── notifications/           # Notification center
+├── components/                   # React components
+│   ├── ui/                      # Base UI components
+│   ├── forms/                   # Form components
+│   ├── maps/                    # Map integration
+│   ├── dashboard/               # Dashboard components
+│   └── layout/                  # Layout components
+├── lib/                         # Utility libraries
+│   ├── auth.js                  # Authentication config
+│   ├── db.js                    # Database connection
+│   ├── email.js                 # Email service
+│   └── utils.js                 # Helper functions
+├── models/                      # MongoDB schemas
+│   ├── User.js                  # User model
+│   ├── Issue.js                 # Issue model
+│   ├── Department.js            # Department model
+│   ├── Ward.js                  # Ward model
+│   ├── Comment.js               # Comment model
+│   ├── Notification.js          # Notification model
+│   └── Audit.js                 # Audit log model
+├── public/                      # Static assets
+└── middleware.js                # Next.js middleware
 ```
 
-## 🔧 Environment Setup
+## Core Features
 
-Create `.env.local` with:
+### Citizen Portal
+- Issue reporting with photo uploads and location mapping
+- Real-time status tracking and progress updates
+- Community issue browsing and engagement
+- Email notifications and in-app alerts
+- Personal dashboard with report history
 
-```env
-# Database
-MONGODB_URI=your_mongodb_connection_string
+### Administrative Dashboard
+- Comprehensive analytics and reporting
+- User management and role assignment
+- Department and ward administration
+- System audit logs and activity monitoring
+- Bulk operations and data management
 
-# Authentication
-NEXTAUTH_SECRET=your_secret_key
-NEXTAUTH_URL=http://localhost:3000
+### Official Interface
+- Department-specific issue management
+- Ward-based issue assignment and tracking
+- User oversight and communication tools
+- Performance metrics and reporting
 
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+### Communication System
+- Automated email notifications
+- Weekly digest reports
+- Two-way commenting system
+- Real-time status updates
+- OTP-based verification
 
-# Email (Gmail)
-EMAIL_SERVER_HOST=smtp.gmail.com
-EMAIL_SERVER_PORT=587
-EMAIL_SERVER_USER=your_email@gmail.com
-EMAIL_SERVER_PASSWORD=your_app_password
-EMAIL_FROM=your_email@gmail.com
+## Haversine Algorithm Implementation
+
+The platform uses the Haversine formula for accurate distance calculations and automatic ward assignment based on geographical coordinates.
+
+### Core Implementation
+
+```javascript
+// lib/location-utils.js
+export function haversineDistance(coords1, coords2) {
+  const R = 6371000; // Earth's radius in meters
+  
+  const [lon1, lat1] = coords1;
+  const [lon2, lat2] = coords2;
+  
+  // Convert to radians
+  const radLat1 = (Math.PI * lat1) / 180;
+  const radLat2 = (Math.PI * lat2) / 180;
+  const radDeltaLat = (Math.PI * (lat2 - lat1)) / 180;
+  const radDeltaLon = (Math.PI * (lon2 - lon1)) / 180;
+  
+  // Haversine formula
+  const a = 
+    Math.sin(radDeltaLat / 2) * Math.sin(radDeltaLat / 2) +
+    Math.cos(radLat1) * Math.cos(radLat2) * 
+    Math.sin(radDeltaLon / 2) * Math.sin(radDeltaLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+  return R * c; // Distance in meters
+}
 ```
 
-## 🐳 Docker Deployment
+### Ward Assignment Logic
+
+```javascript
+// lib/ward-assignment.js
+export async function findNearestWardHaversine(coordinates, maxDistance = 10000) {
+  const wards = await Ward.find({ isActive: true }).lean();
+  
+  let nearestWard = null;
+  let minDistance = Infinity;
+  
+  for (const ward of wards) {
+    if (ward.location?.coordinates?.coordinates) {
+      const distance = haversineDistance(coordinates, ward.location.coordinates.coordinates);
+      
+      if (distance < minDistance && distance <= maxDistance) {
+        minDistance = distance;
+        nearestWard = ward;
+      }
+    }
+  }
+  
+  return nearestWard ? { ward: nearestWard, distance: Math.round(minDistance) } : null;
+}
+```
+
+### Usage in Issue Assignment
+
+```javascript
+// Automatic ward assignment when issue is created
+export async function assignWardToIssue(coordinates) {
+  // Primary: Haversine algorithm
+  const haversineResult = await findNearestWardHaversine(coordinates);
+  
+  if (haversineResult) {
+    return {
+      success: true,
+      ward: haversineResult.ward,
+      distance: haversineResult.distance,
+      method: 'haversine'
+    };
+  }
+  
+  // Fallback: MongoDB geospatial query
+  const nearestWards = await Ward.findNearest(coordinates, 15000);
+  
+  return nearestWards?.length > 0 ? {
+    success: true,
+    ward: nearestWards[0],
+    method: 'mongodb_geo'
+  } : { success: false };
+}
+```
+
+### Key Features
+
+- **Accurate Distance Calculation**: Uses Earth's curvature for precise measurements
+- **Automatic Ward Assignment**: Issues automatically assigned to nearest ward within 10km radius
+- **Fallback Strategy**: MongoDB geospatial queries as backup method
+- **Performance Optimized**: Efficient calculation for real-time assignment
+- **Configurable Radius**: Adjustable maximum distance for ward assignment
+
+## Database Models
+
+**User Management**
+- Users (Citizens, Admins, Officials)
+- Authentication and authorization
+- Profile management and preferences
+
+**Issue Management**
+- Issues with location and media attachments
+- Comments and status updates
+- Priority and category classification
+
+**Administrative**
+- Departments and ward organization
+- Notification and audit systems
+- Analytics and reporting data
+
+## API Endpoints
+
+The application provides comprehensive REST APIs:
+
+- `/api/auth/*` - Authentication and user management
+- `/api/admin/*` - Administrative functions
+- `/api/citizen/*` - Citizen-specific operations
+- `/api/official/*` - Official dashboard APIs
+- `/api/issues/*` - Issue management
+- `/api/departments/*` - Department administration
+- `/api/wards/*` - Ward management
+- `/api/notifications/*` - Notification system
+- `/api/analytics/*` - Reporting and analytics
+
+## Development Commands
 
 ```bash
-# Build and run with Docker Compose
-docker-compose up --build
-
-# Or use the provided script
-./docker-build-run.sh
-```
-
-## 📊 Database Models
-
-- **User**: Citizens, admins, and officials
-- **Issue**: Community problem reports
-- **Comment**: Issue discussions
-- **Department**: Government departments
-- **Ward**: Administrative divisions
-- **Notification**: System notifications
-- **Audit**: Activity logging
-
-## 🔐 Authentication & Authorization
-
-- **Role-based access**: Citizen, Admin, Official
-- **Session management**: Secure JWT tokens
-- **Password security**: bcrypt hashing
-- **OTP verification**: Email-based verification
-
-## 📱 Responsive Design
-
-- Mobile-first approach
-- Optimized for all screen sizes
-- Progressive Web App features
-- Accessible UI components
-
-## 🚀 Performance Features
-
-- **Server-side rendering** with Next.js
-- **Image optimization** with Cloudinary
-- **Caching strategies** for better performance
-- **Code splitting** and lazy loading
-
-## 📈 Analytics & Monitoring
-
-- Issue resolution metrics
-- User activity tracking
-- Department performance analytics
-- System health monitoring
-
-## 🔄 Development Workflow
-
-```bash
-# Development
+# Development server
 npm run dev
 
-# Build for production
+# Production build
 npm run build
 
 # Start production server
 npm start
 
-# Linting
+# Code linting
 npm run lint
+
+# Type checking
+npm run type-check
 ```
 
-## 🤝 Contributing
+## Production Deployment
+
+### Docker Deployment
+```bash
+docker-compose up --build
+```
+
+### Manual Deployment
+```bash
+npm run build
+npm start
+```
+
+### Environment Requirements
+- Node.js 22.16.0 or higher
+- MongoDB 4.4 or higher
+- SMTP server for email functionality
+- Cloudinary account for media storage
+
+## Security Features
+
+- JWT-based session management
+- bcrypt password hashing
+- Role-based access control
+- CSRF protection
+- Input validation and sanitization
+- Secure file upload handling
+
+## Performance Optimizations
+
+- Server-side rendering with Next.js
+- Static page generation where applicable
+- Image optimization through Cloudinary
+- Code splitting and lazy loading
+- Efficient database queries with indexing
+
+## Monitoring and Analytics
+
+- User activity tracking
+- Issue resolution metrics
+- Department performance analytics
+- System health monitoring
+- Audit trail for all operations
+
+## Contributing
 
 1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+2. Create a feature branch
+3. Implement changes with tests
+4. Submit a pull request
+5. Ensure CI/CD pipeline passes
 
-## 📄 License
+## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see LICENSE file for details.
 
-## 🆘 Support
+## Support
 
-For support and questions:
+For technical support or questions:
 - Create an issue on GitHub
+- Review the documentation
 - Contact the development team
-- Check the documentation
 
 ---
 
-**Version**: 2.1.0 | **Node.js**: v22.16.0 | **Next.js**: v15.3.5
+**Version**: 2.1.0  
+**Build Size**: ~178kB (optimized)  
+**Routes**: 103 static/dynamic pages  
+**Last Updated**: December 2025
