@@ -129,6 +129,8 @@ export async function POST(request) {
       if (location && location.coordinates && location.coordinates.coordinates) {
         const { wardAssignmentService } = await import('@/lib/services/ward-assignment-service');
         
+        console.log('Incoming issue location:', JSON.stringify(location, null, 2));
+
         const assignmentResult = await wardAssignmentService.assignWard(
           location.coordinates.coordinates,
           {

@@ -47,7 +47,7 @@ const IssueSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['pending', 'reported', 'under-review', 'in_progress', 'resolved', 'rejected'],
+    enum: ['pending', 'reported', 'under-review', 'in-progress', 'resolved', 'rejected'],
     default: 'pending'
   },
   priority: {
@@ -85,7 +85,7 @@ const IssueSchema = new mongoose.Schema({
     status: {
       type: String,
       required: true,
-      enum: ['pending', 'reported', 'under-review', 'in_progress', 'resolved', 'rejected']
+      enum: ['pending', 'reported', 'under-review', 'in-progress', 'resolved', 'rejected']
     },
     updatedAt: {
       type: Date,

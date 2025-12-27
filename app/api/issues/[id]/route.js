@@ -42,9 +42,8 @@ export async function GET(_req, context) {
 }
 
 export async function PUT(request, context) {
-  // Properly await and destructure the context to get params
   const { params } = await context;
-  const id = params.id;
+  const { id } = params;
   const body = await request.json();
   const { session, user } = await getSessionUser();
   const isAdmin = ['admin', 'official'].includes(session.user.role);
