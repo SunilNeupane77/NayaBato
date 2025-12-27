@@ -283,6 +283,7 @@ export async function GET(request) {
     const status = searchParams.get('status');
     const category = searchParams.get('category');
     const wardId = searchParams.get('ward');
+    const reporter = searchParams.get('reporter');
     const near = searchParams.get('near'); // Format: "lat,lng,radius"
     const isOfficial = searchParams.get('official') === 'true';
     
@@ -314,6 +315,11 @@ export async function GET(request) {
     
     if (wardId) {
       filter.assignedWard = wardId;
+    }
+    
+    if (reporter) {
+      // Convert string ID to ObjectId for MongoDB query
+      filter.reporter = new mongoose.Types.ObjectId(reporter);
     }
     
     // For officials without department, show all issues that need attention
