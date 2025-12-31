@@ -84,6 +84,8 @@ export default function IssuesPage() {
   const [page, setPage] = useState(1);
   
   // Query issues using custom hook
+  // Citizens should see ALL community issues, not just their own
+  // (Use /profile or /citizen/my-reports to see personal issues)
   const {
     issues = [], // Provide a default empty array
     isLoading,
@@ -98,7 +100,7 @@ export default function IssuesPage() {
     searchTerm: filters.searchTerm,
     page,
     limit: 10,
-    reporter: session?.user && !['admin', 'official'].includes(session.user.role) ? session.user.id : undefined,
+    // Remove reporter filter - citizens should see all community issues
   });
   
   // Refetch issues when filters or page change
