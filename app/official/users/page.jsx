@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Users, Search, Filter, Mail, MapPin, Calendar } from 'lucide-react';
+import { Calendar, Filter, Mail, MapPin, Users, Search } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
 export default function OfficialUsersPage() {
   const { data: session } = useSession();
@@ -51,40 +51,33 @@ export default function OfficialUsersPage() {
       
       if (response.ok) {
         const data = await response.json();
-        if (data.success && data.users) {
-          setUsers(data.users);
-          setPagination(prev => ({
-            ...prev,
-            totalPages: data.totalPages || 1,
-            total: data.total || 0
-          }));
-        } else {
-          setUsers([]);
-        }
-      } else {
-        console.error('Failed to fetch users, status:', response.status);
-        setUsers([]);
+        setUsers(data.users || []);
+        setPagination({
+          page: data.pagination?.page || 1,
+          totalPages: data.pagination?.pages || 1,
+          total: data.pagination?.total || 0
+        });
       }
     } catch (error) {
       console.error('Error fetching users:', error);
-      setUsers([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const getRoleBadgeColor = (role) => {
-    switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'official': return 'bg-blue-100 text-blue-800';
-      case 'citizen': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const getRoleColor = (role) => {
+    return 'bg-gray-100 text-gray-700 border-gray-200';
+  };
+
+  const getVerificationColor = (verified) => {
+    return verified 
+      ? 'bg-gray-100 text-gray-700 border-gray-200'
+      : 'bg-gray-100 text-gray-700 border-gray-200';
   };
 
   if (loading) {
     return (
-      <div className="container mx-auto py-6">
+      <div className="space-y-6">
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-gray-200 rounded w-1/4"></div>
           <div className="h-64 bg-gray-200 rounded"></div>
@@ -94,40 +87,41 @@ export default function OfficialUsersPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          <Users className="h-8 w-8" />
-          User Management
-        </h1>
-        <p className="text-muted-foreground">
-          Manage users in your assigned wards
-        </p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">User Management</h1>
+          <p className="text-gray-600 mt-1">Manage users in your assigned wards</p>
+        </div>
+        <div className="text-sm text-gray-500">
+          {pagination.total} total users
+        </div>
       </div>
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
+      <Card className="border-gray-200">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <Filter className="h-5 w-5 text-gray-600" />
             Filters
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search users..."
                 value={filters.search}
                 onChange={(e) => setFilters({...filters, search: e.target.value})}
-                className="w-full"
+                className="pl-10 border-gray-300 focus:border-gray-400"
               />
             </div>
             <Select
               value={filters.role}
               onValueChange={(value) => setFilters({...filters, role: value})}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-300">
                 <SelectValue placeholder="All Roles" />
               </SelectTrigger>
               <SelectContent>
@@ -141,7 +135,7 @@ export default function OfficialUsersPage() {
               value={filters.verified}
               onValueChange={(value) => setFilters({...filters, verified: value})}
             >
-              <SelectTrigger>
+              <SelectTrigger className="border-gray-300">
                 <SelectValue placeholder="All Status" />
               </SelectTrigger>
               <SelectContent>
@@ -155,66 +149,64 @@ export default function OfficialUsersPage() {
       </Card>
 
       {/* Users Table */}
-      <Card>
+      <Card className="border-gray-200">
         <CardHeader>
-          <CardTitle>Users ({pagination.total})</CardTitle>
-          <CardDescription>
-            {session?.user?.role === 'admin' ? 'All users in the system' : 'Users in your assigned wards'}
-          </CardDescription>
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <Users className="h-5 w-5 text-gray-600" />
+            Users ({pagination.total})
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Users className="h-16 w-16 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg font-semibold mb-2">No Users Found</h3>
-              <p>No users match your current filters.</p>
+            <div className="text-center py-12">
+              <Users className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No Users Found</h3>
+              <p className="text-gray-600">No users match your current filters.</p>
             </div>
           ) : (
-            <>
+            <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                    <TableHead>Ward</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Joined</TableHead>
+                  <TableRow className="border-gray-200">
+                    <TableHead className="text-gray-700">Name</TableHead>
+                    <TableHead className="text-gray-700">Email</TableHead>
+                    <TableHead className="text-gray-700">Role</TableHead>
+                    <TableHead className="text-gray-700">Status</TableHead>
+                    <TableHead className="text-gray-700">Ward</TableHead>
+                    <TableHead className="text-gray-700">Joined</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {users.map((user) => (
-                    <TableRow key={user._id}>
-                      <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableRow key={user._id} className="border-gray-200 hover:bg-gray-50">
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Mail className="h-4 w-4 text-gray-400" />
+                        <div className="font-medium text-gray-900">{user.name}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Mail className="h-4 w-4" />
                           {user.email}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={`${getRoleBadgeColor(user.role)} border-0`}>
+                        <Badge className={getRoleColor(user.role)}>
                           {user.role}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        {user.ward ? (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-gray-400" />
-                            {user.ward.name}
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">No ward</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={user.verified ? "default" : "secondary"}>
-                          {user.verified ? 'Verified' : 'Unverified'}
+                        <Badge className={getVerificationColor(user.isVerified)}>
+                          {user.isVerified ? 'Verified' : 'Unverified'}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-gray-400" />
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <MapPin className="h-4 w-4" />
+                          {user.ward?.name || 'No ward'}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2 text-gray-700">
+                          <Calendar className="h-4 w-4" />
                           {new Date(user.createdAt).toLocaleDateString()}
                         </div>
                       </TableCell>
@@ -222,34 +214,36 @@ export default function OfficialUsersPage() {
                   ))}
                 </TableBody>
               </Table>
+            </div>
+          )}
 
-              {/* Pagination */}
-              {pagination.totalPages > 1 && (
-                <div className="flex items-center justify-between mt-4">
-                  <div className="text-sm text-muted-foreground">
-                    Page {pagination.page} of {pagination.totalPages}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
-                      disabled={pagination.page === 1}
-                    >
-                      Previous
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-                      disabled={pagination.page === pagination.totalPages}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
+          {/* Pagination */}
+          {pagination.totalPages > 1 && (
+            <div className="flex items-center justify-between mt-6">
+              <div className="text-sm text-gray-600">
+                Page {pagination.page} of {pagination.totalPages}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPagination({...pagination, page: pagination.page - 1})}
+                  disabled={pagination.page === 1}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPagination({...pagination, page: pagination.page + 1})}
+                  disabled={pagination.page === pagination.totalPages}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

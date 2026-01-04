@@ -1,29 +1,29 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
-import { 
-  MapPin, 
-  Users, 
-  AlertTriangle, 
-  CheckCircle, 
-  Clock, 
-  FileText,
-  User,
-  Calendar,
-  Tag,
-  ArrowLeft,
-  Edit,
-  Trash2
+import {
+    AlertTriangle,
+    ArrowLeft,
+    Calendar,
+    CheckCircle,
+    Clock,
+    Edit,
+    FileText,
+    MapPin,
+    Tag,
+    Trash2,
+    User,
+    Users
 } from 'lucide-react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function WardDetailPage() {
   const params = useParams();
@@ -124,22 +124,11 @@ export default function WardDetailPage() {
   };
 
   const getStatusColor = (status) => {
-    switch (status) {
-      case 'resolved': return 'bg-green-100 text-green-800';
-      case 'in_progress': 
-      case 'in-progress': return 'bg-blue-100 text-blue-800';
-      case 'under-review': return 'bg-yellow-100 text-yellow-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+    return 'bg-gray-100 text-gray-700 border-gray-200';
   };
 
   const getPriorityColor = (priority) => {
-    switch (priority) {
-      case 'high': return 'text-red-600';
-      case 'medium': return 'text-yellow-600';
-      case 'low': return 'text-green-600';
-      default: return 'text-gray-600';
-    }
+    return 'text-gray-700';
   };
 
   if (loading) {
@@ -178,7 +167,7 @@ export default function WardDetailPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">{wardData.ward.name}</h1>
+          <h1 className="text-2xl font-semibold text-gray-900">{wardData.ward.name}</h1>
           <p className="text-gray-600">Ward {wardData.ward.number}</p>
         </div>
         
@@ -186,7 +175,7 @@ export default function WardDetailPage() {
         <div className="ml-auto flex gap-2">
           <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Ward
               </Button>
@@ -202,6 +191,7 @@ export default function WardDetailPage() {
                     value={editForm.name}
                     onChange={(e) => setEditForm({...editForm, name: e.target.value})}
                     placeholder="Enter ward name"
+                    className="border-gray-300"
                   />
                 </div>
                 <div>
@@ -211,6 +201,7 @@ export default function WardDetailPage() {
                     value={editForm.number}
                     onChange={(e) => setEditForm({...editForm, number: e.target.value})}
                     placeholder="Enter ward number"
+                    className="border-gray-300"
                   />
                 </div>
                 <div>
@@ -219,13 +210,14 @@ export default function WardDetailPage() {
                     value={editForm.description}
                     onChange={(e) => setEditForm({...editForm, description: e.target.value})}
                     placeholder="Enter ward description"
+                    className="border-gray-300"
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={updateWard} className="flex-1">
+                  <Button onClick={updateWard} className="flex-1 bg-gray-900 hover:bg-gray-800 text-white">
                     Update Ward
                   </Button>
-                  <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+                  <Button variant="outline" onClick={() => setEditDialogOpen(false)} className="border-gray-300 text-gray-700 hover:bg-gray-50">
                     Cancel
                   </Button>
                 </div>
@@ -233,7 +225,7 @@ export default function WardDetailPage() {
             </DialogContent>
           </Dialog>
           
-          <Button variant="destructive" size="sm" onClick={deleteWard}>
+          <Button variant="outline" size="sm" onClick={deleteWard} className="border-red-300 text-red-700 hover:bg-red-50">
             <Trash2 className="h-4 w-4 mr-2" />
             Delete Ward
           </Button>
@@ -242,43 +234,43 @@ export default function WardDetailPage() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+        <Card className="border-gray-200">
           <CardContent className="p-6 text-center">
-            <FileText className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-            <div className="text-3xl font-bold text-blue-600">{wardData.stats.totalIssues}</div>
-            <div className="text-sm text-blue-600 font-medium">Total Issues</div>
+            <FileText className="h-8 w-8 mx-auto mb-2 text-gray-600" />
+            <div className="text-3xl font-semibold text-gray-900">{wardData.stats.totalIssues}</div>
+            <div className="text-sm text-gray-600 font-medium">Total Issues</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200">
+        <Card className="border-gray-200">
           <CardContent className="p-6 text-center">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-orange-600" />
-            <div className="text-3xl font-bold text-orange-600">{wardData.stats.pendingIssues}</div>
-            <div className="text-sm text-orange-600 font-medium">Pending</div>
+            <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-gray-600" />
+            <div className="text-3xl font-semibold text-gray-900">{wardData.stats.pendingIssues}</div>
+            <div className="text-sm text-gray-600 font-medium">Pending</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200">
+        <Card className="border-gray-200">
           <CardContent className="p-6 text-center">
-            <Clock className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-            <div className="text-3xl font-bold text-blue-600">{wardData.stats.inProgressIssues}</div>
-            <div className="text-sm text-blue-600 font-medium">In Progress</div>
+            <Clock className="h-8 w-8 mx-auto mb-2 text-gray-600" />
+            <div className="text-3xl font-semibold text-gray-900">{wardData.stats.inProgressIssues}</div>
+            <div className="text-sm text-gray-600 font-medium">In Progress</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-green-50 to-green-100 border-green-200">
+        <Card className="border-gray-200">
           <CardContent className="p-6 text-center">
-            <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
-            <div className="text-3xl font-bold text-green-600">{wardData.stats.resolvedIssues}</div>
-            <div className="text-sm text-green-600 font-medium">Resolved</div>
+            <CheckCircle className="h-8 w-8 mx-auto mb-2 text-gray-600" />
+            <div className="text-3xl font-semibold text-gray-900">{wardData.stats.resolvedIssues}</div>
+            <div className="text-sm text-gray-600 font-medium">Resolved</div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200">
+        <Card className="border-gray-200">
           <CardContent className="p-6 text-center">
-            <Users className="h-8 w-8 mx-auto mb-2 text-purple-600" />
-            <div className="text-3xl font-bold text-purple-600">{wardData.stats.citizensCount}</div>
-            <div className="text-sm text-purple-600 font-medium">Citizens</div>
+            <Users className="h-8 w-8 mx-auto mb-2 text-gray-600" />
+            <div className="text-3xl font-semibold text-gray-900">{wardData.stats.citizensCount}</div>
+            <div className="text-sm text-gray-600 font-medium">Citizens</div>
           </CardContent>
         </Card>
       </div>
@@ -286,21 +278,21 @@ export default function WardDetailPage() {
       {/* Ward Info and Issues */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Ward Information */}
-        <Card>
+        <Card className="border-gray-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
+            <CardTitle className="text-lg font-medium flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-gray-600" />
               Ward Information
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <label className="text-sm font-medium text-gray-500">Ward Name</label>
-              <p className="text-lg font-semibold">{wardData.ward.name}</p>
+              <p className="text-lg font-medium text-gray-900">{wardData.ward.name}</p>
             </div>
             <div>
               <label className="text-sm font-medium text-gray-500">Ward Number</label>
-              <p className="text-lg font-semibold">{wardData.ward.number}</p>
+              <p className="text-lg font-medium text-gray-900">{wardData.ward.number}</p>
             </div>
             {wardData.ward.description && (
               <div>
@@ -312,9 +304,9 @@ export default function WardDetailPage() {
               <label className="text-sm font-medium text-gray-500">Assigned Officials</label>
               <div className="space-y-2 mt-2">
                 {wardData.ward.assignedOfficials?.map((official) => (
-                  <div key={official._id} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                  <div key={official._id} className="flex items-center gap-2 p-2 bg-gray-50 rounded border border-gray-200">
                     <User className="h-4 w-4 text-gray-500" />
-                    <span>{official.name}</span>
+                    <span className="text-gray-700">{official.name}</span>
                   </div>
                 ))}
               </div>
@@ -324,10 +316,10 @@ export default function WardDetailPage() {
 
         {/* Ward Issues */}
         <div className="lg:col-span-2">
-          <Card>
+          <Card className="border-gray-200">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
+              <CardTitle className="text-lg font-medium flex items-center gap-2">
+                <FileText className="h-5 w-5 text-gray-600" />
                 Ward Issues
               </CardTitle>
               <p className="text-sm text-gray-600">All issues reported in this ward</p>
@@ -336,21 +328,21 @@ export default function WardDetailPage() {
               {wardData.issues.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   <FileText className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                  <h3 className="text-lg font-semibold mb-2">No Issues Found</h3>
+                  <h3 className="text-lg font-medium mb-2">No Issues Found</h3>
                   <p>No issues have been reported in this ward yet.</p>
                 </div>
               ) : (
                 <div className="space-y-4">
                   {wardData.issues.map((issue) => (
-                    <Card key={issue._id} className="border-l-4 border-l-blue-500">
+                    <Card key={issue._id} className="border-gray-200 hover:shadow-sm transition-shadow">
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start mb-3">
-                          <h4 className="font-semibold text-lg text-gray-900">{issue.title}</h4>
+                          <h4 className="font-medium text-lg text-gray-900">{issue.title}</h4>
                           <div className="flex gap-2">
                             <Badge className={getStatusColor(issue.status)}>
                               {issue.status.replace('_', ' ').replace('-', ' ')}
                             </Badge>
-                            <Badge variant="outline" className={getPriorityColor(issue.priority)}>
+                            <Badge className="bg-gray-100 text-gray-700 border-gray-200">
                               {issue.priority} priority
                             </Badge>
                           </div>
@@ -377,19 +369,11 @@ export default function WardDetailPage() {
                         
                         {/* Issue Action Buttons */}
                         <div className="flex gap-2 flex-wrap">
-                          {issue.status !== 'under-review' && (
+                          {issue.status !== 'in_progress' && (
                             <Button 
                               size="sm" 
-                              className="bg-yellow-500 hover:bg-yellow-600 text-white"
-                              onClick={() => updateIssueStatus(issue._id, 'under-review')}
-                            >
-                              Under Review
-                            </Button>
-                          )}
-                          {issue.status !== 'in_progress' && issue.status !== 'in-progress' && (
-                            <Button 
-                              size="sm" 
-                              className="bg-blue-500 hover:bg-blue-600 text-white"
+                              variant="outline"
+                              className="border-gray-300 text-gray-700 hover:bg-gray-50"
                               onClick={() => updateIssueStatus(issue._id, 'in_progress')}
                             >
                               In Progress
@@ -398,14 +382,15 @@ export default function WardDetailPage() {
                           {issue.status !== 'resolved' && (
                             <Button 
                               size="sm" 
-                              className="bg-green-500 hover:bg-green-600 text-white"
+                              variant="outline"
+                              className="border-gray-300 text-gray-700 hover:bg-gray-50"
                               onClick={() => updateIssueStatus(issue._id, 'resolved')}
                             >
                               Resolve
                             </Button>
                           )}
                           <Link href={`/issues/${issue._id}`}>
-                            <Button size="sm" variant="outline">
+                            <Button size="sm" variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
                               View Details
                             </Button>
                           </Link>

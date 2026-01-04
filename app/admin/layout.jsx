@@ -181,6 +181,21 @@ export default function AdminLayout({ children }) {
                     </div>
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/admin/ward-assignment"
+                    className={`block px-4 py-2 ${
+                      isActive('/admin/ward-assignment')
+                        ? 'bg-blue-700 text-white'
+                        : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                    }`}
+                  >
+                    <div className="flex items-center">
+                      <MapPin className="h-5 w-5 mr-3" />
+                      <span>Ward Assignment</span>
+                    </div>
+                  </Link>
+                </li>
               </>
             )}
             

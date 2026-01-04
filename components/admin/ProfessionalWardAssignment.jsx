@@ -19,6 +19,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import HaversineVisualizer from './HaversineVisualizer';
 
 export default function ProfessionalWardAssignment() {
   const [analytics, setAnalytics] = useState(null);
@@ -174,8 +175,8 @@ export default function ProfessionalWardAssignment() {
       <Tabs defaultValue="analytics" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="visualizer">Haversine Visualizer</TabsTrigger>
           <TabsTrigger value="test">Test Assignment</TabsTrigger>
-          <TabsTrigger value="bulk">Bulk Operations</TabsTrigger>
         </TabsList>
 
         {/* Analytics Tab */}
@@ -346,6 +347,11 @@ export default function ProfessionalWardAssignment() {
           )}
         </TabsContent>
 
+        {/* Haversine Visualizer Tab */}
+        <TabsContent value="visualizer" className="space-y-6">
+          <HaversineVisualizer />
+        </TabsContent>
+
         {/* Test Assignment Tab */}
         <TabsContent value="test" className="space-y-6">
           <Card>
@@ -450,126 +456,6 @@ export default function ProfessionalWardAssignment() {
                   )}
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Bulk Operations Tab */}
-        <TabsContent value="bulk" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <RefreshCw className="h-5 w-5" />
-                Bulk Ward Reassignment
-              </CardTitle>
-              <CardDescription>
-                Reassign wards to existing issues using the professional Haversine algorithm
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="bulk-limit">Limit</Label>
-                  <Input
-                    id="bulk-limit"
-                    type="number"
-                    value={bulkOptions.limit}
-                    onChange={(e) => setBulkOptions(prev => ({ ...prev, limit: parseInt(e.target.value) || 100 }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="bulk-distance">Max Distance (m)</Label>
-                  <Input
-                    id="bulk-distance"
-                    type="number"
-                    value={bulkOptions.maxDistance}
-                    onChange={(e) => setBulkOptions(prev => ({ ...prev, maxDistance: parseInt(e.target.value) || 10000 }))}
-                  />
-                </div>
-                <div className="flex items-end">
-                  <Button 
-                    onClick={runBulkReassignment} 
-                    disabled={isBulkProcessing}
-                    className="w-full"
-                  >
-                    {isBulkProcessing ? (
-                      <>
-                        <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                      </>
-                    ) : (
-                      'Start Bulk Reassignment'
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              {bulkResult && (
-                <div className="mt-6 p-4 border rounded-lg">
-                  <h4 className="font-semibold mb-3">Bulk Reassignment Result</h4>
-                  {bulkResult.success ? (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-4 gap-4">
-                        <div className="text-center p-3 bg-blue-50 rounded">
-                          <p className="text-2xl font-bold text-blue-600">{bulkResult.stats.total}</p>
-                          <p className="text-sm text-blue-600">Total</p>
-                        </div>
-                        <div className="text-center p-3 bg-green-50 rounded">
-                          <p className="text-2xl font-bold text-green-600">{bulkResult.stats.assigned}</p>
-                          <p className="text-sm text-green-600">Assigned</p>
-                        </div>
-                        <div className="text-center p-3 bg-red-50 rounded">
-                          <p className="text-2xl font-bold text-red-600">{bulkResult.stats.failed}</p>
-                          <p className="text-sm text-red-600">Failed</p>
-                        </div>
-                        <div className="text-center p-3 bg-gray-50 rounded">
-                          <p className="text-2xl font-bold text-gray-600">{bulkResult.stats.skipped}</p>
-                          <p className="text-sm text-gray-600">Skipped</p>
-                        </div>
-                      </div>
-                      
-                      {bulkResult.stats.details && bulkResult.stats.details.length > 0 && (
-                        <div>
-                          <h5 className="font-medium mb-2">Recent Results</h5>
-                          <div className="max-h-40 overflow-y-auto space-y-1">
-                            {bulkResult.stats.details.slice(0, 10).map((detail, index) => (
-                              <div key={index} className="text-xs p-2 bg-gray-50 rounded flex justify-between">
-                                <span className="truncate">{detail.title}</span>
-                                {detail.success ? (
-                                  <span className="text-green-600 ml-2">
-                                    {detail.wardName} ({formatDistance(detail.distance)})
-                                  </span>
-                                ) : (
-                                  <span className="text-red-600 ml-2">{detail.error}</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-red-600">
-                      <AlertCircle className="h-4 w-4" />
-                      <span>Bulk operation failed: {bulkResult.error}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Cache Management</CardTitle>
-              <CardDescription>
-                Clear the ward assignment service cache to force fresh data loading
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={clearCache} variant="outline">
-                Clear Cache
-              </Button>
             </CardContent>
           </Card>
         </TabsContent>

@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 import connectDB from "@/lib/db/connect";
-import User from "@/models/User";
-import Newsletter from "@/models/Newsletter";
-import Issue from "@/models/Issue";
 import { sendWeeklyDigestEmail } from "@/lib/email/nodemailer";
+import Issue from "@/models/Issue";
+import Newsletter from "@/models/Newsletter";
+import User from "@/models/User";
+import { NextResponse } from "next/server";
 
 export async function POST() {
   console.log("=== Weekly Digest API Called ===");
@@ -109,14 +109,14 @@ export async function POST() {
 
         if (result.success) {
           successCount++;
-          console.log(`✅ Sent to ${subscriber.email}`);
+          
         } else {
           failCount++;
-          console.error(`❌ Failed to send to ${subscriber.email}:`, result.error);
+        
         }
       } catch (error) {
         failCount++;
-        console.error(`❌ Error sending to ${subscriber.email}:`, error.message);
+  
       }
     }
 
@@ -133,11 +133,6 @@ export async function POST() {
     });
 
   } catch (error) {
-    console.error("=== Weekly digest error ===");
-    console.error("Error name:", error.name);
-    console.error("Error message:", error.message);
-    console.error("Error stack:", error.stack);
-    
     return NextResponse.json(
       { error: "Failed to send weekly digest", details: error.message },
       { status: 500 }
