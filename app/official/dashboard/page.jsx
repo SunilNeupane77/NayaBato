@@ -25,7 +25,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendLabel, description, su
         <div className="p-3 rounded-lg bg-gray-50">
           <Icon className="h-6 w-6 text-gray-600" />
         </div>
-        {trend && (
+        {trend !== undefined && trend !== null && trend !== 0 && (
           <div className="flex items-center gap-1">
             {trend > 0 ? (
               <ArrowUpRight className="h-4 w-4 text-gray-600" />
@@ -45,7 +45,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendLabel, description, su
           <span className="text-sm font-medium text-gray-500">({subValue})</span>
         )}
       </div>
-      {trendLabel && (
+      {trendLabel && trend !== undefined && trend !== null && trend !== 0 && (
         <p className="text-xs text-gray-500 mt-1">{trendLabel}</p>
       )}
       {description && (

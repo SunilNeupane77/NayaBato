@@ -15,10 +15,11 @@ export async function GET(request, { params }) {
     }
 
     await connectDB();
+    const { id } = await params;
 
     let issue;
     if (session.user.role === 'admin') {
-      issue = await Issue.findById(params.id)
+      issue = await Issue.findById(id)
         .populate('citizen', 'name email')
         .populate('ward', 'name number')
         .populate('department', 'name');
@@ -30,8 +31,11 @@ export async function GET(request, { params }) {
       const wardIds = assignedWards.map(ward => ward._id);
 
       issue = await Issue.findOne({
-        _id: params.id,
-        ward: { $in: wardIds }
+        _id: id,
+        $or: [
+          { ward: { $in: wardIds } },
+          { assignedWard: { $in: wardIds } }
+        ]
       })
         .populate('citizen', 'name email')
         .populate('ward', 'name number')
@@ -65,10 +69,11 @@ export async function PUT(request, { params }) {
 
     const body = await request.json();
     await connectDB();
+    const { id } = await params;
 
     let issue;
     if (session.user.role === 'admin') {
-      issue = await Issue.findById(params.id);
+      issue = await Issue.findById(id);
     } else {
       // Check if official has access to this issue's ward
       const assignedWards = await Ward.find({ 
@@ -77,8 +82,11 @@ export async function PUT(request, { params }) {
       const wardIds = assignedWards.map(ward => ward._id);
 
       issue = await Issue.findOne({
-        _id: params.id,
-        ward: { $in: wardIds }
+        _id: id,
+        $or: [
+          { ward: { $in: wardIds } },
+          { assignedWard: { $in: wardIds } }
+        ]
       });
     }
 

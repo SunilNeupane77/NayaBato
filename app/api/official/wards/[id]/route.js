@@ -15,11 +15,10 @@ export async function GET(request, { params }) {
     }
 
     await connectDB();
-
-    const wardId = params.id;
+    const { id } = await params;
 
     // Get ward details
-    const ward = await Ward.findById(wardId)
+    const ward = await Ward.findById(id)
       .populate('assignedOfficials', 'name email')
       .populate('officerInCharge', 'name email');
 
@@ -28,7 +27,7 @@ export async function GET(request, { params }) {
     }
 
     // Get all issues for this ward
-    const issues = await Issue.find({ assignedWard: wardId })
+    const issues = await Issue.find({ assignedWard: id })
       .populate('reporter', 'name email')
       .sort({ createdAt: -1 });
 
@@ -62,12 +61,11 @@ export async function PUT(request, { params }) {
     }
 
     await connectDB();
-
+    const { id } = await params;
     const { name, number, description } = await request.json();
-    const wardId = params.id;
 
     const updatedWard = await Ward.findByIdAndUpdate(
-      wardId,
+      id,
       { name, number, description },
       { new: true }
     );
@@ -97,10 +95,9 @@ export async function DELETE(request, { params }) {
     }
 
     await connectDB();
+    const { id } = await params;
 
-    const wardId = params.id;
-
-    const deletedWard = await Ward.findByIdAndDelete(wardId);
+    const deletedWard = await Ward.findByIdAndDelete(id);
 
     if (!deletedWard) {
       return NextResponse.json({ error: 'Ward not found' }, { status: 404 });

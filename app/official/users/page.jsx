@@ -71,8 +71,8 @@ export default function OfficialUsersPage() {
 
   const getVerificationColor = (verified) => {
     return verified 
-      ? 'bg-gray-100 text-gray-700 border-gray-200'
-      : 'bg-gray-100 text-gray-700 border-gray-200';
+      ? 'bg-green-100 text-green-700 border-green-200'
+      : 'bg-red-100 text-red-700 border-red-200';
   };
 
   if (loading) {
@@ -194,8 +194,8 @@ export default function OfficialUsersPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getVerificationColor(user.isVerified)}>
-                          {user.isVerified ? 'Verified' : 'Unverified'}
+                        <Badge className={getVerificationColor(user.verified)}>
+                          {user.verified ? 'Verified' : 'Unverified'}
                         </Badge>
                       </TableCell>
                       <TableCell>

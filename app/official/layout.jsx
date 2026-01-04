@@ -149,23 +149,6 @@ export default function OfficialLayout({ children }) {
             </li>
           </ul>
         </nav>
-        
-        {/* User Info at Bottom */}
-        <div className="absolute bottom-0 w-64 p-4 bg-gray-800 border-t border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-              {session?.user?.name?.charAt(0).toUpperCase() || 'O'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
-                {session?.user?.name || 'Official'}
-              </p>
-              <p className="text-xs text-gray-400 truncate">
-                {session?.user?.email}
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
       
       {/* Main content */}
